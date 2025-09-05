@@ -1,0 +1,686 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StatusPolitica {
+  Em_elaboracao
+  Vigente
+  Revogada
+}
+
+// === MODELOS EXISTENTES (ATUALIZADOS) ===
+
+model Comunidade {
+  id       String       @id @default(uuid()) @db.Uuid
+  nome     String
+  parentId String?      @map("comunidade_id") @db.Uuid
+  parent   Comunidade?  @relation("ComunidadeToComunidade", fields: [parentId], references: [id])
+  children Comunidade[] @relation("ComunidadeToComunidade")
+  papeis   Papel[]
+  kpis     KPI[]
+
+  necessidadesInformacao NecessidadeInformacao[]
+
+  createdAt       DateTime?         @default(now()) @map("created_at")
+  updatedAt       DateTime?         @map("updated_at")
+  PoliticaInterna PoliticaInterna[]
+
+  @@index([parentId])
+  @@map("comunidades")
+}
+
+model PoliticaInterna {
+  id                 String         @id @default(uuid()) @db.Uuid
+  nome               String
+  descricao          String
+  categoria          String
+  objetivo           String
+  escopo             String
+  dominioDadosId     String?        @map("dominio_dados_id") @db.Uuid
+  dominioDados       Comunidade?    @relation(fields: [dominioDadosId], references: [id])
+  responsavel        String
+  dataCriacao        DateTime       @map("data_criacao")
+  dataInicioVigencia DateTime       @map("data_inicio_vigencia")
+  dataTermino        DateTime?      @map("data_termino")
+  status             StatusPolitica
+  versao             String
+  anexosUrl          String?        @map("anexos_url")
+  relacionamento     String?
+  observacoes        String?
+
+  papeis                   Papel[]
+  colunas                  Coluna[]
+  listaClassificacoes      ListaClassificacao[]
+  listaDimensoes           ListaDimensao[]
+  dimensoesQualidade       DimensaoQualidade[]
+  classificacoesInformacao ClassificacaoInformacao[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([dominioDadosId])
+  @@map("politicas_internas")
+}
+
+model NecessidadeInformacao {
+  id                  String     @id @default(uuid()) @db.Uuid
+  questaoGerencial    String     @map("questao_gerencial")
+  elementoEstrategico String?    @map("elemento_estrategico")
+  elementoTatico      String?    @map("elemento_tatico")
+  origemQuestao       String     @map("origem_questao")
+  comunidadeId        String     @map("comunidade_id") @db.Uuid
+  comunidade          Comunidade @relation(fields: [comunidadeId], references: [id])
+
+  tabelas                 Tabela[]
+  colunas                 Coluna[]
+  tabelasQuestaoGerencial Tabela[] @relation("QuestaoGerencialTabela")
+  colunasQuestaoGerencial Coluna[] @relation("QuestaoGerencialColuna")
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([comunidadeId])
+  @@map("necessidades_informacao")
+}
+
+model Definicao {
+  id        String  @id @default(uuid()) @db.Uuid
+  termo     String
+  definicao String
+  sigla     String?
+
+  tabelas               Tabela[]
+  termosClassificacao   TermoClassificacao[]
+  documentosTabela      DocumentoTabela[]
+  documentosRepositorio DocumentoRepositorio[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@unique([termo])
+  @@map("definicoes")
+}
+
+model ListaClassificacao {
+  id         String          @id @default(uuid()) @db.Uuid
+  nome       String
+  descricao  String?
+  politicaId String          @map("politica_id") @db.Uuid
+  politica   PoliticaInterna @relation(fields: [politicaId], references: [id])
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([politicaId])
+  @@map("lista_classificacoes")
+}
+
+model Classificacao {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String
+  descricao String?
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("classificacoes")
+}
+
+model Sistema {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String
+  descricao String?
+
+  tabelas              Tabela[]
+  processosAtualizados ProcessoAtualizado[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("sistemas")
+}
+
+model Banco {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String
+  descricao String?
+
+  tabelas      Tabela[]
+  repositorios RepositorioBanco[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("bancos")
+}
+
+model Repositorio {
+  id            String   @id @default(uuid()) @db.Uuid
+  nome          String
+  ged           Boolean?
+  drive         Boolean?
+  descricao     String?
+  urlDocumentos String?  @map("url_documentos")
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("repositorios")
+}
+
+model Tabela {
+  id                 String                 @id @default(uuid()) @db.Uuid
+  nome               String                 @map("tabela")
+  bancoId            String?                @map("banco_id") @db.Uuid
+  banco              Banco?                 @relation(fields: [bancoId], references: [id])
+  sistemaId          String?                @map("sistema_id") @db.Uuid
+  sistema            Sistema?               @relation(fields: [sistemaId], references: [id])
+  termoId            String?                @map("termo_id") @db.Uuid
+  termo              Definicao?             @relation(fields: [termoId], references: [id])
+  necessidadeInfoId  String?                @map("necessidade_info_id") @db.Uuid
+  necessidadeInfo    NecessidadeInformacao? @relation(fields: [necessidadeInfoId], references: [id])
+  questaoGerencialId String                 @map("questao_gerencial_id") @db.Uuid
+  questaoGerencial   NecessidadeInformacao  @relation("QuestaoGerencialTabela", fields: [questaoGerencialId], references: [id])
+
+  colunas          Coluna[]
+  codificacoes     Codificacao[]     @relation("CodificacaoOnTabela")
+  regrasQualidade  RegraQualidade[]
+  documentosTabela DocumentoTabela[]
+  listasReferencia ListaReferencia[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@unique([bancoId, nome], map: "uq_banco_tabela")
+  @@unique([sistemaId, nome], map: "uq_sistema_tabela")
+  @@index([termoId])
+  @@index([necessidadeInfoId])
+  @@index([questaoGerencialId])
+  @@index([bancoId])
+  @@index([sistemaId])
+  @@map("tabelas")
+}
+
+model Coluna {
+  id                 String                 @id @default(uuid()) @db.Uuid
+  nome               String                 @map("coluna")
+  descricao          String?
+  obrigatorio        Boolean                @default(false)
+  unicidade          Boolean                @default(false)
+  ativo              Boolean                @default(true)
+  tabelaId           String                 @map("tabela_id") @db.Uuid
+  tabela             Tabela                 @relation(fields: [tabelaId], references: [id])
+  tipoDadosId        String?                @map("tipo_dados_id") @db.Uuid
+  tipoDados          TipoDados?             @relation(fields: [tipoDadosId], references: [id])
+  politicaInternaId  String?                @map("politica_interna_id") @db.Uuid
+  politicaInterna    PoliticaInterna?       @relation(fields: [politicaInternaId], references: [id])
+  necessidadeInfoId  String?                @map("necessidade_info_id") @db.Uuid
+  necessidadeInfo    NecessidadeInformacao? @relation(fields: [necessidadeInfoId], references: [id])
+  questaoGerencialId String                 @map("questao_gerencial_id") @db.Uuid
+  questaoGerencial   NecessidadeInformacao  @relation("QuestaoGerencialColuna", fields: [questaoGerencialId], references: [id])
+
+  codificacoes     Codificacao[]     @relation("CodificacaoOnColuna")
+  regrasQualidade  RegraQualidade[]
+  listasReferencia ListaReferencia[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@unique([tabelaId, nome], map: "uq_tabela_coluna")
+  @@index([tabelaId])
+  @@index([necessidadeInfoId])
+  @@index([questaoGerencialId])
+  @@index([politicaInternaId])
+  @@index([tipoDadosId])
+  @@map("colunas")
+}
+
+model Codificacao {
+  id   String @id @default(uuid()) @db.Uuid
+  nome String
+
+  tabelaId String? @map("tabela_id") @db.Uuid
+  tabela   Tabela? @relation("CodificacaoOnTabela", fields: [tabelaId], references: [id])
+
+  colunaId String? @map("coluna_id") @db.Uuid
+  coluna   Coluna? @relation("CodificacaoOnColuna", fields: [colunaId], references: [id])
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([tabelaId])
+  @@index([colunaId])
+  @@map("codificacoes")
+}
+
+model Documento {
+  id      String @id @default(uuid()) @db.Uuid
+  nome    String
+  caminho String
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("documentos")
+}
+
+model Processo {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String
+  descricao String?
+
+  regrasNegocio RegraNegocio[]
+  kpis          KPI[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("processos")
+}
+
+model RegraNegocio {
+  id         String   @id @default(uuid()) @db.Uuid
+  processoId String   @map("processo_id") @db.Uuid
+  processo   Processo @relation(fields: [processoId], references: [id])
+  descricao  String
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([processoId])
+  @@map("regras_negocio")
+}
+
+model ListaDimensao {
+  id         String          @id @default(uuid()) @db.Uuid
+  nome       String
+  descricao  String?
+  politicaId String          @map("politica_id") @db.Uuid
+  politica   PoliticaInterna @relation(fields: [politicaId], references: [id])
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([politicaId])
+  @@map("lista_dimensoes")
+}
+
+model Qualidade {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String
+  descricao String?
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("qualidades")
+}
+
+model ListaParte {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String
+  descricao String?
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("lista_partes")
+}
+
+model Regulacao {
+  id        String  @id @default(uuid()) @db.Uuid
+  norma     String
+  descricao String?
+
+  criticidades Criticidade[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("regulacoes")
+}
+
+model Criticidade {
+  id         String    @id @default(uuid()) @db.Uuid
+  nome       String
+  epigrafeId String    @map("epigrafe_id") @db.Uuid
+  regulacao  Regulacao @relation(fields: [epigrafeId], references: [id])
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([epigrafeId])
+  @@map("criticidades")
+}
+
+model Papel {
+  id           String     @id @default(uuid()) @db.Uuid
+  listaPapelId String     @map("lista_papel_id") @db.Uuid
+  comunidadeId String     @map("comunidade_id") @db.Uuid
+  comunidade   Comunidade @relation(fields: [comunidadeId], references: [id])
+
+  nome      String
+  descricao String?
+
+  politicaId String          @map("politica_id") @db.Uuid
+  politica   PoliticaInterna @relation(fields: [politicaId], references: [id])
+
+  documentoAtribuicao String? @map("documento_atribuicao")
+  comiteAprovadorId   String? @map("comite_aprovador_id") @db.Uuid
+  onboarding          Boolean @default(false)
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([comunidadeId])
+  @@index([politicaId])
+  @@map("papeis")
+}
+
+model KPI {
+  id           String      @id @default(uuid()) @db.Uuid
+  nome         String
+  comunidadeId String?     @map("comunidade_id") @db.Uuid
+  comunidade   Comunidade? @relation(fields: [comunidadeId], references: [id])
+  processoId   String?     @map("processo_id") @db.Uuid
+  processo     Processo?   @relation(fields: [processoId], references: [id])
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([comunidadeId])
+  @@index([processoId])
+  @@map("kpis")
+}
+
+model ProdutoDados {
+  id            String  @id @default(uuid()) @db.Uuid
+  nome          String
+  periodicidade String?
+  formato       String?
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("produtos_dados")
+}
+
+model Usuario {
+  id    String  @id @default(uuid()) @db.Uuid
+  nome  String
+  email String  @unique
+  senha String
+  ativo Boolean @default(true)
+
+  processosAtualizados ProcessoAtualizado[]
+  regrasQualidade      RegraQualidade[]
+  logsAuditoria        LogAuditoria[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("usuarios")
+}
+
+// === NOVAS ENTIDADES PARA FUNCIONALIDADES FALTANTES ===
+
+model TipoDados {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String
+  descricao String?
+
+  colunas Coluna[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("tipos_dados")
+}
+
+model ClassificacaoInformacao {
+  id         String          @id @default(uuid()) @db.Uuid
+  nome       String
+  descricao  String?
+  politicaId String          @map("politica_id") @db.Uuid
+  politica   PoliticaInterna @relation(fields: [politicaId], references: [id])
+
+  termos TermoClassificacao[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([politicaId])
+  @@map("classificacoes_informacao")
+}
+
+model TermoClassificacao {
+  id                        String                  @id @default(uuid()) @db.Uuid
+  termoId                   String                  @map("termo_id") @db.Uuid
+  termo                     Definicao               @relation(fields: [termoId], references: [id])
+  classificacaoInformacaoId String                  @map("classificacao_informacao_id") @db.Uuid
+  classificacaoInformacao   ClassificacaoInformacao @relation(fields: [classificacaoInformacaoId], references: [id])
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@unique([termoId, classificacaoInformacaoId])
+  @@index([termoId])
+  @@index([classificacaoInformacaoId])
+  @@map("termos_classificacao")
+}
+
+model RepositorioDocumento {
+  id          String @id @default(uuid()) @db.Uuid
+  nome        String
+  tipo        String
+  localizacao String
+  responsavel String
+
+  documentos       DocumentoRepositorio[]
+  bancos           RepositorioBanco[]
+  documentosTabela DocumentoTabela[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("repositorios_documentos")
+}
+
+model RepositorioBanco {
+  id            String               @id @default(uuid()) @db.Uuid
+  bancoId       String               @map("banco_id") @db.Uuid
+  banco         Banco                @relation(fields: [bancoId], references: [id])
+  repositorioId String               @map("repositorio_id") @db.Uuid
+  repositorio   RepositorioDocumento @relation(fields: [repositorioId], references: [id])
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@unique([bancoId, repositorioId])
+  @@index([bancoId])
+  @@index([repositorioId])
+  @@map("repositorios_bancos")
+}
+
+model ListaReferencia {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String
+  descricao String?
+  valores   String // JSON array de valores
+  tabelaId  String? @map("tabela_id") @db.Uuid
+  tabela    Tabela? @relation(fields: [tabelaId], references: [id])
+  colunaId  String? @map("coluna_id") @db.Uuid
+  coluna    Coluna? @relation(fields: [colunaId], references: [id])
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([tabelaId])
+  @@index([colunaId])
+  @@map("listas_referencia")
+}
+
+model DocumentoTabela {
+  id             String               @id @default(uuid()) @db.Uuid
+  termoId        String               @map("termo_id") @db.Uuid
+  termo          Definicao            @relation(fields: [termoId], references: [id])
+  repositorioId  String               @map("repositorio_id") @db.Uuid
+  repositorio    RepositorioDocumento @relation(fields: [repositorioId], references: [id])
+  caminhoArquivo String               @map("caminho_arquivo")
+  dataUpload     DateTime             @map("data_upload")
+  tabelaId       String               @map("tabela_id") @db.Uuid
+  tabela         Tabela               @relation(fields: [tabelaId], references: [id])
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([termoId])
+  @@index([repositorioId])
+  @@index([tabelaId])
+  @@map("documentos_tabela")
+}
+
+model DocumentoRepositorio {
+  id             String               @id @default(uuid()) @db.Uuid
+  termoId        String               @map("termo_id") @db.Uuid
+  termo          Definicao            @relation(fields: [termoId], references: [id])
+  repositorioId  String               @map("repositorio_id") @db.Uuid
+  repositorio    RepositorioDocumento @relation(fields: [repositorioId], references: [id])
+  caminhoArquivo String               @map("caminho_arquivo")
+  dataUpload     DateTime             @map("data_upload")
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([termoId])
+  @@index([repositorioId])
+  @@map("documentos_repositorio")
+}
+
+model DimensaoQualidade {
+  id         String          @id @default(uuid()) @db.Uuid
+  nome       String
+  descricao  String?
+  politicaId String          @map("politica_id") @db.Uuid
+  politica   PoliticaInterna @relation(fields: [politicaId], references: [id])
+
+  regrasQualidade RegraQualidade[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([politicaId])
+  @@map("dimensoes_qualidade")
+}
+
+model RegraQualidade {
+  id            String            @id @default(uuid()) @db.Uuid
+  descricao     String
+  dimensaoId    String            @map("dimensao_id") @db.Uuid
+  dimensao      DimensaoQualidade @relation(fields: [dimensaoId], references: [id])
+  tabelaId      String?           @map("tabela_id") @db.Uuid
+  tabela        Tabela?           @relation(fields: [tabelaId], references: [id])
+  colunaId      String?           @map("coluna_id") @db.Uuid
+  coluna        Coluna?           @relation(fields: [colunaId], references: [id])
+  responsavelId String            @map("responsavel_id") @db.Uuid
+  responsavel   Usuario           @relation(fields: [responsavelId], references: [id])
+
+  criticidadesRegulatorias CriticidadeRegulatoria[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([dimensaoId])
+  @@index([tabelaId])
+  @@index([colunaId])
+  @@index([responsavelId])
+  @@map("regras_qualidade")
+}
+
+model ParteEnvolvida {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String
+  descricao String?
+  contato   String
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("partes_envolvidas")
+}
+
+model RegulacaoCompleta {
+  id         String    @id @default(uuid()) @db.Uuid
+  epigrafe   String
+  orgao      String
+  descricao  String
+  dataInicio DateTime  @map("data_inicio")
+  dataFim    DateTime? @map("data_fim")
+
+  criticidadesRegulatorias CriticidadeRegulatoria[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@map("regulacoes_completas")
+}
+
+model CriticidadeRegulatoria {
+  id               String            @id @default(uuid()) @db.Uuid
+  regulacaoId      String            @map("regulacao_id") @db.Uuid
+  regulacao        RegulacaoCompleta @relation(fields: [regulacaoId], references: [id])
+  regraQualidadeId String            @map("regra_qualidade_id") @db.Uuid
+  regraQualidade   RegraQualidade    @relation(fields: [regraQualidadeId], references: [id])
+  grauCriticidade  String            @map("grau_criticidade")
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@unique([regulacaoId, regraQualidadeId])
+  @@index([regulacaoId])
+  @@index([regraQualidadeId])
+  @@map("criticidades_regulatorias")
+}
+
+// Processo atualizado com relacionamentos obrigatórios
+model ProcessoAtualizado {
+  id        String  @id @default(uuid()) @db.Uuid
+  nome      String
+  descricao String?
+  ativo     Boolean @default(true)
+  sistemaId String  @map("sistema_id") @db.Uuid
+  sistema   Sistema @relation(fields: [sistemaId], references: [id])
+  usuarioId String  @map("usuario_id") @db.Uuid
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@index([sistemaId])
+  @@index([usuarioId])
+  @@map("processos_atualizados")
+}
+
+// Logs de auditoria para todas as entidades
+model LogAuditoria {
+  id          String   @id @default(uuid()) @db.Uuid
+  entidade    String // Nome da tabela/modelo
+  entidadeId  String   @map("entidade_id") @db.Uuid
+  operacao    String // CREATE, UPDATE, DELETE
+  dadosAntes  String?  @map("dados_antes") // JSON dos dados antes da alteração
+  dadosDepois String?  @map("dados_depois") // JSON dos dados depois da alteração
+  usuarioId   String   @map("usuario_id") @db.Uuid
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
+  timestamp   DateTime @default(now())
+
+  @@index([entidade])
+  @@index([entidadeId])
+  @@index([usuarioId])
+  @@index([timestamp])
+  @@map("logs_auditoria")
+}

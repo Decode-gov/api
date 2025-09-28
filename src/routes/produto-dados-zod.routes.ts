@@ -1,44 +1,42 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
-import { NecessidadeInformacaoController } from '../controllers/necessidade-informacao.controller.js'
+import { ProdutoDadosController } from '../controllers/produto-dados.controller.js'
 
-export async function necessidadeZodRoutes(fastify: FastifyInstance) {
+export async function produtoDadosRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
-  const controller = new NecessidadeInformacaoController(app.prisma)
+  const controller = new ProdutoDadosController(app.prisma)
 
   // Schemas Zod para validação interna
-  const CreateNecessidadeZod = z.object({
+  const CreateProdutoDadosZod = z.object({
     nome: z.string().min(1, 'Nome é obrigatório'),
-    ativo: z.boolean().default(true)
+    descricao: z.string().min(1, 'Descrição é obrigatória')
   })
 
-  const UpdateNecessidadeZod = z.object({
+  const UpdateProdutoDadosZod = z.object({
     nome: z.string().min(1).optional(),
-    ativo: z.boolean().optional()
+    descricao: z.string().min(1).optional()
   })
 
-  // GET /necessidades-informacao - Listar necessidades
+  // GET /produtos-dados - Listar produtos
   app.get('/', {
     schema: {
-      description: 'Listar todas as necessidades de informação do sistema',
-      tags: ['Necessidades de Informação'],
-      summary: 'Listar necessidades de informação',
+      description: 'Listar todos os produtos de dados do sistema',
+      tags: ['Produtos de Dados'],
+      summary: 'Listar produtos de dados',
       querystring: {
         type: 'object',
         properties: {
           skip: { type: 'integer', minimum: 0, default: 0 },
           take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' },
-          ativo: { type: 'boolean', description: 'Filtrar por status ativo' }
+          orderBy: { type: 'string' }
         }
       },
       response: {
         200: {
-          description: 'Lista de necessidades de informação',
+          description: 'Lista de produtos de dados',
           type: 'object',
           properties: {
-            message: { type: 'string' },
             data: {
               type: 'array',
               items: {
@@ -46,7 +44,7 @@ export async function necessidadeZodRoutes(fastify: FastifyInstance) {
                 properties: {
                   id: { type: 'string', format: 'uuid' },
                   nome: { type: 'string' },
-                  ativo: { type: 'boolean' },
+                  descricao: { type: 'string' },
                   createdAt: { type: 'string', format: 'date-time' },
                   updatedAt: { type: 'string', format: 'date-time' }
                 }
@@ -58,15 +56,15 @@ export async function necessidadeZodRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     reply.status(200)
-    return controller.findMany(request, reply)
+    return controller.findMany(request as any, reply)
   })
 
-  // GET /necessidades-informacao/:id - Buscar necessidade por ID
+  // GET /produtos-dados/:id - Buscar produto por ID
   app.get('/:id', {
     schema: {
-      description: 'Buscar necessidade de informação específica por ID',
-      tags: ['Necessidades de Informação'],
-      summary: 'Buscar necessidade por ID',
+      description: 'Buscar produto de dados por ID',
+      tags: ['Produtos de Dados'],
+      summary: 'Buscar produto por ID',
       params: {
         type: 'object',
         properties: {
@@ -76,16 +74,15 @@ export async function necessidadeZodRoutes(fastify: FastifyInstance) {
       },
       response: {
         200: {
-          description: 'Necessidade de informação encontrada',
+          description: 'Produto de dados encontrado',
           type: 'object',
           properties: {
-            message: { type: 'string' },
             data: {
               type: 'object',
               properties: {
                 id: { type: 'string', format: 'uuid' },
                 nome: { type: 'string' },
-                ativo: { type: 'boolean' },
+                descricao: { type: 'string' },
                 createdAt: { type: 'string', format: 'date-time' },
                 updatedAt: { type: 'string', format: 'date-time' }
               }
@@ -93,7 +90,7 @@ export async function necessidadeZodRoutes(fastify: FastifyInstance) {
           }
         },
         404: {
-          description: 'Necessidade de informação não encontrada',
+          description: 'Produto de dados não encontrado',
           type: 'object',
           properties: {
             error: { type: 'string' },
@@ -104,35 +101,34 @@ export async function necessidadeZodRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     reply.status(200)
-    return controller.findById(request, reply)
+    return controller.findById(request as any, reply)
   })
 
-  // POST /necessidades-informacao - Criar necessidade
+  // POST /produtos-dados - Criar novo produto
   app.post('/', {
     schema: {
-      description: 'Criar nova necessidade de informação no sistema',
-      tags: ['Necessidades de Informação'],
-      summary: 'Criar necessidade de informação',
+      description: 'Criar um novo produto de dados no sistema',
+      tags: ['Produtos de Dados'],
+      summary: 'Criar produto de dados',
       body: {
         type: 'object',
         properties: {
-          nome: { type: 'string', minLength: 1, description: 'Nome da necessidade de informação' },
-          ativo: { type: 'boolean', default: true, description: 'Se a necessidade está ativa' }
+          nome: { type: 'string', minLength: 1 },
+          descricao: { type: 'string', minLength: 1 }
         },
-        required: ['nome']
+        required: ['nome', 'descricao']
       },
       response: {
         201: {
-          description: 'Necessidade de informação criada com sucesso',
+          description: 'Produto de dados criado com sucesso',
           type: 'object',
           properties: {
-            message: { type: 'string' },
             data: {
               type: 'object',
               properties: {
                 id: { type: 'string', format: 'uuid' },
                 nome: { type: 'string' },
-                ativo: { type: 'boolean' },
+                descricao: { type: 'string' },
                 createdAt: { type: 'string', format: 'date-time' },
                 updatedAt: { type: 'string', format: 'date-time' }
               }
@@ -140,7 +136,7 @@ export async function necessidadeZodRoutes(fastify: FastifyInstance) {
           }
         },
         400: {
-          description: 'Erro de validação',
+          description: 'Dados inválidos',
           type: 'object',
           properties: {
             error: { type: 'string' },
@@ -150,16 +146,19 @@ export async function necessidadeZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    const validatedData = CreateNecessidadeZod.parse(request.body)
-    return controller.create(request, reply)
+    const validation = CreateProdutoDadosZod.safeParse(request.body)
+    if (!validation.success) {
+      return reply.badRequest('Dados de entrada inválidos')
+    }
+    return controller.create(request as any, reply)
   })
 
-  // PUT /necessidades-informacao/:id - Atualizar necessidade
+  // PUT /produtos-dados/:id - Atualizar produto
   app.put('/:id', {
     schema: {
-      description: 'Atualizar dados de uma necessidade de informação específica',
-      tags: ['Necessidades de Informação'],
-      summary: 'Atualizar necessidade de informação',
+      description: 'Atualizar um produto de dados existente',
+      tags: ['Produtos de Dados'],
+      summary: 'Atualizar produto de dados',
       params: {
         type: 'object',
         properties: {
@@ -171,28 +170,28 @@ export async function necessidadeZodRoutes(fastify: FastifyInstance) {
         type: 'object',
         properties: {
           nome: { type: 'string', minLength: 1 },
-          ativo: { type: 'boolean' }
+          descricao: { type: 'string', minLength: 1 }
         }
       },
       response: {
         200: {
-          description: 'Necessidade de informação atualizada com sucesso',
+          description: 'Produto de dados atualizado com sucesso',
           type: 'object',
           properties: {
-            message: { type: 'string' },
             data: {
               type: 'object',
               properties: {
                 id: { type: 'string', format: 'uuid' },
                 nome: { type: 'string' },
-                ativo: { type: 'boolean' },
+                descricao: { type: 'string' },
+                createdAt: { type: 'string', format: 'date-time' },
                 updatedAt: { type: 'string', format: 'date-time' }
               }
             }
           }
         },
         404: {
-          description: 'Necessidade de informação não encontrada',
+          description: 'Produto de dados não encontrado',
           type: 'object',
           properties: {
             error: { type: 'string' },
@@ -202,16 +201,19 @@ export async function necessidadeZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    const validatedData = UpdateNecessidadeZod.parse(request.body)
-    return controller.update(request, reply)
+    const validation = UpdateProdutoDadosZod.safeParse(request.body)
+    if (!validation.success) {
+      return reply.badRequest('Dados de entrada inválidos')
+    }
+    return controller.update(request as any, reply)
   })
 
-  // DELETE /necessidades-informacao/:id - Deletar necessidade
+  // DELETE /produtos-dados/:id - Deletar produto
   app.delete('/:id', {
     schema: {
-      description: 'Deletar uma necessidade de informação do sistema',
-      tags: ['Necessidades de Informação'],
-      summary: 'Deletar necessidade de informação',
+      description: 'Deletar um produto de dados',
+      tags: ['Produtos de Dados'],
+      summary: 'Deletar produto de dados',
       params: {
         type: 'object',
         properties: {
@@ -221,14 +223,14 @@ export async function necessidadeZodRoutes(fastify: FastifyInstance) {
       },
       response: {
         200: {
-          description: 'Necessidade de informação deletada com sucesso',
+          description: 'Produto de dados deletado com sucesso',
           type: 'object',
           properties: {
             message: { type: 'string' }
           }
         },
         404: {
-          description: 'Necessidade de informação não encontrada',
+          description: 'Produto de dados não encontrado',
           type: 'object',
           properties: {
             error: { type: 'string' },

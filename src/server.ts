@@ -1,8 +1,8 @@
 import Fastify from 'fastify'
-import sensible from '@fastify/sensible'
 import cors from '@fastify/cors'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
+import cookie from '@fastify/cookie'
 import {
   ZodTypeProvider,
   serializerCompiler,
@@ -13,12 +13,12 @@ import { registerAllRoutes } from './routes/index.js'
 import { AuditMiddleware } from './middleware/audit.middleware.js'
 
 const app = Fastify({
-  logger: true
-}).withTypeProvider<ZodTypeProvider>()
+  logger: process.env.NODE_ENV !== 'production'
+}).withTypeProvider<ZodTypeProvider>();
 
 // Add schema validator and serializer
-app.setValidatorCompiler(validatorCompiler)
-app.setSerializerCompiler(serializerCompiler)
+app.setValidatorCompiler(validatorCompiler);
+app.setSerializerCompiler(serializerCompiler);
 
 // Register Swagger
 await app.register(swagger, {
@@ -26,7 +26,7 @@ await app.register(swagger, {
     openapi: '3.0.0',
     info: {
       title: 'API de Gestão de dados governamentais - DECODE-GOV',
-      description: 'API completa para gestão de dados governamentais com validação Zod.',
+      description: 'API completa para gestão de dados governamentais.',
       version: '1.0.0',
     },
     servers: [
@@ -55,21 +55,23 @@ await app.register(swagger, {
 })
 
 await app.register(swaggerUi, {
-  routePrefix: '/',
-  uiConfig: {
-    docExpansion: 'list',
-    deepLinking: false
-  },
-  staticCSP: true,
-  transformStaticCSP: (header) => header,
-  transformSpecification: (swaggerObject) => {
-    return swaggerObject
-  },
-  transformSpecificationClone: true
+  routePrefix: '/'
 })
 
-await app.register(sensible)
-await app.register(cors, { origin: true })
+await app.register(
+  cors,
+  {
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  }
+)
+
+// Registrar plugin de cookies
+await app.register(cookie, {
+  secret: process.env.COOKIE_SECRET || 'default-secret-key-change-in-production'
+})
+
 await app.register(prismaPlugin)
 
 // Register audit middleware

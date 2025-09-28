@@ -41,7 +41,7 @@ export class AuditMiddleware {
             request.auditData.dadosAntes = dadosAntes
           } catch (error) {
             // Log error but don't fail the request
-            console.warn('Erro ao capturar dados para auditoria:', error)
+            // Erro silencioso para não impactar a request
           }
         }
       }
@@ -53,8 +53,8 @@ export class AuditMiddleware {
         try {
           await auditMiddleware.registrarAuditoria(request, reply, payload)
         } catch (error) {
-          console.error('Erro ao registrar auditoria:', error)
           // Não falhar a request por causa da auditoria
+          // Erro silencioso na auditoria
         }
       }
     })
@@ -128,7 +128,7 @@ export class AuditMiddleware {
         where: { id: entityId }
       })
     } catch (error) {
-      console.warn(`Erro ao buscar dados de ${entity}:`, error)
+      // Erro silencioso ao buscar dados para auditoria
       return null
     }
   }

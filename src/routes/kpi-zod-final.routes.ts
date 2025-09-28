@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { KpiController } from '../controllers/kpi.controller.js'
+import { authMiddleware } from '../middleware/auth.js'
 
 export async function kpiZodFinalRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -10,18 +11,19 @@ export async function kpiZodFinalRoutes(fastify: FastifyInstance) {
   // Schemas Zod para validação interna
   const CreateKpiZod = z.object({
     nome: z.string().min(1, 'Nome é obrigatório'),
-    comunidadeId: z.string().uuid().optional(),
-    processoId: z.string().uuid().optional()
+    comunidadeId: z.string().optional(),
+    processoId: z.string().optional()
   })
 
   const UpdateKpiZod = z.object({
     nome: z.string().min(1).optional(),
-    comunidadeId: z.string().uuid().optional(),
-    processoId: z.string().uuid().optional()
+    comunidadeId: z.string().optional(),
+    processoId: z.string().optional()
   })
 
   // GET /kpis - Listar KPIs
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar todos os KPIs do sistema com relacionamentos',
       tags: ['KPIs'],
@@ -81,6 +83,7 @@ export async function kpiZodFinalRoutes(fastify: FastifyInstance) {
 
   // GET /kpis/:id - Buscar KPI por ID
   app.get('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Buscar KPI específico por ID com relacionamentos',
       tags: ['KPIs'],
@@ -142,6 +145,7 @@ export async function kpiZodFinalRoutes(fastify: FastifyInstance) {
 
   // POST /kpis - Criar KPI
   app.post('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Criar novo KPI no sistema',
       tags: ['KPIs'],
@@ -191,6 +195,7 @@ export async function kpiZodFinalRoutes(fastify: FastifyInstance) {
 
   // PUT /kpis/:id - Atualizar KPI
   app.put('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Atualizar dados de um KPI específico',
       tags: ['KPIs'],
@@ -245,6 +250,7 @@ export async function kpiZodFinalRoutes(fastify: FastifyInstance) {
 
   // DELETE /kpis/:id - Deletar KPI
   app.delete('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Deletar um KPI do sistema',
       tags: ['KPIs'],
@@ -276,3 +282,4 @@ export async function kpiZodFinalRoutes(fastify: FastifyInstance) {
     }
   }, controller.delete.bind(controller))
 }
+

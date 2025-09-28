@@ -16,11 +16,14 @@ export class PapelController extends BaseController {
         take,
         orderBy,
         include: {
-          comunidade: true,
           politica: true
         }
       })
 
+      reply.send({
+        message: 'Papéis encontrados',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -35,15 +38,18 @@ export class PapelController extends BaseController {
       const data = await this.prisma.papel.findUnique({
         where: { id: validId },
         include: {
-          comunidade: true,
           politica: true
         }
       })
 
       if (!data) {
-        return reply.notFound('Papel não encontrado')
+        return (reply as any).notFound('Papel não encontrado')
       }
 
+      reply.send({
+        message: 'Papel encontrado',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -57,12 +63,14 @@ export class PapelController extends BaseController {
       const data = await this.prisma.papel.create({
         data: body,
         include: {
-          comunidade: true,
           politica: true
         }
       })
 
-      reply.code(201)
+      reply.status(201).send({
+        message: 'Papel criado com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -79,11 +87,14 @@ export class PapelController extends BaseController {
         where: { id: validId },
         data: body,
         include: {
-          comunidade: true,
           politica: true
         }
       })
 
+      reply.send({
+        message: 'Papel atualizado com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -99,6 +110,10 @@ export class PapelController extends BaseController {
         where: { id: validId }
       })
 
+      reply.send({
+        message: 'Papel excluído com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)

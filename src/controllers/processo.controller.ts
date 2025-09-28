@@ -21,6 +21,10 @@ export class ProcessoController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Processos encontrados',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -39,6 +43,10 @@ export class ProcessoController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Processo encontrado',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -60,6 +68,10 @@ export class ProcessoController extends BaseController {
         }
       })
 
+      reply.status(201).send({
+        message: 'Processo criado com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -83,6 +95,10 @@ export class ProcessoController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Processo atualizado com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -97,6 +113,10 @@ export class ProcessoController extends BaseController {
         where: { id }
       })
 
+      reply.send({
+        message: 'Processo excluído com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)

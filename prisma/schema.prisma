@@ -13,6 +13,43 @@ enum StatusPolitica {
   Revogada
 }
 
+enum EscopoPolitica {
+  Seguranca
+  Qualidade
+  Governanca
+  Outro
+}
+
+enum CategoriaSeguranca {
+  Publico
+  Interno
+  Confidencial
+  Restrito
+}
+
+enum PeriodicidadeKPI {
+  Diario
+  Semanal
+  Mensal
+  Trimestral
+  Anual
+}
+
+enum TipoEntidadeDocumento {
+  Politica
+  Papel
+  Atribuicao
+  Processo
+  Termo
+  KPI
+  RegraNegocio
+  RegraQualidade
+  Dominio
+  Sistema
+  Tabela
+  Coluna
+}
+
 // === MODELOS EXISTENTES (ATUALIZADOS) ===
 
 model Comunidade {
@@ -25,6 +62,7 @@ model Comunidade {
   kpis     KPI[]
 
   necessidadesInformacao NecessidadeInformacao[]
+  atribuicoesPapel       AtribuicaoPapelDominio[]
 
   createdAt       DateTime?         @default(now()) @map("created_at")
   updatedAt       DateTime?         @map("updated_at")
@@ -269,6 +307,31 @@ model Documento {
   @@map("documentos")
 }
 
+// Func. 12 - Sistema de Documentos Polimórfico
+model DocumentoPolimorfico {
+  id             String                @id @default(uuid()) @db.Uuid
+  entidadeId     String                @map("entidade_id") @db.Uuid
+  tipoEntidade   TipoEntidadeDocumento @map("tipo_entidade")
+  nomeArquivo    String                @map("nome_arquivo")
+  tamanhoBytes   BigInt                @map("tamanho_bytes")
+  tipoArquivo    String                @map("tipo_arquivo") // MIME type
+  caminhoArquivo String                @map("caminho_arquivo")
+  descricao      String?
+  metadados      String? // JSON para metadados extras
+  checksum       String? // Hash do arquivo para integridade
+  versao         Int                   @default(1)
+  ativo          Boolean               @default(true)
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@unique([entidadeId, tipoEntidade, nomeArquivo, versao])
+  @@index([entidadeId])
+  @@index([tipoEntidade])
+  @@index([ativo])
+  @@map("documentos_polimorficos")
+}
+
 model Processo {
   id        String  @id @default(uuid()) @db.Uuid
   nome      String
@@ -374,6 +437,9 @@ model Papel {
   comiteAprovadorId   String? @map("comite_aprovador_id") @db.Uuid
   onboarding          Boolean @default(false)
 
+  // Relacionamentos  
+  atribuicoesDominio AtribuicaoPapelDominio[]
+
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
@@ -428,6 +494,33 @@ model Usuario {
 }
 
 // === NOVAS ENTIDADES PARA FUNCIONALIDADES FALTANTES ===
+
+// Func. 5 - Atribuição de Papel a Domínio (tabela de junção com metadados)
+model AtribuicaoPapelDominio {
+  id        String     @id @default(uuid()) @db.Uuid
+  papelId   String     @map("papel_id") @db.Uuid
+  papel     Papel      @relation(fields: [papelId], references: [id], onDelete: Cascade)
+  dominioId String     @map("dominio_id") @db.Uuid
+  dominio   Comunidade @relation(fields: [dominioId], references: [id], onDelete: Cascade)
+
+  // Metadados específicos da atribuição
+  tipoEntidade        TipoEntidadeDocumento // Tipo da entidade (Dominio, Sistema, etc)
+  documentoAtribuicao String?               @map("documento_atribuicao")
+  comiteAprovadorId   String?               @map("comite_aprovador_id") @db.Uuid
+  onboarding          Boolean               @default(false)
+  dataInicioVigencia  DateTime              @default(now()) @map("data_inicio_vigencia")
+  dataTermino         DateTime?             @map("data_termino")
+  observacoes         String?
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  @@unique([papelId, dominioId])
+  @@index([papelId])
+  @@index([dominioId])
+  @@index([tipoEntidade])
+  @@map("atribuicoes_papel_dominio")
+}
 
 model TipoDados {
   id        String  @id @default(uuid()) @db.Uuid

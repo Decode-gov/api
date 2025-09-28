@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { ProcessoController } from '../controllers/processo.controller.js'
+import { authMiddleware } from '../middleware/auth.js'
 
 export async function processoZodFinalRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -20,12 +21,13 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
     nome: z.string().min(1).optional(),
     descricao: z.string().optional(),
     ativo: z.boolean().optional(),
-    sistemaId: z.string().uuid().optional(),
-    usuarioId: z.string().uuid().optional()
+    sistemaId: z.string().optional(),
+    usuarioId: z.string().optional()
   })
 
   // GET /processos - Listar processos
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar todos os processos do sistema com relacionamentos',
       tags: ['Processos'],
@@ -89,6 +91,7 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
 
   // GET /processos/:id - Buscar processo por ID
   app.get('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Buscar processo específico por ID com relacionamentos',
       tags: ['Processos'],
@@ -153,6 +156,7 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
 
   // POST /processos - Criar processo
   app.post('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Criar novo processo no sistema',
       tags: ['Processos'],
@@ -206,6 +210,7 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
 
   // PUT /processos/:id - Atualizar processo
   app.put('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Atualizar dados de um processo específico',
       tags: ['Processos'],
@@ -264,6 +269,7 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
 
   // DELETE /processos/:id - Deletar processo
   app.delete('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Deletar um processo do sistema',
       tags: ['Processos'],
@@ -295,3 +301,4 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
     }
   }, controller.delete.bind(controller))
 }
+

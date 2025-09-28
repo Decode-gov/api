@@ -2,32 +2,15 @@ import type { FastifyRequest, FastifyReply } from 'fastify'
 import type { PrismaClient } from '@prisma/client'
 import { BaseController } from './base.controller.js'
 
-interface TipoDadosParams {
-  id: string
-}
-
-interface TipoDadosQuery {
-  skip?: number
-  take?: number
-  orderBy?: string
-  nome?: string
-}
-
-interface TipoDadosBody {
-  nome: string
-  descricao?: string
-}
-
 export class TipoDadosController extends BaseController {
   constructor(prisma: PrismaClient) {
     super(prisma, 'tipoDados')
   }
 
-  async findMany(request: FastifyRequest<{ Querystring: TipoDadosQuery }>, reply: FastifyReply) {
+  async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip = 0, take = 10, orderBy = 'nome', nome } = request.query
-
-      this.validatePagination({ skip, take })
+      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const { nome, categoria, permiteNulo } = request.query as any
 
       // Construir filtros dinâmicos
       const where: any = {}
@@ -37,158 +20,144 @@ export class TipoDadosController extends BaseController {
           mode: 'insensitive'
         }
       }
+      if (categoria) {
+        where.categoria = categoria
+      }
+      if (permiteNulo !== undefined) {
+        where.permiteNulo = permiteNulo
+      }
 
-      const tipos = await this.prisma.tipoDados.findMany({
+      const data = await this.prisma.tipoDados.findMany({
         skip,
         take,
         where,
-        orderBy: { [orderBy]: 'asc' },
+        orderBy,
         include: {
           colunas: {
             select: {
               id: true,
               nome: true,
-              tabela: {
-                select: {
-                  id: true,
-                  nome: true
-                }
-              }
+              tabelaId: true
             }
           }
         }
       })
 
-      // Contar total para paginação
-      const total = await this.prisma.tipoDados.count({ where })
-
-      return reply.status(200).send({
+      reply.send({
         message: 'Tipos de dados encontrados',
-        data: tipos,
-        pagination: {
-          total,
-          skip,
-          take,
-          hasMore: skip + take < total
-        }
+        data
       })
+      return { data }
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async findById(request: FastifyRequest<{ Params: TipoDadosParams }>, reply: FastifyReply) {
+  async findById(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params
-      this.validateId(id)
+      const { id } = request.params as { id: string }
+      const validId = this.validateId(id)
 
-      const tipo = await this.prisma.tipoDados.findUnique({
-        where: { id },
+      const data = await this.prisma.tipoDados.findUnique({
+        where: { id: validId },
         include: {
           colunas: {
             select: {
               id: true,
               nome: true,
-              tabela: {
-                select: {
-                  id: true,
-                  nome: true
-                }
-              }
+              tabelaId: true
             }
           }
         }
       })
 
-      if (!tipo) {
-        return reply.status(404).send({
-          error: 'NotFound',
-          message: 'Tipo de dados não encontrado'
-        })
+      if (!data) {
+        return (reply as any).notFound('Tipo de dados não encontrado')
       }
 
-      return reply.status(200).send({
+      reply.send({
         message: 'Tipo de dados encontrado',
-        data: tipo
+        data
       })
+      return { data }
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async create(request: FastifyRequest<{ Body: TipoDadosBody }>, reply: FastifyReply) {
+  async create(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { nome, descricao } = request.body
+      const body = request.body as any
 
-      const tipo = await this.prisma.tipoDados.create({
-        data: {
-          nome,
-          descricao
+      const data = await this.prisma.tipoDados.create({
+        data: body,
+        include: {
+          colunas: {
+            select: {
+              id: true,
+              nome: true,
+              tabelaId: true
+            }
+          }
         }
       })
 
-      return reply.status(201).send({
+      reply.code(201).send({
         message: 'Tipo de dados criado com sucesso',
-        data: tipo
+        data
       })
+      return { data }
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async update(request: FastifyRequest<{ Params: TipoDadosParams; Body: Partial<TipoDadosBody> }>, reply: FastifyReply) {
+  async update(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params
-      this.validateId(id)
+      const { id } = request.params as { id: string }
+      const validId = this.validateId(id)
+      const body = request.body as any
 
-      const updateData = { ...request.body }
-      if (Object.keys(updateData).length === 0) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: 'Nenhum campo fornecido para atualização'
-        })
-      }
-
-      const tipo = await this.prisma.tipoDados.update({
-        where: { id },
-        data: updateData
+      const data = await this.prisma.tipoDados.update({
+        where: { id: validId },
+        data: body,
+        include: {
+          colunas: {
+            select: {
+              id: true,
+              nome: true,
+              tabelaId: true
+            }
+          }
+        }
       })
 
-      return reply.status(200).send({
+      reply.send({
         message: 'Tipo de dados atualizado com sucesso',
-        data: tipo
+        data
       })
+      return { data }
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async delete(request: FastifyRequest<{ Params: TipoDadosParams }>, reply: FastifyReply) {
+  async delete(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params
-      this.validateId(id)
+      const { id } = request.params as { id: string }
+      const validId = this.validateId(id)
 
-      // Verificar se o tipo de dados está sendo usado por alguma coluna
-      const colunasUsandoTipo = await this.prisma.coluna.count({
-        where: { tipoDadosId: id }
+      const data = await this.prisma.tipoDados.delete({
+        where: { id: validId }
       })
 
-      if (colunasUsandoTipo > 0) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: `Não é possível deletar o tipo de dados. Ele está sendo usado por ${colunasUsandoTipo} coluna(s).`
-        })
-      }
-
-      await this.prisma.tipoDados.delete({
-        where: { id }
+      reply.send({
+        message: 'Tipo de dados excluído com sucesso',
+        data
       })
-
-      return reply.status(200).send({
-        message: 'Tipo de dados deletado com sucesso'
-      })
+      return { data }
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 }

@@ -227,7 +227,7 @@ export class ListaReferenciaController extends BaseController {
 
       // Verificar se houve duplicatas removidas
       if (valoresString.length !== valoresUnicos.length) {
-        console.warn('Valores duplicados foram removidos automaticamente')
+        // Valores duplicados foram removidos automaticamente
       }
 
       return {

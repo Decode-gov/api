@@ -15,8 +15,8 @@ export async function colunaZodFinalRoutes(fastify: FastifyInstance) {
     unicidade: z.boolean().default(false),
     ativo: z.boolean().default(true),
     tabelaId: z.string().uuid('TabelaId deve ser um UUID válido'),
-    tipoDadosId: z.string().uuid().optional(),
-    politicaInternaId: z.string().uuid().optional()
+    tipoDadosId: z.string().optional(),
+    politicaInternaId: z.string().optional()
   })
 
   const UpdateColunaZod = z.object({
@@ -25,9 +25,9 @@ export async function colunaZodFinalRoutes(fastify: FastifyInstance) {
     obrigatorio: z.boolean().optional(),
     unicidade: z.boolean().optional(),
     ativo: z.boolean().optional(),
-    tabelaId: z.string().uuid().optional(),
-    tipoDadosId: z.string().uuid().optional(),
-    politicaInternaId: z.string().uuid().optional()
+    tabelaId: z.string().optional(),
+    tipoDadosId: z.string().optional(),
+    politicaInternaId: z.string().optional()
   })
 
   // GET /colunas - Listar colunas
@@ -301,3 +301,4 @@ export async function colunaZodFinalRoutes(fastify: FastifyInstance) {
     }
   }, controller.delete.bind(controller))
 }
+

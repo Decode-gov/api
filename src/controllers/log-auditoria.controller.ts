@@ -355,8 +355,8 @@ export class LogAuditoriaController extends BaseController {
         }
       })
     } catch (error) {
-      console.error('Erro ao criar log de auditoria:', error)
       // Não propagar o erro para não afetar a operação principal
+      // Erro silencioso na criação do log de auditoria
     }
   }
 }

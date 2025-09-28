@@ -1,15 +1,14 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
-import { BaseController } from './base.controller'
+import { BaseController } from './base.controller.js'
 import {
   LoginRequest,
   RegisterRequest,
   ChangePasswordRequest,
-  UpdateUserRequest,
-  LoginResponse
-} from '../types/auth'
-import { generateToken } from '../middleware/auth'
+  UpdateUserRequest
+} from '../types/auth.js'
+import { generateToken } from '../middleware/auth.js'
 
 export class UsuarioController extends BaseController {
   constructor(prisma: PrismaClient) {
@@ -97,19 +96,17 @@ export class UsuarioController extends BaseController {
         email: user.email
       })
 
-      const response: LoginResponse = {
-        user: {
-          id: user.id,
-          nome: user.nome,
-          email: user.email,
-          ativo: user.ativo
-        },
-        token
-      }
+      // Salvar token em cookie seguro
+      reply.setCookie('authToken', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000, // 24 horas em millisegundos
+        path: '/'
+      })
 
-      reply.send({
+      reply.status(200).send({
         message: 'Login realizado com sucesso',
-        data: response
       })
     } catch (error) {
       return this.handleError(reply, error)
@@ -117,8 +114,11 @@ export class UsuarioController extends BaseController {
   }
 
   async logout(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-    // Para logout, simplesmente retornamos sucesso
-    // O cliente deve remover o token do storage
+    // Remover cookie de autenticação
+    reply.clearCookie('authToken', {
+      path: '/'
+    })
+
     reply.send({
       message: 'Logout realizado com sucesso'
     })
@@ -277,23 +277,17 @@ export class UsuarioController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Usuários encontrados',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
   }
 
-  async findAll(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-    try {
-      const result = await this.findMany(request, reply)
-      reply.send({
-        message: 'Usuários encontrados',
-        ...result
-      })
-    } catch (error) {
-      return this.handleError(reply, error)
-    }
-  }
+
 
   async findById(request: FastifyRequest, reply: FastifyReply): Promise<any> {
     try {
@@ -318,6 +312,10 @@ export class UsuarioController extends BaseController {
         })
       }
 
+      reply.send({
+        message: 'Usuário encontrado',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -364,8 +362,6 @@ export class UsuarioController extends BaseController {
         message: 'Usuário criado com sucesso',
         data
       })
-
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -410,7 +406,6 @@ export class UsuarioController extends BaseController {
         message: 'Usuário atualizado com sucesso',
         data
       })
-
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -435,7 +430,6 @@ export class UsuarioController extends BaseController {
         message: 'Usuário excluído com sucesso',
         data
       })
-
       return { data }
     } catch (error) {
       return this.handleError(reply, error)

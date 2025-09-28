@@ -1,22 +1,22 @@
 import { z } from 'zod'
 
-// Schema comum para ID UUID
+// Schema comum para ID UUID usando z.uuid() do Zod v4
 export const IdSchema = z.object({
-  id: z.string().uuid()
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único')
 })
 
-// Schema comum para paginação
+// Schema comum para paginação com coerção de tipos
 export const PaginationSchema = z.object({
-  skip: z.number().int().min(0).default(0),
-  take: z.number().int().min(1).max(100).default(10),
-  orderBy: z.string().optional()
+  skip: z.coerce.number().int().min(0, { message: 'Skip deve ser >= 0' }).default(0).describe('Número de registros para pular'),
+  take: z.coerce.number().int().min(1, { message: 'Take deve ser >= 1' }).max(100, { message: 'Take deve ser <= 100' }).default(10).describe('Número de registros para retornar'),
+  orderBy: z.string().optional().describe('Campo para ordenação')
 })
 
-// Schema comum para timestamps
-export const TimestampsSchema = {
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime()
-}
+// Schema comum para timestamps usando z.iso.datetime() do Zod v4
+export const TimestampsSchema = z.object({
+  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data e hora de criação'),
+  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data e hora da última atualização')
+})
 
 // Schema comum para respostas de erro
 export const ErrorSchema = z.object({

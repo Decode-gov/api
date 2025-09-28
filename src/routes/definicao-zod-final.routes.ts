@@ -256,3 +256,4 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
     }
   }, controller.delete.bind(controller))
 }
+

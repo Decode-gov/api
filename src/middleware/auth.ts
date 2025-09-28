@@ -9,19 +9,22 @@ export async function authMiddleware(
   reply: FastifyReply
 ): Promise<void> {
   try {
-    const authHeader = request.headers.authorization
+    let token: string | undefined
 
-    if (!authHeader) {
-      return reply.status(401).send({
-        error: 'Token de acesso não fornecido'
-      })
+    // Primeiro, tentar obter token do header Authorization
+    const authHeader = request.headers.authorization
+    if (authHeader) {
+      token = authHeader.replace('Bearer ', '')
     }
 
-    const token = authHeader.replace('Bearer ', '')
+    // Se não houver token no header, tentar obter do cookie
+    if (!token) {
+      token = request.cookies?.authToken
+    }
 
     if (!token) {
       return reply.status(401).send({
-        error: 'Token de acesso inválido'
+        error: 'Token de acesso não fornecido'
       })
     }
 

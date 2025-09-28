@@ -30,6 +30,10 @@ export class TabelaController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Tabelas encontradas',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -58,9 +62,13 @@ export class TabelaController extends BaseController {
       })
 
       if (!data) {
-        return reply.notFound('Tabela não encontrada')
+        return (reply as any).notFound('Tabela não encontrada')
       }
 
+      reply.send({
+        message: 'Tabela encontrada',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -81,7 +89,10 @@ export class TabelaController extends BaseController {
         }
       })
 
-      reply.code(201)
+      reply.status(201).send({
+        message: 'Tabela criada com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -105,6 +116,10 @@ export class TabelaController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Tabela atualizada com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -120,6 +135,10 @@ export class TabelaController extends BaseController {
         where: { id: validId }
       })
 
+      reply.send({
+        message: 'Tabela excluída com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)

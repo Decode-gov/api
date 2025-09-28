@@ -21,6 +21,10 @@ export class KpiController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'KPIs encontrados',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -41,9 +45,13 @@ export class KpiController extends BaseController {
       })
 
       if (!data) {
-        return reply.notFound('KPI não encontrado')
+        return (reply as any).notFound('KPI não encontrado')
       }
 
+      reply.send({
+        message: 'KPI encontrado',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -94,7 +102,10 @@ export class KpiController extends BaseController {
         }
       })
 
-      reply.code(201)
+      reply.code(201).send({
+        message: 'KPI criado com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -116,6 +127,10 @@ export class KpiController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'KPI atualizado com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -131,6 +146,10 @@ export class KpiController extends BaseController {
         where: { id: validId }
       })
 
+      reply.send({
+        message: 'KPI excluído com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)

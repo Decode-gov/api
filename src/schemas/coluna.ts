@@ -1,74 +1,79 @@
 import { z } from 'zod'
-import { TimestampsSchema } from './common.js'
 
-// Schema base da coluna
+// Schema base da coluna usando Zod v4
 export const ColunaSchema = z.object({
-  id: z.string().uuid(),
-  nome: z.string().min(1),
-  descricao: z.string().nullable(),
-  obrigatorio: z.boolean(),
-  unicidade: z.boolean(),
-  ativo: z.boolean(),
-  tabelaId: z.string().uuid(),
-  tipoDadosId: z.string().uuid().nullable(),
-  politicaInternaId: z.string().uuid().nullable(),
-  ...TimestampsSchema
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da coluna'),
+  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da coluna'),
+  descricao: z.string().nullable().describe('Descrição da coluna'),
+  obrigatorio: z.boolean().describe('Define se a coluna é obrigatória'),
+  unicidade: z.boolean().describe('Define se a coluna tem restrição de unicidade'),
+  ativo: z.boolean().describe('Status de ativação da coluna'),
+  tabelaId: z.uuid({ message: 'ID da tabela deve ser um UUID válido' }).describe('ID da tabela pai'),
+  tipoDadosId: z.uuid({ message: 'ID do tipo de dados deve ser um UUID válido' }).nullable().describe('ID do tipo de dados'),
+  politicaInternaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).nullable().describe('ID da política interna'),
+  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de coluna
 export const CreateColunaSchema = z.object({
-  nome: z.string().min(1, 'Nome é obrigatório'),
-  descricao: z.string().optional(),
-  obrigatorio: z.boolean().default(false),
-  unicidade: z.boolean().default(false),
-  ativo: z.boolean().default(true),
-  tabelaId: z.string().uuid('ID da tabela deve ser um UUID válido'),
-  tipoDadosId: z.string().uuid().optional(),
-  politicaInternaId: z.string().uuid().optional()
+  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da coluna'),
+  descricao: z.string().optional().describe('Descrição opcional da coluna'),
+  obrigatorio: z.boolean().default(false).describe('Coluna obrigatória'),
+  unicidade: z.boolean().default(false).describe('Restrição de unicidade'),
+  ativo: z.boolean().default(true).describe('Status de ativação'),
+  tabelaId: z.uuid({ message: 'ID da tabela deve ser um UUID válido' }).describe('ID da tabela pai'),
+  tipoDadosId: z.uuid({ message: 'ID do tipo de dados deve ser um UUID válido' }).optional().describe('ID do tipo de dados'),
+  politicaInternaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).optional().describe('ID da política interna')
 })
 
 // Schema para atualização de coluna
 export const UpdateColunaSchema = z.object({
-  nome: z.string().min(1).optional(),
-  descricao: z.string().optional(),
-  obrigatorio: z.boolean().optional(),
-  unicidade: z.boolean().optional(),
-  ativo: z.boolean().optional(),
-  tabelaId: z.string().uuid().optional(),
-  tipoDadosId: z.string().uuid().optional(),
-  politicaInternaId: z.string().uuid().optional()
+  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).optional().describe('Nome da coluna'),
+  descricao: z.string().optional().describe('Descrição da coluna'),
+  obrigatorio: z.boolean().optional().describe('Coluna obrigatória'),
+  unicidade: z.boolean().optional().describe('Restrição de unicidade'),
+  ativo: z.boolean().optional().describe('Status de ativação'),
+  tabelaId: z.uuid({ message: 'ID da tabela deve ser um UUID válido' }).optional().describe('ID da tabela pai'),
+  tipoDadosId: z.uuid({ message: 'ID do tipo de dados deve ser um UUID válido' }).optional().describe('ID do tipo de dados'),
+  politicaInternaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).optional().describe('ID da política interna')
 })
 
 // Schema para coluna com relacionamentos
 export const ColunaWithRelationsSchema = ColunaSchema.extend({
   tabela: z.object({
-    id: z.string().uuid(),
-    nome: z.string()
-  }),
+    id: z.uuid({ message: 'ID inválido' }).describe('ID da tabela'),
+    nome: z.string().describe('Nome da tabela')
+  }).describe('Dados da tabela pai'),
   tipoDados: z.object({
-    id: z.string().uuid(),
-    nome: z.string()
-  }).nullable(),
+    id: z.uuid({ message: 'ID inválido' }).describe('ID do tipo de dados'),
+    nome: z.string().describe('Nome do tipo de dados')
+  }).nullable().describe('Tipo de dados da coluna'),
   politicaInterna: z.object({
-    id: z.string().uuid(),
-    nome: z.string()
-  }).nullable()
+    id: z.uuid({ message: 'ID inválido' }).describe('ID da política'),
+    nome: z.string().describe('Nome da política')
+  }).nullable().describe('Política interna aplicada')
 })
 
 // Schema para resposta com coluna
 export const ColunaResponseSchema = z.object({
-  message: z.string(),
+  message: z.string().describe('Mensagem de resposta'),
   data: ColunaSchema
 })
 
 // Schema para lista de colunas
 export const ColunasListResponseSchema = z.object({
-  message: z.string(),
-  data: z.array(ColunaWithRelationsSchema)
+  message: z.string().describe('Mensagem de resposta'),
+  data: z.array(ColunaWithRelationsSchema).describe('Lista de colunas com relacionamentos')
 })
 
 // Schema para resposta de coluna com relacionamentos
 export const ColunaWithRelationsResponseSchema = z.object({
-  message: z.string(),
+  message: z.string().describe('Mensagem de resposta'),
   data: ColunaWithRelationsSchema
+})
+
+// Schema para parâmetros de rota da coluna
+export const ColunaParamsSchema = z.object({
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('ID da coluna')
 })

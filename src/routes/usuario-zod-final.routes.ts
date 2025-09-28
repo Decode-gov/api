@@ -1,29 +1,34 @@
-import type { FastifyInstance } from 'fastify'
+import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { UsuarioController } from '../controllers/usuario.controller.js'
+import { registerSchema, loginSchema, updateUserSchema, loginResponseSchema, userSchema, changePasswordSchema } from '../types/auth.js'
+import { authMiddleware } from '../middleware/auth.js'
 
 export async function usuarioZodFinalRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
-  const controller = new UsuarioController(app.prisma)
 
-  // Schemas Zod para validação interna
-  const CreateUsuarioZod = z.object({
-    nome: z.string().min(1, 'Nome é obrigatório'),
-    email: z.string().email('Email deve ser válido'),
-    senha: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres')
+  // Schemas auxiliares usando funcionalidades modernas do Zod v4
+  const ParamsSchema = z.object({
+    id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('ID do usuário')
   })
 
-  const UpdateUsuarioZod = z.object({
-    nome: z.string().min(1).optional(),
-    email: z.string().email().optional(),
-    senha: z.string().min(6).optional(),
-    ativo: z.boolean().optional()
+  const QuerySchema = z.object({
+    skip: z.coerce.number().int().min(0, { message: 'Skip deve ser >= 0' }).default(0).describe('Registros para pular'),
+    take: z.coerce.number().int().min(1, { message: 'Take deve ser >= 1' }).max(100, { message: 'Máximo 100 registros' }).default(10).describe('Registros para retornar'),
+    orderBy: z.string().optional().describe('Campo para ordenação')
   })
 
-  const LoginZod = z.object({
-    email: z.string().email('Email deve ser válido'),
-    senha: z.string().min(1, 'Senha é obrigatória')
+
+
+  // Schemas de resposta para diferentes operações
+  const SuccessResponseSchema = z.object({
+    message: z.string()
+  })
+
+  const ErrorResponseSchema = z.object({
+    error: z.string(),
+    message: z.string().optional()
   })
 
   // POST /usuarios/register - Registro de usuário
@@ -32,51 +37,18 @@ export async function usuarioZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Registrar novo usuário no sistema',
       tags: ['Usuários'],
       summary: 'Registrar usuário',
-      body: {
-        type: 'object',
-        properties: {
-          nome: { type: 'string', minLength: 1, description: 'Nome completo do usuário' },
-          email: { type: 'string', format: 'email', description: 'Email válido do usuário' },
-          senha: { type: 'string', minLength: 6, description: 'Senha com pelo menos 6 caracteres' }
-        },
-        required: ['nome', 'email', 'senha']
-      },
+      body: registerSchema,
       response: {
-        201: {
-          description: 'Usuário registrado com sucesso',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                email: { type: 'string', format: 'email' },
-                ativo: { type: 'boolean' }
-              }
-            }
-          }
-        },
-        400: {
-          description: 'Erro de validação',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        },
-        409: {
-          description: 'Email já cadastrado',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        201: z.object({
+          message: z.string(),
+          data: userSchema.omit({ createdAt: true, updatedAt: true })
+        }),
+        400: ErrorResponseSchema,
+        409: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const controller = new UsuarioController(app.prisma)
     return controller.register(request, reply)
   })
 
@@ -86,44 +58,93 @@ export async function usuarioZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Autenticar usuário no sistema',
       tags: ['Usuários'],
       summary: 'Login de usuário',
-      body: {
-        type: 'object',
-        properties: {
-          email: { type: 'string', format: 'email', description: 'Email do usuário' },
-          senha: { type: 'string', description: 'Senha do usuário' }
-        },
-        required: ['email', 'senha']
-      },
+      body: loginSchema,
       response: {
-        200: {
-          description: 'Login realizado com sucesso',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            token: { type: 'string' },
-            user: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                email: { type: 'string', format: 'email' }
-              }
-            }
-          }
-        },
-        401: {
-          description: 'Credenciais inválidas',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        200: loginResponseSchema,
+        401: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    const validatedData = LoginZod.parse(request.body)
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const controller = new UsuarioController(app.prisma)
     return controller.login(request, reply)
+  })
+
+  // POST /usuarios/logout - Logout de usuário
+  app.post('/logout', {
+    schema: {
+      description: 'Encerrar sessão do usuário',
+      tags: ['Usuários'],
+      summary: 'Logout de usuário',
+      response: {
+        200: SuccessResponseSchema
+      }
+    }
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const controller = new UsuarioController(app.prisma)
+    return controller.logout(request, reply)
+  })
+
+  // GET /usuarios/perfil - Obter perfil do usuário logado
+  app.get('/perfil', {
+    preHandler: authMiddleware,
+    schema: {
+      description: 'Obter dados do usuário com sessão ativa',
+      tags: ['Usuários'],
+      summary: 'Perfil do usuário logado',
+      response: {
+        200: z.object({
+          message: z.string(),
+          data: userSchema
+        }),
+        401: ErrorResponseSchema,
+        404: ErrorResponseSchema
+      }
+    }
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const controller = new UsuarioController(app.prisma)
+    return controller.getProfile(request, reply)
+  })
+
+  // PUT /usuarios/perfil/atualizar - Atualizar perfil do usuário logado
+  app.put('/perfil/atualizar', {
+    preHandler: authMiddleware,
+    schema: {
+      description: 'Atualizar dados do próprio perfil',
+      tags: ['Usuários'],
+      summary: 'Atualizar perfil próprio',
+      body: updateUserSchema,
+      response: {
+        200: z.object({
+          message: z.string(),
+          data: userSchema
+        }),
+        401: ErrorResponseSchema,
+        409: ErrorResponseSchema
+      }
+    }
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const controller = new UsuarioController(app.prisma)
+    return controller.updateProfile(request, reply)
+  })
+
+  // POST /usuarios/alterar-senha - Alterar senha do usuário logado
+  app.post('/alterar-senha', {
+    preHandler: authMiddleware,
+    schema: {
+      description: 'Alterar senha do usuário logado',
+      tags: ['Usuários'],
+      summary: 'Alterar senha',
+      body: changePasswordSchema,
+      response: {
+        200: SuccessResponseSchema,
+        400: ErrorResponseSchema,
+        401: ErrorResponseSchema,
+        404: ErrorResponseSchema
+      }
+    }
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const controller = new UsuarioController(app.prisma)
+    return controller.changePassword(request, reply)
   })
 
   // GET /usuarios - Listar usuários
@@ -132,40 +153,16 @@ export async function usuarioZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Listar todos os usuários do sistema',
       tags: ['Usuários'],
       summary: 'Listar usuários',
-      querystring: {
-        type: 'object',
-        properties: {
-          skip: { type: 'integer', minimum: 0, default: 0 },
-          take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' }
-        }
-      },
+      querystring: QuerySchema,
       response: {
-        200: {
-          description: 'Lista de usuários',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  id: { type: 'string', format: 'uuid' },
-                  nome: { type: 'string' },
-                  email: { type: 'string', format: 'email' },
-                  ativo: { type: 'boolean' },
-                  createdAt: { type: 'string', format: 'date-time' },
-                  updatedAt: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
-        }
+        200: z.object({
+          message: z.string(),
+          data: z.array(userSchema)
+        })
       }
     }
-  }, async (request, reply) => {
-    reply.status(200)
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const controller = new UsuarioController(app.prisma)
     return controller.findMany(request, reply)
   })
 
@@ -175,44 +172,17 @@ export async function usuarioZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Buscar usuário específico por ID',
       tags: ['Usuários'],
       summary: 'Buscar usuário por ID',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
+      params: ParamsSchema,
       response: {
-        200: {
-          description: 'Usuário encontrado',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                email: { type: 'string', format: 'email' },
-                ativo: { type: 'boolean' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' }
-              }
-            }
-          }
-        },
-        404: {
-          description: 'Usuário não encontrado',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        200: z.object({
+          message: z.string(),
+          data: userSchema
+        }),
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    reply.status(200)
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const controller = new UsuarioController(app.prisma)
     return controller.findById(request, reply)
   })
 
@@ -222,52 +192,18 @@ export async function usuarioZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Atualizar dados de um usuário específico',
       tags: ['Usuários'],
       summary: 'Atualizar usuário',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
-      body: {
-        type: 'object',
-        properties: {
-          nome: { type: 'string', minLength: 1 },
-          email: { type: 'string', format: 'email' },
-          senha: { type: 'string', minLength: 6 },
-          ativo: { type: 'boolean' }
-        }
-      },
+      params: ParamsSchema,
+      body: updateUserSchema,
       response: {
-        200: {
-          description: 'Usuário atualizado com sucesso',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                email: { type: 'string', format: 'email' },
-                ativo: { type: 'boolean' },
-                updatedAt: { type: 'string', format: 'date-time' }
-              }
-            }
-          }
-        },
-        404: {
-          description: 'Usuário não encontrado',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        200: z.object({
+          message: z.string(),
+          data: userSchema
+        }),
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    const validatedData = UpdateUsuarioZod.parse(request.body)
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const controller = new UsuarioController(app.prisma)
     return controller.update(request, reply)
   })
 
@@ -277,30 +213,15 @@ export async function usuarioZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Deletar um usuário do sistema',
       tags: ['Usuários'],
       summary: 'Deletar usuário',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
+      params: ParamsSchema,
       response: {
-        200: {
-          description: 'Usuário deletado com sucesso',
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        },
-        404: {
-          description: 'Usuário não encontrado',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        200: SuccessResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, controller.delete.bind(controller))
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const controller = new UsuarioController(app.prisma)
+    return controller.delete(request, reply)
+  })
 }
+

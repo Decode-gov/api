@@ -25,6 +25,10 @@ export class SistemaController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Sistemas encontrados',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -49,9 +53,15 @@ export class SistemaController extends BaseController {
       })
 
       if (!data) {
-        return reply.notFound('Sistema não encontrado')
+        return reply.status(404).send({
+          error: 'Sistema não encontrado'
+        })
       }
 
+      reply.send({
+        message: 'Sistema encontrado',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -66,7 +76,10 @@ export class SistemaController extends BaseController {
         data: body
       })
 
-      reply.code(201)
+      reply.status(201).send({
+        message: 'Sistema criado com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -84,6 +97,10 @@ export class SistemaController extends BaseController {
         data: body
       })
 
+      reply.send({
+        message: 'Sistema atualizado com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -99,6 +116,10 @@ export class SistemaController extends BaseController {
         where: { id: validId }
       })
 
+      reply.send({
+        message: 'Sistema excluído com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)

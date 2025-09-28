@@ -1,47 +1,122 @@
 import type { FastifyInstance } from 'fastify'
+
+// Importar todas as rotas Zod
 import { usuarioZodFinalRoutes } from './usuario-zod-final.routes.js'
+import { atribuicaoPapelDominioRoutes } from './atribuicao-papel-dominio-zod.routes.js'
+import { auditoriaZodRoutes } from './auditoria-zod.routes.js'
+import { bancoZodRoutes } from './banco-zod.routes.js'
 import { colunaZodFinalRoutes } from './coluna-zod-final.routes.js'
-import { kpiZodFinalRoutes } from './kpi-zod-final.routes.js'
-import { processoZodFinalRoutes } from './processo-zod-final.routes.js'
+import { comunidadeZodRoutes } from './comunidade-zod.routes.js'
+import { dashboardZodRoutes } from './dashboard-zod.routes.js'
 import { definicaoZodFinalRoutes } from './definicao-zod-final.routes.js'
+import { documentoPolimorficoRoutes } from './documento-polimorfico-zod.routes.js'
+import { importacaoExportacaoZodRoutes } from './importacao-exportacao-zod.routes.js'
+import { kpiZodFinalRoutes } from './kpi-zod-final.routes.js'
+import { listaClassificacaoRoutes } from './lista-classificacao-zod.routes.js'
+import { listaReferenciaZodRoutes } from './lista-referencia-zod.routes.js'
+import { mfaZodRoutes } from './mfa-zod.routes.js'
+import { necessidadeInformacaoZodRoutes } from './necessidade-informacao-zod.routes.js'
 import { papelZodRoutes } from './papel-zod.routes.js'
-import { necessidadeZodRoutes } from './necessidade-zod.routes.js'
+import { classificacaoInformacaoZodRoutes } from './classificacao-informacao-zod.routes.js'
+import { parteEnvolvidaZodRoutes } from './parte-envolvida-zod.routes.js'
+import { politicaInternaZodRoutes } from './politica-interna-zod.routes.js'
+import { processoZodFinalRoutes } from './processo-zod-final.routes.js'
+import { produtoDadosRoutes } from './produto-dados-zod.routes.js'
 import { regraNegocioZodRoutes } from './regra-negocio-zod.routes.js'
-import { comunidadeRoutes } from './comunidade.routes.js'
-import { politicaInternaRoutes } from './politica-interna.routes.js'
-import { tabelaRoutes } from './tabela.routes.js'
-import { sistemaRoutes } from './sistema.routes.js'
-import { bancoRoutes } from './banco.routes.js'
-import { classificacaoInformacaoRoutes } from './classificacao-informacao.routes.js'
-import { repositorioDocumentoRoutes } from './repositorio-documento.routes.js'
-import { dashboardRoutes } from './dashboard.routes.js'
-import { mfaRoutes } from './mfa.routes.js'
-import { auditoriaRoutes } from './auditoria.routes.js'
-import { importacaoExportacaoRoutes } from './importacao-exportacao.routes.js'
-import { listaReferenciaRoutes } from './lista-referencia.routes.js'
-import { tipoDadosRoutes } from './tipo-dados.routes.js'
+import { repositorioDocumentoZodRoutes } from './repositorio-documento-zod.routes.js'
+import { sistemaZodRoutes } from './sistema-zod.routes.js'
+import { tabelaZodRoutes } from './tabela-zod.routes.js'
+import { tipoDadosZodRoutes } from './tipo-dados-zod.routes.js'
+import { operacaoZodRoutes } from './operacao-zod.routes.js'
+import { atividadeZodRoutes } from './atividade-zod.routes.js'
+
+// Rotas que ainda não foram convertidas para Zod
 
 export async function registerAllRoutes(app: FastifyInstance) {
+  try {
 
-  await app.register(usuarioZodFinalRoutes, { prefix: '/usuarios' })
-  await app.register(colunaZodFinalRoutes, { prefix: '/colunas' })
-  await app.register(kpiZodFinalRoutes, { prefix: '/kpis' })
-  await app.register(processoZodFinalRoutes, { prefix: '/processos' })
-  await app.register(definicaoZodFinalRoutes, { prefix: '/definicoes' })
-  await app.register(papelZodRoutes, { prefix: '/papeis' })
-  await app.register(necessidadeZodRoutes, { prefix: '/necessidades-informacao' })
-  await app.register(regraNegocioZodRoutes, { prefix: '/regras-negocio' })
-  await app.register(comunidadeRoutes, { prefix: '/comunidades' })
-  await app.register(tabelaRoutes, { prefix: '/tabelas' })
-  await app.register(sistemaRoutes, { prefix: '/sistemas' })
-  await app.register(bancoRoutes, { prefix: '/bancos' })
-  await app.register(politicaInternaRoutes, { prefix: '/politicas-internas' })
-  await app.register(tipoDadosRoutes, { prefix: '/tipos-dados' })
-  await app.register(classificacaoInformacaoRoutes, { prefix: '/classificacoes-informacao' })
-  await app.register(repositorioDocumentoRoutes, { prefix: '/repositorios-documento' })
-  await app.register(dashboardRoutes, { prefix: '/dashboard' })
-  await app.register(mfaRoutes, { prefix: '/mfa' })
-  await app.register(auditoriaRoutes, { prefix: '/auditoria' })
-  await app.register(importacaoExportacaoRoutes, { prefix: '/importacao-exportacao' })
-  await app.register(listaReferenciaRoutes, { prefix: '/listas-referencia' })
+
+    // Rotas principais do sistema - seguindo especificação do prompt
+    await app.register(usuarioZodFinalRoutes, { prefix: '/usuarios' })
+
+
+    await app.register(sistemaZodRoutes, { prefix: '/sistemas' })
+
+
+    await app.register(bancoZodRoutes, { prefix: '/bancos' })
+
+
+    await app.register(tabelaZodRoutes, { prefix: '/tabelas' })
+
+
+    await app.register(colunaZodFinalRoutes, { prefix: '/colunas' })
+
+
+    // Rotas de gestão de dados
+    await app.register(comunidadeZodRoutes, { prefix: '/comunidades' })
+
+
+    await app.register(politicaInternaZodRoutes, { prefix: '/politicas-internas' })
+
+
+    await app.register(processoZodFinalRoutes, { prefix: '/processos' })
+
+
+    await app.register(kpiZodFinalRoutes, { prefix: '/kpis' })
+
+
+    await app.register(definicaoZodFinalRoutes, { prefix: '/definicoes' })
+
+
+    // Rotas de governança
+    await app.register(papelZodRoutes, { prefix: '/papeis' })
+
+
+    await app.register(necessidadeInformacaoZodRoutes, { prefix: '/necessidades-informacao' })
+
+    await app.register(regraNegocioZodRoutes, { prefix: '/regras-negocio' })
+
+
+    // Rotas de utilidades
+    await app.register(dashboardZodRoutes, { prefix: '/dashboard' })
+
+
+    await app.register(auditoriaZodRoutes, { prefix: '/auditoria' })
+
+
+    await app.register(importacaoExportacaoZodRoutes, { prefix: '/importacao-exportacao' })
+
+
+    // Rotas de segurança e autenticação
+    await app.register(mfaZodRoutes, { prefix: '/mfa' })
+
+
+    // Rotas adicionais
+    await app.register(listaReferenciaZodRoutes, { prefix: '/listas-referencia' })
+
+    await app.register(repositorioDocumentoZodRoutes, { prefix: '/repositorios-documento' })
+
+    await app.register(produtoDadosRoutes, { prefix: '/produtos-dados' })
+
+    await app.register(listaClassificacaoRoutes, { prefix: '/listas-classificacao' })
+
+    await app.register(atribuicaoPapelDominioRoutes, { prefix: '/atribuicoes' })
+
+    await app.register(documentoPolimorficoRoutes, { prefix: '/documentos' })
+
+    // Rotas com Zod moderno e middleware de autenticação
+    await app.register(classificacaoInformacaoZodRoutes, { prefix: '/classificacoes-informacao' })
+
+    await app.register(parteEnvolvidaZodRoutes, { prefix: '/partes-envolvidas' })
+
+    await app.register(tipoDadosZodRoutes, { prefix: '/tipos-dados' })
+
+    await app.register(operacaoZodRoutes, { prefix: '/operacoes' })
+
+    await app.register(atividadeZodRoutes, { prefix: '/atividades' })
+
+  } catch (error) {
+    // Erro ao registrar rotas - falha crítica na inicialização
+    throw error
+  }
 }

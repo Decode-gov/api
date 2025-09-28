@@ -42,7 +42,6 @@ export class DashboardController {
         data: metricas
       })
     } catch (error) {
-      console.error('Erro ao obter métricas gerais:', error)
       reply.status(500).send({
         error: 'InternalServerError',
         message: 'Erro interno do servidor'
@@ -76,7 +75,6 @@ export class DashboardController {
         }
       })
     } catch (error) {
-      console.error('Erro ao obter dashboard do usuário:', error)
       reply.status(500).send({
         error: 'InternalServerError',
         message: 'Erro interno do servidor'

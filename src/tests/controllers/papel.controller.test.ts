@@ -40,7 +40,6 @@ describe('PapelController', () => {
         take: 10,
         orderBy: { id: 'asc' },
         include: {
-          comunidade: true,
           politica: true
         }
       })
@@ -66,7 +65,6 @@ describe('PapelController', () => {
       expect(mockPrisma.papel.findUnique).toHaveBeenCalledWith({
         where: { id: '550e8400-e29b-41d4-a716-446655440000' },
         include: {
-          comunidade: true,
           politica: true
         }
       })
@@ -110,7 +108,6 @@ describe('PapelController', () => {
           descricao: 'Descrição do novo papel'
         },
         include: {
-          comunidade: true,
           politica: true
         }
       })
@@ -160,7 +157,6 @@ describe('PapelController', () => {
           descricao: 'Descrição atualizada'
         },
         include: {
-          comunidade: true,
           politica: true
         }
       })

@@ -20,6 +20,10 @@ export class DefinicaoController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Definições encontradas',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -37,6 +41,10 @@ export class DefinicaoController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Definição encontrada',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -58,6 +66,10 @@ export class DefinicaoController extends BaseController {
         }
       })
 
+      reply.status(201).send({
+        message: 'Definição criada com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -81,6 +93,10 @@ export class DefinicaoController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Definição atualizada com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -95,6 +111,10 @@ export class DefinicaoController extends BaseController {
         where: { id }
       })
 
+      reply.send({
+        message: 'Definição excluída com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)

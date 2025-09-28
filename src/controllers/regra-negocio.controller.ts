@@ -20,6 +20,10 @@ export class RegraNegocioController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Regras de negócio encontradas',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -39,9 +43,13 @@ export class RegraNegocioController extends BaseController {
       })
 
       if (!data) {
-        return reply.notFound('Regra de Negócio não encontrada')
+        return (reply as any).notFound('Regra de Negócio não encontrada')
       }
 
+      reply.send({
+        message: 'Regra de negócio encontrada',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -59,7 +67,10 @@ export class RegraNegocioController extends BaseController {
         }
       })
 
-      reply.code(201)
+      reply.status(201).send({
+        message: 'Regra de negócio criada com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -80,6 +91,10 @@ export class RegraNegocioController extends BaseController {
         }
       })
 
+      reply.send({
+        message: 'Regra de negócio atualizada com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -95,6 +110,10 @@ export class RegraNegocioController extends BaseController {
         where: { id: validId }
       })
 
+      reply.send({
+        message: 'Regra de negócio excluída com sucesso',
+        data
+      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)

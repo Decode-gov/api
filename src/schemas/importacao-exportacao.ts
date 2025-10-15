@@ -77,8 +77,8 @@ export const OperacaoImportacaoExportacaoSchema = z.object({
   registrosProcessados: z.number().int().min(0).describe('Registros processados com sucesso'),
   registrosComErro: z.number().int().min(0).describe('Registros com erro'),
   usuarioId: z.uuid({ message: 'ID do usuário deve ser um UUID válido' }).describe('ID do usuário responsável'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização'),
+  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização'),
   usuario: z.object({
     id: z.uuid({ message: 'ID inválido' }).describe('ID do usuário'),
     nome: z.string().describe('Nome do usuário'),

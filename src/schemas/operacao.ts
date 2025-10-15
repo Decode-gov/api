@@ -24,8 +24,8 @@ export const OperacaoSchema = z.object({
   responsavel: z.string().min(1, { message: 'Responsável é obrigatório' }).describe('Responsável pela operação'),
   observacoes: z.string().optional().describe('Observações adicionais'),
   ativo: z.boolean().default(true).describe('Status de ativação'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de operação

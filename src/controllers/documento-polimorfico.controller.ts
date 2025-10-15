@@ -79,7 +79,7 @@ export class DocumentoPolimorficoController extends BaseController {
       })
 
       if (!dados) {
-        return reply.notFound('Documento não encontrado')
+        return (reply as any).notFound('Documento não encontrado')
       }
 
       return { data: dados }

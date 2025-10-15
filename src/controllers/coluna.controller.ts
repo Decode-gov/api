@@ -17,9 +17,12 @@ export class ColunaController extends BaseController {
         orderBy,
         include: {
           tabela: true,
-          
-          
-          codificacoes: true
+          tipoDados: true,
+          politicaInterna: true,
+          necessidadeInfo: true,
+          questaoGerencial: true,
+          codificacoes: true,
+          regrasQualidade: true
         }
       })
 
@@ -38,14 +41,17 @@ export class ColunaController extends BaseController {
         where: { id: validId },
         include: {
           tabela: true,
-          
-          
-          codificacoes: true
+          tipoDados: true,
+          politicaInterna: true,
+          necessidadeInfo: true,
+          questaoGerencial: true,
+          codificacoes: true,
+          regrasQualidade: true
         }
       })
 
       if (!data) {
-        return reply.notFound('Coluna não encontrada')
+        return (reply as any).notFound('Coluna não encontrada')
       }
 
       return { data }
@@ -62,8 +68,10 @@ export class ColunaController extends BaseController {
         data: body,
         include: {
           tabela: true,
-          
-          
+          tipoDados: true,
+          politicaInterna: true,
+          necessidadeInfo: true,
+          questaoGerencial: true,
           codificacoes: true
         }
       })
@@ -86,8 +94,10 @@ export class ColunaController extends BaseController {
         data: body,
         include: {
           tabela: true,
-          
-          
+          tipoDados: true,
+          politicaInterna: true,
+          necessidadeInfo: true,
+          questaoGerencial: true,
           codificacoes: true
         }
       })

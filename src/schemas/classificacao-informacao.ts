@@ -8,8 +8,8 @@ export const ClassificacaoInformacaoSchema = z.object({
   politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).describe('ID da política relacionada'),
   termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).optional().describe('ID do termo relacionado'),
   ativo: z.boolean().default(true).describe('Status de ativação'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de classificação

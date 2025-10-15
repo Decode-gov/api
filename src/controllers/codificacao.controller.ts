@@ -41,7 +41,7 @@ export class CodificacaoController extends BaseController {
       })
 
       if (!data) {
-        return reply.notFound('Codificação não encontrada')
+        return (reply as any).notFound('Codificação não encontrada')
       }
 
       return { data }

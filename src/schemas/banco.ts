@@ -8,8 +8,8 @@ export const BancoSchema = z.object({
   servidor: z.string().nullable().describe('Endereço do servidor'),
   porta: z.coerce.number().int().positive({ message: 'Porta deve ser um número positivo' }).nullable().describe('Porta de conexão'),
   tipo: z.string().nullable().describe('Tipo do banco de dados'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de banco

@@ -12,10 +12,10 @@ export const PaginationSchema = z.object({
   orderBy: z.string().optional().describe('Campo para ordenação')
 })
 
-// Schema comum para timestamps usando z.iso.datetime() do Zod v4
+// Schema comum para timestamps usando z.string().datetime() do Zod v4
 export const TimestampsSchema = z.object({
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data e hora de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data e hora da última atualização')
+  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data e hora de criação'),
+  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data e hora da última atualização')
 })
 
 // Schema comum para respostas de erro

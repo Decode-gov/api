@@ -22,11 +22,11 @@ export const RegraNegocioSchema = z.object({
   status: z.enum(['ATIVA', 'INATIVA', 'EM_DESENVOLVIMENTO', 'DESCONTINUADA'], {
     message: 'Status deve ser ATIVA, INATIVA, EM_DESENVOLVIMENTO ou DESCONTINUADA'
   }).default('ATIVA').describe('Status da regra'),
-  dataInicioVigencia: z.iso.datetime({ message: 'Data de início deve ser uma data válida' }).optional().describe('Data de início da vigência'),
-  dataFimVigencia: z.iso.datetime({ message: 'Data de fim deve ser uma data válida' }).optional().describe('Data de fim da vigência'),
+  dataInicioVigencia: z.string().datetime({ message: 'Data de início deve ser uma data válida' }).optional().describe('Data de início da vigência'),
+  dataFimVigencia: z.string().datetime({ message: 'Data de fim deve ser uma data válida' }).optional().describe('Data de fim da vigência'),
   ativo: z.boolean().default(true).describe('Status de ativação'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de regra de negócio
@@ -42,8 +42,8 @@ export const CreateRegraNegocioSchema = z.object({
   sistemaId: z.uuid({ message: 'ID do sistema deve ser um UUID válido' }).optional().describe('ID do sistema'),
   versao: z.string().default('1.0').describe('Versão da regra'),
   status: z.enum(['ATIVA', 'INATIVA', 'EM_DESENVOLVIMENTO', 'DESCONTINUADA']).default('ATIVA').describe('Status da regra'),
-  dataInicioVigencia: z.iso.datetime({ message: 'Data de início deve ser uma data válida' }).optional().describe('Data de início da vigência'),
-  dataFimVigencia: z.iso.datetime({ message: 'Data de fim deve ser uma data válida' }).optional().describe('Data de fim da vigência'),
+  dataInicioVigencia: z.string().datetime({ message: 'Data de início deve ser uma data válida' }).optional().describe('Data de início da vigência'),
+  dataFimVigencia: z.string().datetime({ message: 'Data de fim deve ser uma data válida' }).optional().describe('Data de fim da vigência'),
   ativo: z.boolean().default(true).describe('Status de ativação')
 })
 
@@ -60,8 +60,8 @@ export const UpdateRegraNegocioSchema = z.object({
   sistemaId: z.uuid({ message: 'ID do sistema deve ser um UUID válido' }).optional().describe('ID do sistema'),
   versao: z.string().optional().describe('Versão da regra'),
   status: z.enum(['ATIVA', 'INATIVA', 'EM_DESENVOLVIMENTO', 'DESCONTINUADA']).optional().describe('Status da regra'),
-  dataInicioVigencia: z.iso.datetime({ message: 'Data de início deve ser uma data válida' }).optional().describe('Data de início da vigência'),
-  dataFimVigencia: z.iso.datetime({ message: 'Data de fim deve ser uma data válida' }).optional().describe('Data de fim da vigência'),
+  dataInicioVigencia: z.string().datetime({ message: 'Data de início deve ser uma data válida' }).optional().describe('Data de início da vigência'),
+  dataFimVigencia: z.string().datetime({ message: 'Data de fim deve ser uma data válida' }).optional().describe('Data de fim da vigência'),
   ativo: z.boolean().optional().describe('Status de ativação')
 })
 

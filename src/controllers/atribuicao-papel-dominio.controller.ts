@@ -55,7 +55,7 @@ export class AtribuicaoPapelDominioController extends BaseController {
       })
 
       if (!data) {
-        return reply.notFound('Atribuição de papel-domínio não encontrada')
+        return (reply as any).notFound('Atribuição de papel-domínio não encontrada')
       }
 
       return { data }

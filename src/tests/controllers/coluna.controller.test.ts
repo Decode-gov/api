@@ -45,7 +45,12 @@ describe('ColunaController', () => {
         orderBy: { id: 'asc' },
         include: {
           tabela: true,
-          codificacoes: true
+          tipoDados: true,
+          politicaInterna: true,
+          necessidadeInfo: true,
+          questaoGerencial: true,
+          codificacoes: true,
+          regrasQualidade: true
         }
       })
       expect(result).toEqual({ data: mockColunas })
@@ -75,7 +80,12 @@ describe('ColunaController', () => {
         where: { id: '550e8400-e29b-41d4-a716-446655440000' },
         include: {
           tabela: true,
-          codificacoes: true
+          tipoDados: true,
+          politicaInterna: true,
+          necessidadeInfo: true,
+          questaoGerencial: true,
+          codificacoes: true,
+          regrasQualidade: true
         }
       })
       expect(result).toEqual({ data: mockColuna })
@@ -126,6 +136,10 @@ describe('ColunaController', () => {
         },
         include: {
           tabela: true,
+          tipoDados: true,
+          politicaInterna: true,
+          necessidadeInfo: true,
+          questaoGerencial: true,
           codificacoes: true
         }
       })
@@ -180,6 +194,10 @@ describe('ColunaController', () => {
         },
         include: {
           tabela: true,
+          tipoDados: true,
+          politicaInterna: true,
+          necessidadeInfo: true,
+          questaoGerencial: true,
           codificacoes: true
         }
       })

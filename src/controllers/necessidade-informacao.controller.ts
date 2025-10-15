@@ -16,7 +16,11 @@ export class NecessidadeInformacaoController extends BaseController {
         take,
         orderBy,
         include: {
-          tabelas: true
+          comunidade: true,
+          tabelas: true,
+          colunas: true,
+          tabelasQuestaoGerencial: true,
+          colunasQuestaoGerencial: true
         }
       })
 
@@ -38,7 +42,11 @@ export class NecessidadeInformacaoController extends BaseController {
       const data = await this.prisma.necessidadeInformacao.findUnique({
         where: { id: validId },
         include: {
-          tabelas: true
+          comunidade: true,
+          tabelas: true,
+          colunas: true,
+          tabelasQuestaoGerencial: true,
+          colunasQuestaoGerencial: true
         }
       })
 
@@ -63,7 +71,9 @@ export class NecessidadeInformacaoController extends BaseController {
       const data = await this.prisma.necessidadeInformacao.create({
         data: body,
         include: {
-          tabelas: true
+          comunidade: true,
+          tabelas: true,
+          colunas: true
         }
       })
 
@@ -87,7 +97,9 @@ export class NecessidadeInformacaoController extends BaseController {
         where: { id: validId },
         data: body,
         include: {
-          tabelas: true
+          comunidade: true,
+          tabelas: true,
+          colunas: true
         }
       })
 

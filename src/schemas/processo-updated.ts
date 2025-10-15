@@ -6,8 +6,8 @@ export const ProcessoSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).describe('Nome do processo'),
   descricao: z.string().optional().describe('Descrição do processo'),
   comunidadeId: z.uuid({ message: 'ID da comunidade deve ser um UUID válido' }).describe('ID da comunidade'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de Processo - conforme especificação do prompt

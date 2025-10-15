@@ -11,7 +11,7 @@ export const DashboardQuerySchema = z.object({
 // Schema para métricas gerais usando Zod v4
 export const MetricasGeraisSchema = z.object({
   periodo: z.string().describe('Período analisado'),
-  dataInicio: z.iso.datetime({ message: 'Data de início inválida' }).describe('Data de início do período'),
+  dataInicio: z.string().datetime({ message: 'Data de início inválida' }).describe('Data de início do período'),
   metricas: z.object({
     totalUsuarios: z.number().int().min(0).describe('Total de usuários'),
     totalSistemas: z.number().int().min(0).describe('Total de sistemas'),
@@ -31,7 +31,7 @@ export const MetricasGeraisSchema = z.object({
   }).describe('Indicadores de crescimento'),
   atividadesRecentes: z.array(
     z.object({
-      data: z.iso.datetime({ message: 'Data inválida' }).describe('Data da atividade'),
+      data: z.string().datetime({ message: 'Data inválida' }).describe('Data da atividade'),
       tipo: z.string().describe('Tipo de atividade'),
       descricao: z.string().describe('Descrição da atividade'),
       usuario: z.string().describe('Usuário responsável'),
@@ -52,10 +52,10 @@ export const DashboardUsuarioSchema = z.object({
     id: z.uuid({ message: 'ID inválido' }).describe('ID do usuário'),
     nome: z.string().describe('Nome do usuário'),
     email: z.email({ message: 'Email inválido' }).describe('Email do usuário'),
-    createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de cadastro')
+    createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de cadastro')
   }).describe('Dados do usuário'),
   periodo: z.string().describe('Período analisado'),
-  dataInicio: z.iso.datetime({ message: 'Data de início inválida' }).describe('Data de início'),
+  dataInicio: z.string().datetime({ message: 'Data de início inválida' }).describe('Data de início'),
   estatisticasAtividade: z.object({
     totalOperacoes: z.number().int().min(0).describe('Total de operações'),
     operacoesPorTipo: z.object({

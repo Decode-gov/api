@@ -20,7 +20,10 @@ export class TabelaController extends BaseController {
           sistema: true,
           termo: true,
           necessidadeInfo: true,
+          questaoGerencial: true,
           colunas: true,
+          codificacoes: true,
+          regrasQualidade: true,
           _count: {
             select: {
               colunas: true,
@@ -52,12 +55,15 @@ export class TabelaController extends BaseController {
           sistema: true,
           termo: true,
           necessidadeInfo: true,
+          questaoGerencial: true,
           colunas: {
             include: {
-              necessidadeInfo: true
+              necessidadeInfo: true,
+              questaoGerencial: true
             }
           },
-          codificacoes: true
+          codificacoes: true,
+          regrasQualidade: true
         }
       })
 
@@ -85,7 +91,8 @@ export class TabelaController extends BaseController {
           banco: true,
           sistema: true,
           termo: true,
-          necessidadeInfo: true
+          necessidadeInfo: true,
+          questaoGerencial: true
         }
       })
 
@@ -112,7 +119,8 @@ export class TabelaController extends BaseController {
           banco: true,
           sistema: true,
           termo: true,
-          necessidadeInfo: true
+          necessidadeInfo: true,
+          questaoGerencial: true
         }
       })
 

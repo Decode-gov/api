@@ -14,15 +14,15 @@ export const AtividadeSchema = z.object({
   prioridade: z.enum(['BAIXA', 'MEDIA', 'ALTA', 'CRITICA'], {
     message: 'Prioridade deve ser BAIXA, MEDIA, ALTA ou CRITICA'
   }).default('MEDIA').describe('Prioridade da atividade'),
-  dataInicioEsperada: z.iso.datetime({ message: 'Data de início esperada deve ser uma data válida' }).optional().describe('Data prevista para início'),
-  dataFimEsperada: z.iso.datetime({ message: 'Data de fim esperada deve ser uma data válida' }).optional().describe('Data prevista para conclusão'),
-  dataInicioReal: z.iso.datetime({ message: 'Data de início real deve ser uma data válida' }).optional().describe('Data real de início'),
-  dataFimReal: z.iso.datetime({ message: 'Data de fim real deve ser uma data válida' }).optional().describe('Data real de conclusão'),
+  dataInicioEsperada: z.string().datetime({ message: 'Data de início esperada deve ser uma data válida' }).optional().describe('Data prevista para início'),
+  dataFimEsperada: z.string().datetime({ message: 'Data de fim esperada deve ser uma data válida' }).optional().describe('Data prevista para conclusão'),
+  dataInicioReal: z.string().datetime({ message: 'Data de início real deve ser uma data válida' }).optional().describe('Data real de início'),
+  dataFimReal: z.string().datetime({ message: 'Data de fim real deve ser uma data válida' }).optional().describe('Data real de conclusão'),
   percentualConclusao: z.number().min(0, { message: 'Percentual deve ser >= 0' }).max(100, { message: 'Percentual deve ser <= 100' }).default(0).describe('Percentual de conclusão'),
   observacoes: z.string().optional().describe('Observações adicionais'),
   ativo: z.boolean().default(true).describe('Status de ativação'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de atividade
@@ -34,8 +34,8 @@ export const CreateAtividadeSchema = z.object({
   responsavel: z.string().min(1, { message: 'Responsável é obrigatório' }).describe('Responsável pela atividade'),
   status: z.enum(['PLANEJADA', 'EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA', 'PAUSADA']).default('PLANEJADA').describe('Status da atividade'),
   prioridade: z.enum(['BAIXA', 'MEDIA', 'ALTA', 'CRITICA']).default('MEDIA').describe('Prioridade da atividade'),
-  dataInicioEsperada: z.iso.datetime({ message: 'Data de início esperada deve ser uma data válida' }).optional().describe('Data prevista para início'),
-  dataFimEsperada: z.iso.datetime({ message: 'Data de fim esperada deve ser uma data válida' }).optional().describe('Data prevista para conclusão'),
+  dataInicioEsperada: z.string().datetime({ message: 'Data de início esperada deve ser uma data válida' }).optional().describe('Data prevista para início'),
+  dataFimEsperada: z.string().datetime({ message: 'Data de fim esperada deve ser uma data válida' }).optional().describe('Data prevista para conclusão'),
   percentualConclusao: z.number().min(0).max(100).default(0).describe('Percentual de conclusão'),
   observacoes: z.string().optional().describe('Observações adicionais'),
   ativo: z.boolean().default(true).describe('Status de ativação')
@@ -50,10 +50,10 @@ export const UpdateAtividadeSchema = z.object({
   responsavel: z.string().min(1, { message: 'Responsável é obrigatório' }).optional().describe('Responsável pela atividade'),
   status: z.enum(['PLANEJADA', 'EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA', 'PAUSADA']).optional().describe('Status da atividade'),
   prioridade: z.enum(['BAIXA', 'MEDIA', 'ALTA', 'CRITICA']).optional().describe('Prioridade da atividade'),
-  dataInicioEsperada: z.iso.datetime({ message: 'Data de início esperada deve ser uma data válida' }).optional().describe('Data prevista para início'),
-  dataFimEsperada: z.iso.datetime({ message: 'Data de fim esperada deve ser uma data válida' }).optional().describe('Data prevista para conclusão'),
-  dataInicioReal: z.iso.datetime({ message: 'Data de início real deve ser uma data válida' }).optional().describe('Data real de início'),
-  dataFimReal: z.iso.datetime({ message: 'Data de fim real deve ser uma data válida' }).optional().describe('Data real de conclusão'),
+  dataInicioEsperada: z.string().datetime({ message: 'Data de início esperada deve ser uma data válida' }).optional().describe('Data prevista para início'),
+  dataFimEsperada: z.string().datetime({ message: 'Data de fim esperada deve ser uma data válida' }).optional().describe('Data prevista para conclusão'),
+  dataInicioReal: z.string().datetime({ message: 'Data de início real deve ser uma data válida' }).optional().describe('Data real de início'),
+  dataFimReal: z.string().datetime({ message: 'Data de fim real deve ser uma data válida' }).optional().describe('Data real de conclusão'),
   percentualConclusao: z.number().min(0).max(100).optional().describe('Percentual de conclusão'),
   observacoes: z.string().optional().describe('Observações adicionais'),
   ativo: z.boolean().optional().describe('Status de ativação')

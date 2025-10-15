@@ -46,28 +46,12 @@ describe('TabelaController', () => {
         include: {
           banco: true,
           sistema: true,
-          colunas: true,
-          necessidadeInfo: true,
-          termo: true,
-          _count: {
-            select: {
-              colunas: true,
-              codificacoes: true
-            }
-          }
-        }
-      })
-
-      expect(mockPrisma.tabela.findMany).toHaveBeenCalledWith({
-        skip: 0,
-        take: 10,
-        orderBy: { id: 'asc' },
-        include: {
-          banco: true,
-          sistema: true,
           termo: true,
           necessidadeInfo: true,
+          questaoGerencial: true,
           colunas: true,
+          codificacoes: true,
+          regrasQualidade: true,
           _count: {
             select: {
               colunas: true,
@@ -104,12 +88,15 @@ describe('TabelaController', () => {
           sistema: true,
           termo: true,
           necessidadeInfo: true,
+          questaoGerencial: true,
           colunas: {
             include: {
-              necessidadeInfo: true
+              necessidadeInfo: true,
+              questaoGerencial: true
             }
           },
-          codificacoes: true
+          codificacoes: true,
+          regrasQualidade: true
         }
       })
       expect(result).toEqual({ data: mockTabela })
@@ -161,7 +148,8 @@ describe('TabelaController', () => {
           banco: true,
           sistema: true,
           termo: true,
-          necessidadeInfo: true
+          necessidadeInfo: true,
+          questaoGerencial: true
         }
       })
       expect(result).toEqual({ data: mockTabela })
@@ -213,7 +201,8 @@ describe('TabelaController', () => {
           banco: true,
           sistema: true,
           termo: true,
-          necessidadeInfo: true
+          necessidadeInfo: true,
+          questaoGerencial: true
         }
       })
       expect(result).toEqual({ data: mockTabela })

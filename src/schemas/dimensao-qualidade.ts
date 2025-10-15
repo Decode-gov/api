@@ -24,8 +24,8 @@ export const DimensaoQualidadeSchema = z.object({
     message: 'Criticidade deve ser BAIXA, MEDIA, ALTA ou CRITICA'
   }).default('MEDIA').describe('Criticidade da dimensão'),
   ativo: z.boolean().default(true).describe('Status de ativação'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de dimensão de qualidade
@@ -76,7 +76,7 @@ export const DimensaoQualidadeWithRelationsSchema = DimensaoQualidadeSchema.exte
   avaliacoes: z.array(z.object({
     id: z.uuid({ message: 'ID inválido' }).describe('ID da avaliação'),
     valor: z.number().describe('Valor da avaliação'),
-    data: z.iso.datetime().describe('Data da avaliação')
+    data: z.string().datetime().describe('Data da avaliação')
   })).optional().describe('Avaliações realizadas')
 })
 

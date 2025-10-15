@@ -38,7 +38,11 @@ describe('NecessidadeInformacaoController', () => {
         take: 10,
         orderBy: { id: 'asc' },
         include: {
-          tabelas: true
+          comunidade: true,
+          tabelas: true,
+          colunas: true,
+          tabelasQuestaoGerencial: true,
+          colunasQuestaoGerencial: true
         }
       })
       expect(result).toEqual({ data: mockNecessidades })
@@ -62,7 +66,11 @@ describe('NecessidadeInformacaoController', () => {
       expect(mockPrisma.necessidadeInformacao.findUnique).toHaveBeenCalledWith({
         where: { id: '550e8400-e29b-41d4-a716-446655440000' },
         include: {
-          tabelas: true
+          comunidade: true,
+          tabelas: true,
+          colunas: true,
+          tabelasQuestaoGerencial: true,
+          colunasQuestaoGerencial: true
         }
       })
       expect(result).toEqual({ data: mockNecessidade })
@@ -104,7 +112,9 @@ describe('NecessidadeInformacaoController', () => {
           descricao: 'Descrição da nova necessidade'
         },
         include: {
-          tabelas: true
+          comunidade: true,
+          tabelas: true,
+          colunas: true
         }
       })
       expect(result).toEqual({ data: mockNecessidade })
@@ -152,7 +162,9 @@ describe('NecessidadeInformacaoController', () => {
           descricao: 'Descrição atualizada'
         },
         include: {
-          tabelas: true
+          comunidade: true,
+          tabelas: true,
+          colunas: true
         }
       })
       expect(result).toEqual({ data: mockNecessidade })

@@ -39,7 +39,7 @@ export class ListaDimensaoController extends BaseController {
       })
 
       if (!data) {
-        return reply.notFound('Lista de Dimensão não encontrada')
+        return (reply as any).notFound('Lista de Dimensão não encontrada')
       }
 
       return { data }

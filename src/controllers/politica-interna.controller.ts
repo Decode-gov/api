@@ -45,7 +45,7 @@ export class PoliticaInternaController extends BaseController {
       })
 
       if (!data) {
-        return reply.notFound('Política interna não encontrada')
+        return (reply as any).notFound('Política interna não encontrada')
       }
 
       return { data }

@@ -148,7 +148,7 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     const validation = CreateProdutoDadosZod.safeParse(request.body)
     if (!validation.success) {
-      return reply.badRequest('Dados de entrada inválidos')
+      return (reply as any).badRequest('Dados de entrada inválidos')
     }
     return controller.create(request as any, reply)
   })
@@ -203,7 +203,7 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     const validation = UpdateProdutoDadosZod.safeParse(request.body)
     if (!validation.success) {
-      return reply.badRequest('Dados de entrada inválidos')
+      return (reply as any).badRequest('Dados de entrada inválidos')
     }
     return controller.update(request as any, reply)
   })

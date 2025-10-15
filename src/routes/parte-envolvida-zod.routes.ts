@@ -38,7 +38,7 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    return controller.findMany(request, reply)
+    return controller.findMany(request as any, reply)
   })
 
   // GET /partes-envolvidas/:id - Buscar parte envolvida por ID
@@ -54,7 +54,7 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    return controller.findById(request, reply)
+    return controller.findById(request as any, reply)
   })
 
   // POST /partes-envolvidas - Criar parte envolvida
@@ -70,7 +70,7 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    return controller.create(request, reply)
+    return controller.create(request as any, reply)
   })
 
   // PUT /partes-envolvidas/:id - Atualizar parte envolvida
@@ -87,7 +87,7 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    return controller.update(request, reply)
+    return controller.update(request as any, reply)
   })
 
   // DELETE /partes-envolvidas/:id - Deletar parte envolvida
@@ -108,6 +108,6 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    return controller.delete(request, reply)
+    return controller.delete(request as any, reply)
   })
 }

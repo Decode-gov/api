@@ -36,7 +36,7 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       }
     }
   }, async (request, reply) => {
-    return controller.findMany(request, reply)
+    return controller.findMany(request as any, reply)
   })
 
   // GET /classificacoes-informacao/:id - Buscar classificação por ID
@@ -52,7 +52,7 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       }
     }
   }, async (request, reply) => {
-    return controller.findById(request, reply)
+    return controller.findById(request as any, reply)
   })
 
   // POST /classificacoes-informacao - Criar classificação
@@ -68,7 +68,7 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       }
     }
   }, async (request, reply) => {
-    return controller.create(request, reply)
+    return controller.create(request as any, reply)
   })
 
   // PUT /classificacoes-informacao/:id - Atualizar classificação
@@ -85,7 +85,7 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       }
     }
   }, async (request, reply) => {
-    return controller.update(request, reply)
+    return controller.update(request as any, reply)
   })
 
   // PUT /classificacoes-informacao/:id/termo - Atribuir termo
@@ -102,7 +102,7 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       }
     }
   }, async (request, reply) => {
-    return controller.atribuirTermo(request, reply)
+    return controller.atribuirTermo(request as any, reply)
   })
 
   // DELETE /classificacoes-informacao/:id - Deletar classificação
@@ -123,6 +123,6 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       }
     }
   }, async (request, reply) => {
-    return controller.delete(request, reply)
+    return controller.delete(request as any, reply)
   })
 }

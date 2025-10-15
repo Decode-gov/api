@@ -250,7 +250,7 @@ export async function atribuicaoPapelDominioRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     const validation = CreateAtribuicaoZod.safeParse(request.body)
     if (!validation.success) {
-      return reply.badRequest('Dados de entrada inválidos')
+      return (reply as any).badRequest('Dados de entrada inválidos')
     }
     return controller.create(request as any, reply)
   })
@@ -322,7 +322,7 @@ export async function atribuicaoPapelDominioRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     const validation = UpdateAtribuicaoZod.safeParse(request.body)
     if (!validation.success) {
-      return reply.badRequest('Dados de entrada inválidos')
+      return (reply as any).badRequest('Dados de entrada inválidos')
     }
     return controller.update(request as any, reply)
   })

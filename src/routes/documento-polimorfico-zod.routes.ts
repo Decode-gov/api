@@ -266,7 +266,7 @@ export async function documentoPolimorficoRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     const validation = CreateDocumentoZod.safeParse(request.body)
     if (!validation.success) {
-      return reply.badRequest('Dados de entrada inválidos')
+      return (reply as any).badRequest('Dados de entrada inválidos')
     }
     return controller.anexarDocumento(request as any, reply)
   })
@@ -335,7 +335,7 @@ export async function documentoPolimorficoRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     const validation = UpdateDocumentoZod.safeParse(request.body)
     if (!validation.success) {
-      return reply.badRequest('Dados de entrada inválidos')
+      return (reply as any).badRequest('Dados de entrada inválidos')
     }
     return controller.update(request as any, reply)
   })

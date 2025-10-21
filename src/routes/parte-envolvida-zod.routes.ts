@@ -15,19 +15,11 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new ParteEnvolvidaController(app.prisma)
 
-  // Enums para query params
-  const TipoParteEnum = z.enum(['PESSOA_FISICA', 'PESSOA_JURIDICA', 'ORGAO_PUBLICO', 'ENTIDADE', 'SISTEMA', 'DEPARTAMENTO'])
-  const CategoriaEnum = z.enum(['CLIENTE', 'FORNECEDOR', 'PARCEIRO', 'REGULADOR', 'INTERNO', 'EXTERNO'])
-  const CriticidadeEnum = z.enum(['BAIXA', 'MEDIA', 'ALTA', 'CRITICA'])
-
   // Schemas adicionais
   const QueryParamsSchema = z.object({
     skip: z.coerce.number().int().min(0).default(0),
     take: z.coerce.number().int().min(1).max(100).default(10),
     orderBy: z.string().optional(),
-    tipo: TipoParteEnum.optional(),
-    categoria: CategoriaEnum.optional(),
-    criticidade: CriticidadeEnum.optional(),
     search: z.string().optional()
   })
 

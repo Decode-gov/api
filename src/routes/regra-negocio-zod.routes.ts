@@ -3,25 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { RegraNegocioController } from '../controllers/regra-negocio.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
-import {
-  RegraNegocioParamsSchema,
-  CreateRegraNegocioSchema,
-  UpdateRegraNegocioSchema,
-  RegraNegocioResponseSchema,
-  RegrasNegocioListResponseSchema
-} from '../schemas/regra-negocio.js'
-
-// Schemas Zod para validação
-const StatusEnum = z.enum(['ATIVA', 'INATIVA', 'EM_DESENVOLVIMENTO', 'DESCONTINUADA'])
-const TipoRegraEnum = z.enum(['VALIDACAO', 'TRANSFORMACAO', 'CALCULO', 'CONTROLE', 'NEGOCIO'])
-
-const QueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional(),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
-  orderBy: z.string().optional(),
-  status: StatusEnum.optional(),
-  tipoRegra: TipoRegraEnum.optional()
-})
+import { RegraNegocioQueryParamsSchema, RegrasNegocioListResponseSchema, RegraNegocioParamsSchema, RegraNegocioResponseSchema, CreateRegraNegocioSchema, UpdateRegraNegocioSchema } from '../schemas/regra-negocio.js'
 
 const ErrorResponseSchema = z.object({
   error: z.string(),
@@ -29,7 +11,11 @@ const ErrorResponseSchema = z.object({
 })
 
 const DeleteResponseSchema = z.object({
-  message: z.string()
+  data: z.object({
+    id: z.string(),
+    processoId: z.string(),
+    descricao: z.string()
+  })
 })
 
 export async function regraNegocioZodRoutes(fastify: FastifyInstance) {
@@ -43,7 +29,7 @@ export async function regraNegocioZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as regras de negócio do sistema',
       tags: ['Regras de Negócio'],
       summary: 'Listar regras de negócio',
-      querystring: QueryParamsSchema,
+      querystring: RegraNegocioQueryParamsSchema,
       response: {
         200: RegrasNegocioListResponseSchema
       }

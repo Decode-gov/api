@@ -1,274 +1,154 @@
-import type { FastifyRequest, FastifyReply } from 'fastify'
+﻿import type { FastifyRequest, FastifyReply } from 'fastify'
 import type { PrismaClient } from '@prisma/client'
 import { BaseController } from './base.controller.js'
-
-interface DimensaoQualidadeParams {
-  id: string
-}
-
-interface DimensaoQualidadeQuery {
-  skip?: number
-  take?: number
-  orderBy?: string
-  politicaId?: string
-}
-
-interface DimensaoQualidadeBody {
-  nome: string
-  descricao?: string
-  politicaId: string
-}
 
 export class DimensaoQualidadeController extends BaseController {
   constructor(prisma: PrismaClient) {
     super(prisma, 'dimensaoQualidade')
   }
 
-  async findMany(request: FastifyRequest<{ Querystring: DimensaoQualidadeQuery }>, reply: FastifyReply) {
+  async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip = 0, take = 10, orderBy = 'nome', politicaId } = request.query
+      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const query = request.query as any
 
-      this.validatePagination({ skip, take })
+      const where: any = {}
+      if (query.politicaId) {
+        where.politicaId = query.politicaId
+      }
 
-      const where = politicaId ? { politicaId } : {}
-
-      const dimensoes = await (this.prisma as any).dimensaoQualidade.findMany({
+      const data = await this.prisma.dimensaoQualidade.findMany({
         skip,
         take,
         where,
-        orderBy: { [orderBy]: 'asc' },
+        orderBy,
         include: {
           politica: {
             select: {
               id: true,
-              nome: true,
-              categoria: true
+              nome: true
             }
           },
           regrasQualidade: {
             select: {
               id: true,
-              descricao: true,
-              tabela: {
-                select: {
-                  id: true,
-                  nome: true
-                }
-              },
-              coluna: {
-                select: {
-                  id: true,
-                  nome: true
-                }
-              },
-              responsavel: {
-                select: {
-                  id: true,
-                  nome: true,
-                  email: true
-                }
-              }
+              descricao: true
             }
           }
         }
       })
 
-      return reply.status(200).send({
-        message: 'Dimensões de qualidade encontradas',
-        data: dimensoes
-      })
+      return { data }
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async findById(request: FastifyRequest<{ Params: DimensaoQualidadeParams }>, reply: FastifyReply) {
+  async findById(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params
-      this.validateId(id)
+      const { id } = request.params as { id: string }
+      const validId = this.validateId(id)
 
-      const dimensao = await (this.prisma as any).dimensaoQualidade.findUnique({
-        where: { id },
+      const data = await this.prisma.dimensaoQualidade.findUnique({
+        where: { id: validId },
         include: {
           politica: {
             select: {
               id: true,
-              nome: true,
-              categoria: true,
-              status: true
+              nome: true
             }
           },
           regrasQualidade: {
-            include: {
-              tabela: {
-                select: {
-                  id: true,
-                  nome: true
-                }
-              },
-              coluna: {
-                select: {
-                  id: true,
-                  nome: true
-                }
-              },
-              responsavel: {
-                select: {
-                  id: true,
-                  nome: true,
-                  email: true
-                }
-              },
-              criticidadesRegulatorias: {
-                include: {
-                  regulacao: {
-                    select: {
-                      id: true,
-                      epigrafe: true,
-                      orgao: true
-                    }
-                  }
-                }
-              }
+            select: {
+              id: true,
+              descricao: true
             }
           }
         }
       })
 
-      if (!dimensao) {
-        return reply.status(404).send({
-          error: 'NotFound',
-          message: 'Dimensão de qualidade não encontrada'
-        })
+      if (!data) {
+        return (reply as any).notFound('Dimensão de qualidade não encontrada')
       }
 
-      return reply.status(200).send({
-        message: 'Dimensão de qualidade encontrada',
-        data: dimensao
-      })
+      return { data }
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async create(request: FastifyRequest<{ Body: DimensaoQualidadeBody }>, reply: FastifyReply) {
+  async create(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { nome, descricao, politicaId } = request.body
+      const body = request.body as any
 
-      // Validar se a política existe
-      const politica = await this.prisma.politicaInterna.findUnique({
-        where: { id: politicaId }
-      })
-
-      if (!politica) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: 'Política interna não encontrada'
-        })
-      }
-
-      const dimensao = await (this.prisma as any).dimensaoQualidade.create({
-        data: {
-          nome,
-          descricao,
-          politicaId
-        },
+      const data = await this.prisma.dimensaoQualidade.create({
+        data: body,
         include: {
           politica: {
             select: {
               id: true,
-              nome: true,
-              categoria: true
+              nome: true
+            }
+          },
+          regrasQualidade: {
+            select: {
+              id: true,
+              descricao: true
             }
           }
         }
       })
 
-      return reply.status(201).send({
-        message: 'Dimensão de qualidade criada com sucesso',
-        data: dimensao
-      })
+      reply.code(201)
+      return { data }
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async update(request: FastifyRequest<{ Params: DimensaoQualidadeParams; Body: Partial<DimensaoQualidadeBody> }>, reply: FastifyReply) {
+  async update(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params
-      this.validateId(id)
+      const { id } = request.params as { id: string }
+      const validId = this.validateId(id)
+      const body = request.body as any
 
-      const updateData = { ...request.body }
-      if (Object.keys(updateData).length === 0) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: 'Nenhum campo fornecido para atualização'
-        })
-      }
-
-      // Se está atualizando politicaId, validar se existe
-      if (updateData.politicaId) {
-        const politica = await this.prisma.politicaInterna.findUnique({
-          where: { id: updateData.politicaId }
-        })
-
-        if (!politica) {
-          return reply.status(400).send({
-            error: 'BadRequest',
-            message: 'Política interna não encontrada'
-          })
-        }
-      }
-
-      const dimensao = await (this.prisma as any).dimensaoQualidade.update({
-        where: { id },
-        data: updateData,
+      const data = await this.prisma.dimensaoQualidade.update({
+        where: { id: validId },
+        data: body,
         include: {
           politica: {
             select: {
               id: true,
-              nome: true,
-              categoria: true
+              nome: true
+            }
+          },
+          regrasQualidade: {
+            select: {
+              id: true,
+              descricao: true
             }
           }
         }
       })
 
-      return reply.status(200).send({
-        message: 'Dimensão de qualidade atualizada com sucesso',
-        data: dimensao
-      })
+      return { data }
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async delete(request: FastifyRequest<{ Params: DimensaoQualidadeParams }>, reply: FastifyReply) {
+  async delete(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params
-      this.validateId(id)
+      const { id } = request.params as { id: string }
+      const validId = this.validateId(id)
 
-      // Verificar se há regras de qualidade associadas
-      const regrasQualidade = await (this.prisma as any).regraQualidade.findMany({
-        where: { dimensaoId: id }
+      const data = await this.prisma.dimensaoQualidade.delete({
+        where: { id: validId }
       })
 
-      if (regrasQualidade.length > 0) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: 'Não é possível deletar dimensão que possui regras de qualidade associadas'
-        })
-      }
-
-      await (this.prisma as any).dimensaoQualidade.delete({
-        where: { id }
-      })
-
-      return reply.status(200).send({
-        message: 'Dimensão de qualidade deletada com sucesso'
-      })
+      return { data }
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 }

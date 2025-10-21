@@ -624,28 +624,21 @@ model DocumentoTabela {
   termo          Definicao            @relation(fields: [termoId], references: [id])
   repositorioId  String               @map("repositorio_id") @db.Uuid
   repositorio    RepositorioDocumento @relation(fields: [repositorioId], references: [id])
-  caminhoArquivo String               @map("caminho_arquivo")
-  dataUpload     DateTime             @map("data_upload")
-  tabelaId       String               @map("tabela_id") @db.Uuid
-  tabela         Tabela               @relation(fields: [tabelaId], references: [id])
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
   @@index([termoId])
   @@index([repositorioId])
-  @@index([tabelaId])
-  @@map("documentos_tabela")
+  @@map("documentos_arquivo")
 }
 
 model DocumentoRepositorio {
-  id             String               @id @default(uuid()) @db.Uuid
-  termoId        String               @map("termo_id") @db.Uuid
-  termo          Definicao            @relation(fields: [termoId], references: [id])
-  repositorioId  String               @map("repositorio_id") @db.Uuid
-  repositorio    RepositorioDocumento @relation(fields: [repositorioId], references: [id])
-  caminhoArquivo String               @map("caminho_arquivo")
-  dataUpload     DateTime             @map("data_upload")
+  id            String               @id @default(uuid()) @db.Uuid
+  termoId       String               @map("termo_id") @db.Uuid
+  termo         Definicao            @relation(fields: [termoId], references: [id])
+  repositorioId String               @map("repositorio_id") @db.Uuid
+  repositorio   RepositorioDocumento @relation(fields: [repositorioId], references: [id])
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")

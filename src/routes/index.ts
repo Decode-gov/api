@@ -10,6 +10,7 @@ import { comunidadeZodRoutes } from './comunidade-zod.routes.js'
 import { dashboardZodRoutes } from './dashboard-zod.routes.js'
 import { definicaoZodFinalRoutes } from './definicao-zod-final.routes.js'
 import { documentoPolimorficoRoutes } from './documento-polimorfico-zod.routes.js'
+import { documentoRepositorioZodRoutes } from './documento-repositorio-zod.routes.js'
 import { importacaoExportacaoZodRoutes } from './importacao-exportacao-zod.routes.js'
 import { kpiZodFinalRoutes } from './kpi-zod-final.routes.js'
 import { listaClassificacaoRoutes } from './lista-classificacao-zod.routes.js'
@@ -29,6 +30,10 @@ import { tabelaZodRoutes } from './tabela-zod.routes.js'
 import { tipoDadosZodRoutes } from './tipo-dados-zod.routes.js'
 import { operacaoZodRoutes } from './operacao-zod.routes.js'
 import { atividadeZodRoutes } from './atividade-zod.routes.js'
+import { dimensaoQualidadeZodRoutes } from './dimensao-qualidade-zod.routes.js'
+import { regraQualidadeZodRoutes } from './regra-qualidade-zod.routes.js'
+import { regulacaoCompletaZodRoutes } from './regulacao-completa-zod.routes.js'
+import { criticidadeRegulatoriaZodRoutes } from './criticidade-regulatoria-zod.routes.js'
 
 // Rotas que ainda não foram convertidas para Zod
 
@@ -104,6 +109,8 @@ export async function registerAllRoutes(app: FastifyInstance) {
 
     await app.register(documentoPolimorficoRoutes, { prefix: '/documentos' })
 
+    await app.register(documentoRepositorioZodRoutes, { prefix: '/documentos-repositorio' })
+
     // Rotas com Zod moderno e middleware de autenticação
     await app.register(classificacaoInformacaoZodRoutes, { prefix: '/classificacoes-informacao' })
 
@@ -114,6 +121,14 @@ export async function registerAllRoutes(app: FastifyInstance) {
     await app.register(operacaoZodRoutes, { prefix: '/operacoes' })
 
     await app.register(atividadeZodRoutes, { prefix: '/atividades' })
+
+    await app.register(dimensaoQualidadeZodRoutes, { prefix: '/dimensoes-qualidade' })
+
+    await app.register(regraQualidadeZodRoutes, { prefix: '/regras-qualidade' })
+
+    await app.register(regulacaoCompletaZodRoutes, { prefix: '/regulacoes-completas' })
+
+    await app.register(criticidadeRegulatoriaZodRoutes, { prefix: '/criticidades-regulatorias' })
 
   } catch (error) {
     // Erro ao registrar rotas - falha crítica na inicialização

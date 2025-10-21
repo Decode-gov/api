@@ -10,20 +10,29 @@ export class RegraNegocioController extends BaseController {
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { skip, take, orderBy } = this.validatePagination(request.query)
+      const query = request.query as any
+
+      const where: any = {}
+      if (query.processoId) {
+        where.processoId = query.processoId
+      }
 
       const data = await this.prisma.regraNegocio.findMany({
         skip,
         take,
+        where,
         orderBy,
         include: {
-          processo: true
+          processo: {
+            select: {
+              id: true,
+              nome: true,
+              descricao: true
+            }
+          }
         }
       })
 
-      reply.send({
-        message: 'Regras de negócio encontradas',
-        data
-      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -38,7 +47,13 @@ export class RegraNegocioController extends BaseController {
       const data = await this.prisma.regraNegocio.findUnique({
         where: { id: validId },
         include: {
-          processo: true
+          processo: {
+            select: {
+              id: true,
+              nome: true,
+              descricao: true
+            }
+          }
         }
       })
 
@@ -46,10 +61,6 @@ export class RegraNegocioController extends BaseController {
         return (reply as any).notFound('Regra de Negócio não encontrada')
       }
 
-      reply.send({
-        message: 'Regra de negócio encontrada',
-        data
-      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -63,14 +74,17 @@ export class RegraNegocioController extends BaseController {
       const data = await this.prisma.regraNegocio.create({
         data: body,
         include: {
-          processo: true
+          processo: {
+            select: {
+              id: true,
+              nome: true,
+              descricao: true
+            }
+          }
         }
       })
 
-      reply.status(201).send({
-        message: 'Regra de negócio criada com sucesso',
-        data
-      })
+      reply.code(201)
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -87,14 +101,16 @@ export class RegraNegocioController extends BaseController {
         where: { id: validId },
         data: body,
         include: {
-          processo: true
+          processo: {
+            select: {
+              id: true,
+              nome: true,
+              descricao: true
+            }
+          }
         }
       })
 
-      reply.send({
-        message: 'Regra de negócio atualizada com sucesso',
-        data
-      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -110,10 +126,6 @@ export class RegraNegocioController extends BaseController {
         where: { id: validId }
       })
 
-      reply.send({
-        message: 'Regra de negócio excluída com sucesso',
-        data
-      })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)

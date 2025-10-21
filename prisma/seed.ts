@@ -23,7 +23,7 @@ async function main() {
   const admin = await prisma.usuario.create({
     data: {
       nome: 'Administrador do Sistema',
-      email: 'admin@gdados.com',
+      email: 'admin@decodegov.com',
       senha: senhaHash,
       ativo: true,
     },

@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
 import { AtividadeController } from '../controllers/atividade.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
 import {
@@ -8,7 +9,30 @@ import {
   UpdateAtividadeSchema,
   AtividadeResponseSchema,
   AtividadesListResponseSchema
-} from '../schemas/atividade'
+} from '../schemas/atividade.js'
+
+// Schemas Zod para validação
+const StatusEnum = z.enum(['PLANEJADA', 'EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA', 'PAUSADA'])
+const PrioridadeEnum = z.enum(['BAIXA', 'MEDIA', 'ALTA', 'CRITICA'])
+
+const QueryParamsSchema = z.object({
+  skip: z.coerce.number().int().min(0).default(0).optional(),
+  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
+  orderBy: z.string().optional(),
+  status: StatusEnum.optional(),
+  prioridade: PrioridadeEnum.optional(),
+  processoId: z.uuid().optional(),
+  responsavel: z.string().optional()
+})
+
+const ErrorResponseSchema = z.object({
+  error: z.string(),
+  message: z.string()
+})
+
+const DeleteResponseSchema = z.object({
+  message: z.string()
+})
 
 export async function atividadeZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -21,25 +45,12 @@ export async function atividadeZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as atividades cadastradas no sistema',
       tags: ['Atividades'],
       summary: 'Listar atividades',
-      querystring: {
-        type: 'object',
-        properties: {
-          skip: { type: 'integer', minimum: 0, default: 0 },
-          take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' },
-          status: { type: 'string', enum: ['PLANEJADA', 'EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA', 'PAUSADA'] },
-          prioridade: { type: 'string', enum: ['BAIXA', 'MEDIA', 'ALTA', 'CRITICA'] },
-          processoId: { type: 'string', format: 'uuid' },
-          responsavel: { type: 'string' }
-        }
-      },
+      querystring: QueryParamsSchema,
       response: {
         200: AtividadesListResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.findMany(request, reply)
-  })
+  }, controller.findMany.bind(controller))
 
   // GET /atividades/:id - Buscar atividade por ID
   app.get('/:id', {
@@ -50,12 +61,11 @@ export async function atividadeZodRoutes(fastify: FastifyInstance) {
       summary: 'Buscar atividade por ID',
       params: AtividadeParamsSchema,
       response: {
-        200: AtividadeResponseSchema
+        200: AtividadeResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.findById(request, reply)
-  })
+  }, controller.findById.bind(controller))
 
   // POST /atividades - Criar atividade
   app.post('/', {
@@ -66,12 +76,11 @@ export async function atividadeZodRoutes(fastify: FastifyInstance) {
       summary: 'Criar atividade',
       body: CreateAtividadeSchema,
       response: {
-        201: AtividadeResponseSchema
+        201: AtividadeResponseSchema,
+        400: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.create(request, reply)
-  })
+  }, controller.create.bind(controller))
 
   // PUT /atividades/:id - Atualizar atividade
   app.put('/:id', {
@@ -83,12 +92,11 @@ export async function atividadeZodRoutes(fastify: FastifyInstance) {
       params: AtividadeParamsSchema,
       body: UpdateAtividadeSchema,
       response: {
-        200: AtividadeResponseSchema
+        200: AtividadeResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.update(request, reply)
-  })
+  }, controller.update.bind(controller))
 
   // DELETE /atividades/:id - Deletar atividade
   app.delete('/:id', {
@@ -99,15 +107,9 @@ export async function atividadeZodRoutes(fastify: FastifyInstance) {
       summary: 'Deletar atividade',
       params: AtividadeParamsSchema,
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        }
+        200: DeleteResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.delete(request, reply)
-  })
+  }, controller.delete.bind(controller))
 }

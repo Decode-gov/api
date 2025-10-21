@@ -4,11 +4,12 @@ import { NecessidadeInformacaoController } from '../controllers/necessidade-info
 import { authMiddleware } from '../middleware/auth.js'
 import {
   NecessidadeInformacaoParamsSchema,
+  NecessidadeInformacaoQuerySchema,
   CreateNecessidadeInformacaoSchema,
   UpdateNecessidadeInformacaoSchema,
   NecessidadeInformacaoResponseSchema,
   NecessidadesListResponseSchema
-} from '../schemas/necessidade-informacao'
+} from '../schemas/necessidade-informacao.js'
 
 export async function necessidadeInformacaoZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -21,16 +22,7 @@ export async function necessidadeInformacaoZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as necessidades de informação cadastradas',
       tags: ['Necessidades de Informação'],
       summary: 'Listar necessidades de informação',
-      querystring: {
-        type: 'object',
-        properties: {
-          skip: { type: 'integer', minimum: 0, default: 0 },
-          take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' },
-          status: { type: 'string', enum: ['PENDENTE', 'EM_ANDAMENTO', 'ATENDIDA', 'CANCELADA'] },
-          prioridade: { type: 'string', enum: ['BAIXA', 'MEDIA', 'ALTA'] }
-        }
-      },
+      querystring: NecessidadeInformacaoQuerySchema,
       response: {
         200: NecessidadesListResponseSchema
       }

@@ -6,8 +6,8 @@ export const UsuarioSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).describe('Nome completo do usuário'),
   email: z.email({ message: 'Email deve ser válido' }).describe('Endereço de email'),
   ativo: z.boolean().describe('Status de ativação do usuário'),
-  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de usuário

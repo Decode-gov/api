@@ -6,8 +6,8 @@ export const DefinicaoSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da definição (termo)'),
   descricao: z.string().optional().describe('Descrição da definição'),
   sigla: z.string().optional().describe('Sigla do termo'),
-  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de definição - conforme especificação do prompt

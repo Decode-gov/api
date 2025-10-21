@@ -14,7 +14,7 @@ export async function colunaZodFinalRoutes(fastify: FastifyInstance) {
     obrigatorio: z.boolean().default(false),
     unicidade: z.boolean().default(false),
     ativo: z.boolean().default(true),
-    tabelaId: z.string().uuid('TabelaId deve ser um UUID válido'),
+    tabelaId: z.uuid({ message: 'TabelaId deve ser um UUID válido' }),
     tipoDadosId: z.string().optional(),
     politicaInternaId: z.string().optional()
   })

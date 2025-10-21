@@ -41,8 +41,8 @@ export const userSchema = z.object({
   nome: nomeSchema,
   email: emailSchema,
   ativo: z.boolean().describe('Status de ativação do usuário'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).optional().describe('Data de criação'),
+  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).optional().describe('Data de última atualização')
 })
 
 // Schema para JWT Payload

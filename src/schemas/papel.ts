@@ -7,8 +7,8 @@ export const PapelSchema = z.object({
   descricao: z.string().min(1, { message: 'Descrição é obrigatória' }).describe('Descrição do papel'),
   politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).describe('ID da política relacionada'),
   ativo: z.boolean().default(true).describe('Status de ativação do papel'),
-  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de papel

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
-export const idSchema = z.string().uuid('ID inválido')
+// ID schema usando novo validador top-level do Zod v4
+export const idSchema = z.uuid({ message: 'ID inválido' })
 
 export interface PaginationParams {
   skip?: number

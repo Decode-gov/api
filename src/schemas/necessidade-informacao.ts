@@ -8,8 +8,8 @@ export const NecessidadeInformacaoSchema = z.object({
   elementoTatico: z.string().nullable().optional().describe('Elemento tático'),
   origemQuestao: z.string().min(1, { message: 'Origem da questão é obrigatória' }).describe('Origem da questão'),
   comunidadeId: z.uuid({ message: 'ID da comunidade deve ser um UUID válido' }).describe('ID da comunidade'),
-  createdAt: z.string().datetime().nullable().optional().describe('Data de criação'),
-  updatedAt: z.string().datetime().nullable().optional().describe('Data de última atualização')
+  createdAt: z.iso.datetime().nullable().optional().describe('Data de criação'),
+  updatedAt: z.iso.datetime().nullable().optional().describe('Data de última atualização')
 })
 
 // Schema para criação de necessidade de informação
@@ -63,9 +63,22 @@ export const NecessidadeInformacaoParamsSchema = z.object({
   id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('ID da necessidade de informação')
 })
 
+// Schema para query string de listagem
+export const NecessidadeInformacaoQuerySchema = z.object({
+  skip: z.coerce.number().int().min(0, { message: 'Skip deve ser >= 0' }).default(0).describe('Registros para pular'),
+  take: z.coerce.number().int().min(1, { message: 'Take deve ser >= 1' }).max(100, { message: 'Máximo 100 registros' }).default(10).describe('Registros para retornar'),
+  orderBy: z.string().optional().describe('Campo para ordenação'),
+  status: z.enum(['PENDENTE', 'EM_ANDAMENTO', 'ATENDIDA', 'CANCELADA']).optional().describe('Filtro por status'),
+  prioridade: z.enum(['BAIXA', 'MEDIA', 'ALTA']).optional().describe('Filtro por prioridade'),
+  search: z.string().optional().describe('Busca em questão gerencial'),
+  page: z.coerce.number().int().min(1).optional().describe('Número da página'),
+  limit: z.coerce.number().int().min(1).max(100).optional().describe('Limite de registros por página')
+})
+
 // Tipos derivados
 export type NecessidadeInformacao = z.infer<typeof NecessidadeInformacaoSchema>
 export type CreateNecessidadeInformacao = z.infer<typeof CreateNecessidadeInformacaoSchema>
 export type UpdateNecessidadeInformacao = z.infer<typeof UpdateNecessidadeInformacaoSchema>
 export type NecessidadeInformacaoWithRelations = z.infer<typeof NecessidadeInformacaoWithRelationsSchema>
 export type NecessidadeInformacaoParams = z.infer<typeof NecessidadeInformacaoParamsSchema>
+export type NecessidadeInformacaoQuery = z.infer<typeof NecessidadeInformacaoQuerySchema>

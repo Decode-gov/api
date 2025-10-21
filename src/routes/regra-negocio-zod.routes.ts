@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
 import { RegraNegocioController } from '../controllers/regra-negocio.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
 import {
@@ -8,7 +9,28 @@ import {
   UpdateRegraNegocioSchema,
   RegraNegocioResponseSchema,
   RegrasNegocioListResponseSchema
-} from '../schemas/regra-negocio'
+} from '../schemas/regra-negocio.js'
+
+// Schemas Zod para validação
+const StatusEnum = z.enum(['ATIVA', 'INATIVA', 'EM_DESENVOLVIMENTO', 'DESCONTINUADA'])
+const TipoRegraEnum = z.enum(['VALIDACAO', 'TRANSFORMACAO', 'CALCULO', 'CONTROLE', 'NEGOCIO'])
+
+const QueryParamsSchema = z.object({
+  skip: z.coerce.number().int().min(0).default(0).optional(),
+  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
+  orderBy: z.string().optional(),
+  status: StatusEnum.optional(),
+  tipoRegra: TipoRegraEnum.optional()
+})
+
+const ErrorResponseSchema = z.object({
+  error: z.string(),
+  message: z.string()
+})
+
+const DeleteResponseSchema = z.object({
+  message: z.string()
+})
 
 export async function regraNegocioZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -21,23 +43,12 @@ export async function regraNegocioZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as regras de negócio do sistema',
       tags: ['Regras de Negócio'],
       summary: 'Listar regras de negócio',
-      querystring: {
-        type: 'object',
-        properties: {
-          skip: { type: 'integer', minimum: 0, default: 0 },
-          take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' },
-          status: { type: 'string', enum: ['ATIVA', 'INATIVA', 'EM_DESENVOLVIMENTO', 'DESCONTINUADA'] },
-          tipoRegra: { type: 'string', enum: ['VALIDACAO', 'TRANSFORMACAO', 'CALCULO', 'CONTROLE', 'NEGOCIO'] }
-        }
-      },
+      querystring: QueryParamsSchema,
       response: {
         200: RegrasNegocioListResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.findMany(request, reply)
-  })
+  }, controller.findMany.bind(controller))
 
   // GET /regras-negocio/:id - Buscar regra por ID
   app.get('/:id', {
@@ -48,12 +59,11 @@ export async function regraNegocioZodRoutes(fastify: FastifyInstance) {
       summary: 'Buscar regra de negócio',
       params: RegraNegocioParamsSchema,
       response: {
-        200: RegraNegocioResponseSchema
+        200: RegraNegocioResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.findById(request, reply)
-  })
+  }, controller.findById.bind(controller))
 
   // POST /regras-negocio - Criar regra
   app.post('/', {
@@ -64,12 +74,11 @@ export async function regraNegocioZodRoutes(fastify: FastifyInstance) {
       summary: 'Criar regra de negócio',
       body: CreateRegraNegocioSchema,
       response: {
-        201: RegraNegocioResponseSchema
+        201: RegraNegocioResponseSchema,
+        400: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.create(request, reply)
-  })
+  }, controller.create.bind(controller))
 
   // PUT /regras-negocio/:id - Atualizar regra
   app.put('/:id', {
@@ -81,12 +90,11 @@ export async function regraNegocioZodRoutes(fastify: FastifyInstance) {
       params: RegraNegocioParamsSchema,
       body: UpdateRegraNegocioSchema,
       response: {
-        200: RegraNegocioResponseSchema
+        200: RegraNegocioResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.update(request, reply)
-  })
+  }, controller.update.bind(controller))
 
   // DELETE /regras-negocio/:id - Deletar regra
   app.delete('/:id', {
@@ -97,16 +105,10 @@ export async function regraNegocioZodRoutes(fastify: FastifyInstance) {
       summary: 'Deletar regra de negócio',
       params: RegraNegocioParamsSchema,
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        }
+        200: DeleteResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.delete(request, reply)
-  })
+  }, controller.delete.bind(controller))
 }
 

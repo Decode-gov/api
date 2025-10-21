@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
 import { ParteEnvolvidaController } from '../controllers/parte-envolvida.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
 import {
@@ -8,11 +9,40 @@ import {
   UpdateParteEnvolvidaSchema,
   ParteEnvolvidaResponseSchema,
   PartesEnvolvidasListResponseSchema
-} from '../schemas/parte-envolvida'
+} from '../schemas/parte-envolvida.js'
 
 export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new ParteEnvolvidaController(app.prisma)
+
+  // Enums para query params
+  const TipoParteEnum = z.enum(['PESSOA_FISICA', 'PESSOA_JURIDICA', 'ORGAO_PUBLICO', 'ENTIDADE', 'SISTEMA', 'DEPARTAMENTO'])
+  const CategoriaEnum = z.enum(['CLIENTE', 'FORNECEDOR', 'PARCEIRO', 'REGULADOR', 'INTERNO', 'EXTERNO'])
+  const CriticidadeEnum = z.enum(['BAIXA', 'MEDIA', 'ALTA', 'CRITICA'])
+
+  // Schemas adicionais
+  const QueryParamsSchema = z.object({
+    skip: z.coerce.number().int().min(0).default(0),
+    take: z.coerce.number().int().min(1).max(100).default(10),
+    orderBy: z.string().optional(),
+    tipo: TipoParteEnum.optional(),
+    categoria: CategoriaEnum.optional(),
+    criticidade: CriticidadeEnum.optional(),
+    search: z.string().optional()
+  })
+
+  const ErrorResponseSchema = z.object({
+    error: z.string(),
+    message: z.string()
+  })
+
+  const DeleteResponseSchema = z.object({
+    message: z.string(),
+    data: z.object({
+      id: z.uuid(),
+      nome: z.string()
+    })
+  })
 
   // GET /partes-envolvidas - Listar partes envolvidas
   app.get('/', {
@@ -21,18 +51,7 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as partes envolvidas cadastradas no sistema',
       tags: ['Partes Envolvidas'],
       summary: 'Listar partes envolvidas',
-      querystring: {
-        type: 'object',
-        properties: {
-          skip: { type: 'integer', minimum: 0, default: 0 },
-          take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' },
-          tipo: { type: 'string', enum: ['PESSOA_FISICA', 'PESSOA_JURIDICA', 'ORGAO_PUBLICO', 'ENTIDADE', 'SISTEMA', 'DEPARTAMENTO'] },
-          categoria: { type: 'string', enum: ['CLIENTE', 'FORNECEDOR', 'PARCEIRO', 'REGULADOR', 'INTERNO', 'EXTERNO'] },
-          criticidade: { type: 'string', enum: ['BAIXA', 'MEDIA', 'ALTA', 'CRITICA'] },
-          search: { type: 'string' }
-        }
-      },
+      querystring: QueryParamsSchema,
       response: {
         200: PartesEnvolvidasListResponseSchema
       }
@@ -50,7 +69,8 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
       summary: 'Buscar parte envolvida por ID',
       params: ParteEnvolvidaParamsSchema,
       response: {
-        200: ParteEnvolvidaResponseSchema
+        200: ParteEnvolvidaResponseSchema,
+        404: ErrorResponseSchema
       }
     }
   }, async (request, reply) => {
@@ -66,7 +86,8 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
       summary: 'Criar parte envolvida',
       body: CreateParteEnvolvidaSchema,
       response: {
-        201: ParteEnvolvidaResponseSchema
+        201: ParteEnvolvidaResponseSchema,
+        400: ErrorResponseSchema
       }
     }
   }, async (request, reply) => {
@@ -83,7 +104,8 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
       params: ParteEnvolvidaParamsSchema,
       body: UpdateParteEnvolvidaSchema,
       response: {
-        200: ParteEnvolvidaResponseSchema
+        200: ParteEnvolvidaResponseSchema,
+        404: ErrorResponseSchema
       }
     }
   }, async (request, reply) => {
@@ -99,12 +121,8 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
       summary: 'Deletar parte envolvida',
       params: ParteEnvolvidaParamsSchema,
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        }
+        200: DeleteResponseSchema,
+        404: ErrorResponseSchema
       }
     }
   }, async (request, reply) => {

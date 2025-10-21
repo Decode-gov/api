@@ -13,8 +13,8 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
     nome: z.string().min(1, 'Nome é obrigatório'),
     descricao: z.string().optional(),
     ativo: z.boolean().default(true),
-    sistemaId: z.string().uuid('SistemaId deve ser um UUID válido'),
-    usuarioId: z.string().uuid('UsuarioId deve ser um UUID válido')
+    sistemaId: z.uuid({ message: 'SistemaId deve ser um UUID válido' }),
+    usuarioId: z.uuid({ message: 'UsuarioId deve ser um UUID válido' })
   })
 
   const UpdateProcessoZod = z.object({

@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
 import { TipoDadosController } from '../controllers/tipo-dados.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
 import {
@@ -8,7 +9,28 @@ import {
   UpdateTipoDadosSchema,
   TipoDadosResponseSchema,
   TiposDadosListResponseSchema
-} from '../schemas/tipo-dados'
+} from '../schemas/tipo-dados.js'
+
+// Schemas Zod para validação
+const CategoriaEnum = z.enum(['PRIMITIVO', 'COMPLEXO', 'ESTRUTURADO', 'SEMI_ESTRUTURADO', 'NAO_ESTRUTURADO'])
+
+const QueryParamsSchema = z.object({
+  skip: z.coerce.number().int().min(0).default(0).optional(),
+  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
+  orderBy: z.string().optional(),
+  categoria: CategoriaEnum.optional(),
+  permiteNulo: z.coerce.boolean().optional(),
+  nome: z.string().optional()
+})
+
+const ErrorResponseSchema = z.object({
+  error: z.string(),
+  message: z.string()
+})
+
+const DeleteResponseSchema = z.object({
+  message: z.string()
+})
 
 export async function tipoDadosZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -21,22 +43,12 @@ export async function tipoDadosZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todos os tipos de dados cadastrados no sistema',
       tags: ['Tipos de Dados'],
       summary: 'Listar tipos de dados',
-      querystring: {
-        type: 'object',
-        properties: {
-          skip: { type: 'integer', minimum: 0, default: 0 },
-          take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' },
-          categoria: { type: 'string', enum: ['PRIMITIVO', 'COMPLEXO', 'ESTRUTURADO', 'SEMI_ESTRUTURADO', 'NAO_ESTRUTURADO'] },
-          permiteNulo: { type: 'boolean' },
-          nome: { type: 'string' }
-        }
-      },
+      querystring: QueryParamsSchema,
       response: {
         200: TiposDadosListResponseSchema
       }
     }
-  }, (request, reply) => controller.findMany(request, reply))
+  }, controller.findMany.bind(controller))
 
   // GET /tipos-dados/:id - Buscar tipo de dados por ID
   app.get('/:id', {
@@ -47,10 +59,11 @@ export async function tipoDadosZodRoutes(fastify: FastifyInstance) {
       summary: 'Buscar tipo de dados por ID',
       params: TipoDadosParamsSchema,
       response: {
-        200: TipoDadosResponseSchema
+        200: TipoDadosResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, (request, reply) => controller.findById(request, reply))
+  }, controller.findById.bind(controller))
 
   // POST /tipos-dados - Criar tipo de dados
   app.post('/', {
@@ -61,10 +74,11 @@ export async function tipoDadosZodRoutes(fastify: FastifyInstance) {
       summary: 'Criar tipo de dados',
       body: CreateTipoDadosSchema,
       response: {
-        201: TipoDadosResponseSchema
+        201: TipoDadosResponseSchema,
+        400: ErrorResponseSchema
       }
     }
-  }, (request, reply) => controller.create(request, reply))
+  }, controller.create.bind(controller))
 
   // PUT /tipos-dados/:id - Atualizar tipo de dados
   app.put('/:id', {
@@ -76,10 +90,11 @@ export async function tipoDadosZodRoutes(fastify: FastifyInstance) {
       params: TipoDadosParamsSchema,
       body: UpdateTipoDadosSchema,
       response: {
-        200: TipoDadosResponseSchema
+        200: TipoDadosResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, (request, reply) => controller.update(request, reply))
+  }, controller.update.bind(controller))
 
   // DELETE /tipos-dados/:id - Deletar tipo de dados
   app.delete('/:id', {
@@ -90,13 +105,9 @@ export async function tipoDadosZodRoutes(fastify: FastifyInstance) {
       summary: 'Deletar tipo de dados',
       params: TipoDadosParamsSchema,
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        }
+        200: DeleteResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, (request, reply) => controller.delete(request, reply))
+  }, controller.delete.bind(controller))
 }

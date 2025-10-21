@@ -5,8 +5,8 @@ export const SistemaSchema = z.object({
   id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do sistema'),
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do sistema'),
   descricao: z.string().nullable().describe('Descrição do sistema'),
-  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de sistema

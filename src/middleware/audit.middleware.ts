@@ -161,16 +161,19 @@ export class AuditMiddleware {
     // Extrair userId do token JWT se disponível
     const userId = this.extractUserIdFromRequest(request)
 
+    // Se não houver userId, não registrar auditoria para evitar erro
+    if (!userId) {
+      return
+    }
+
     const auditData = {
       usuarioId: userId,
-      acao: action,
+      operacao: action, // Alterado de 'acao' para 'operacao'
       entidade: entity,
       entidadeId: finalEntityId,
       dadosAntes: dadosAntes ? JSON.stringify(dadosAntes) : null,
       dadosDepois: dadosDepois ? JSON.stringify(dadosDepois) : null,
-      timestamp: new Date(),
-      ip: request.ip,
-      userAgent: request.headers['user-agent'] || null
+      timestamp: new Date()
     }
 
     await (this.prisma as any).logAuditoria.create({

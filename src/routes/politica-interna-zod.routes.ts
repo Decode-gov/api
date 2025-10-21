@@ -13,6 +13,14 @@ import { PaginationSchema, ErrorSchema } from '../schemas/common.js'
 
 export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
+  const controller = new PoliticaInternaController(app.prisma)
+
+  const DeleteResponseSchema = z.object({
+    data: z.object({
+      id: z.uuid(),
+      nome: z.string()
+    })
+  })
 
   // GET /api/politicas-internas - Listar todas as políticas internas
   app.get('/', {
@@ -25,10 +33,7 @@ export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
         200: PoliticasInternasListResponseSchema
       }
     }
-  }, async (request, reply) => {
-    const controller = new PoliticaInternaController(app.prisma)
-    return controller.findMany(request, reply)
-  })
+  }, controller.findMany.bind(controller))
 
   // GET /api/politicas-internas/:id - Buscar política interna por ID
   app.get('/:id', {
@@ -42,10 +47,7 @@ export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
         404: ErrorSchema
       }
     }
-  }, async (request, reply) => {
-    const controller = new PoliticaInternaController(app.prisma)
-    return controller.findById(request, reply)
-  })
+  }, controller.findById.bind(controller))
 
   // POST /api/politicas-internas - Criar nova política interna
   app.post('/', {
@@ -59,10 +61,7 @@ export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
         400: ErrorSchema
       }
     }
-  }, async (request, reply) => {
-    const controller = new PoliticaInternaController(app.prisma)
-    return controller.create(request, reply)
-  })
+  }, controller.create.bind(controller))
 
   // PUT /api/politicas-internas/:id - Atualizar política interna
   app.put('/:id', {
@@ -78,10 +77,7 @@ export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
         404: ErrorSchema
       }
     }
-  }, async (request, reply) => {
-    const controller = new PoliticaInternaController(app.prisma)
-    return controller.update(request, reply)
-  })
+  }, controller.update.bind(controller))
 
   // DELETE /api/politicas-internas/:id - Deletar política interna
   app.delete('/:id', {
@@ -91,12 +87,9 @@ export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
       summary: 'Excluir política interna',
       params: PoliticaInternaParamsSchema,
       response: {
-        200: z.object({ message: z.string() }),
+        200: DeleteResponseSchema,
         404: ErrorSchema
       }
     }
-  }, async (request, reply) => {
-    const controller = new PoliticaInternaController(app.prisma)
-    return controller.delete(request, reply)
-  })
+  }, controller.delete.bind(controller))
 }

@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
 import { OperacaoController } from '../controllers/operacao.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
 import {
@@ -8,11 +9,42 @@ import {
   UpdateOperacaoSchema,
   OperacaoResponseSchema,
   OperacoesListResponseSchema
-} from '../schemas/operacao'
+} from '../schemas/operacao.js'
 
 export async function operacaoZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new OperacaoController(app.prisma)
+
+  // Enums para query params
+  const TipoOperacaoEnum = z.enum(['CREATE', 'READ', 'UPDATE', 'DELETE', 'PROCESS', 'VALIDATE', 'TRANSFORM'])
+  const FrequenciaEnum = z.enum(['UNICA', 'DIARIA', 'SEMANAL', 'MENSAL', 'TRIMESTRAL', 'ANUAL', 'EVENTUAL'])
+  const ComplexidadeEnum = z.enum(['BAIXA', 'MEDIA', 'ALTA'])
+
+  // Schemas adicionais
+  const QueryParamsSchema = z.object({
+    skip: z.coerce.number().int().min(0).default(0),
+    take: z.coerce.number().int().min(1).max(100).default(10),
+    orderBy: z.string().optional(),
+    tipo: TipoOperacaoEnum.optional(),
+    frequencia: FrequenciaEnum.optional(),
+    complexidade: ComplexidadeEnum.optional(),
+    atividadeId: z.uuid().optional(),
+    automatizada: z.coerce.boolean().optional(),
+    critica: z.coerce.boolean().optional()
+  })
+
+  const ErrorResponseSchema = z.object({
+    error: z.string(),
+    message: z.string()
+  })
+
+  const DeleteResponseSchema = z.object({
+    message: z.string(),
+    data: z.object({
+      id: z.uuid(),
+      nome: z.string()
+    })
+  })
 
   // GET /operacoes - Listar operações
   app.get('/', {
@@ -21,27 +53,12 @@ export async function operacaoZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as operações cadastradas no sistema',
       tags: ['Operações'],
       summary: 'Listar operações',
-      querystring: {
-        type: 'object',
-        properties: {
-          skip: { type: 'integer', minimum: 0, default: 0 },
-          take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' },
-          tipo: { type: 'string', enum: ['CREATE', 'READ', 'UPDATE', 'DELETE', 'PROCESS', 'VALIDATE', 'TRANSFORM'] },
-          frequencia: { type: 'string', enum: ['UNICA', 'DIARIA', 'SEMANAL', 'MENSAL', 'TRIMESTRAL', 'ANUAL', 'EVENTUAL'] },
-          complexidade: { type: 'string', enum: ['BAIXA', 'MEDIA', 'ALTA'] },
-          atividadeId: { type: 'string', format: 'uuid' },
-          automatizada: { type: 'boolean' },
-          critica: { type: 'boolean' }
-        }
-      },
+      querystring: QueryParamsSchema,
       response: {
         200: OperacoesListResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.findMany(request, reply)
-  })
+  }, controller.findMany.bind(controller))
 
   // GET /operacoes/:id - Buscar operação por ID
   app.get('/:id', {
@@ -52,12 +69,11 @@ export async function operacaoZodRoutes(fastify: FastifyInstance) {
       summary: 'Buscar operação por ID',
       params: OperacaoParamsSchema,
       response: {
-        200: OperacaoResponseSchema
+        200: OperacaoResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.findById(request, reply)
-  })
+  }, controller.findById.bind(controller))
 
   // POST /operacoes - Criar operação
   app.post('/', {
@@ -68,12 +84,11 @@ export async function operacaoZodRoutes(fastify: FastifyInstance) {
       summary: 'Criar operação',
       body: CreateOperacaoSchema,
       response: {
-        201: OperacaoResponseSchema
+        201: OperacaoResponseSchema,
+        400: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.create(request, reply)
-  })
+  }, controller.create.bind(controller))
 
   // PUT /operacoes/:id - Atualizar operação
   app.put('/:id', {
@@ -85,12 +100,11 @@ export async function operacaoZodRoutes(fastify: FastifyInstance) {
       params: OperacaoParamsSchema,
       body: UpdateOperacaoSchema,
       response: {
-        200: OperacaoResponseSchema
+        200: OperacaoResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.update(request, reply)
-  })
+  }, controller.update.bind(controller))
 
   // DELETE /operacoes/:id - Deletar operação
   app.delete('/:id', {
@@ -101,15 +115,9 @@ export async function operacaoZodRoutes(fastify: FastifyInstance) {
       summary: 'Deletar operação',
       params: OperacaoParamsSchema,
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        }
+        200: DeleteResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.delete(request, reply)
-  })
+  }, controller.delete.bind(controller))
 }

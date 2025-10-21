@@ -2,6 +2,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { PrismaClient } from '@prisma/client'
 import { BaseController } from './base.controller.js'
 
+
 export class NecessidadeInformacaoController extends BaseController {
   constructor(prisma: PrismaClient) {
     super(prisma, 'necessidadeInformacao')
@@ -9,12 +10,30 @@ export class NecessidadeInformacaoController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const query = request.query as any
+      const skip = query.skip || 0
+      const take = query.take || 10
+
+      // Construir orderBy se fornecido
+      let orderBy: any = undefined
+      if (query.orderBy) {
+        orderBy = { [query.orderBy]: 'asc' }
+      }
+
+      // Construir filtros
+      const where: any = {}
+      if (query.search) {
+        where.questaoGerencial = {
+          contains: query.search,
+          mode: 'insensitive'
+        }
+      }
 
       const data = await this.prisma.necessidadeInformacao.findMany({
         skip,
         take,
         orderBy,
+        where,
         include: {
           comunidade: true,
           tabelas: true,
@@ -37,10 +56,9 @@ export class NecessidadeInformacaoController extends BaseController {
   async findById(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
-      const validId = this.validateId(id)
 
       const data = await this.prisma.necessidadeInformacao.findUnique({
-        where: { id: validId },
+        where: { id },
         include: {
           comunidade: true,
           tabelas: true,
@@ -90,11 +108,10 @@ export class NecessidadeInformacaoController extends BaseController {
   async update(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
-      const validId = this.validateId(id)
       const body = request.body as any
 
       const data = await this.prisma.necessidadeInformacao.update({
-        where: { id: validId },
+        where: { id },
         data: body,
         include: {
           comunidade: true,
@@ -116,10 +133,9 @@ export class NecessidadeInformacaoController extends BaseController {
   async delete(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
-      const validId = this.validateId(id)
 
       const data = await this.prisma.necessidadeInformacao.delete({
-        where: { id: validId }
+        where: { id }
       })
 
       reply.send({

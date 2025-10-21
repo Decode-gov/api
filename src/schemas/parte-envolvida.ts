@@ -18,12 +18,12 @@ export const ParteEnvolvidaSchema = z.object({
   criticidade: z.enum(['BAIXA', 'MEDIA', 'ALTA', 'CRITICA'], {
     message: 'Criticidade deve ser BAIXA, MEDIA, ALTA ou CRITICA'
   }).default('MEDIA').describe('Criticidade da parte envolvida'),
-  dataCadastro: z.string().datetime({ message: 'Data de cadastro deve ser uma data válida' }).optional().describe('Data de cadastro'),
-  dataUltimaInteracao: z.string().datetime({ message: 'Data de última interação deve ser uma data válida' }).optional().describe('Data da última interação'),
+  dataCadastro: z.iso.datetime({ message: 'Data de cadastro deve ser uma data válida' }).optional().describe('Data de cadastro'),
+  dataUltimaInteracao: z.iso.datetime({ message: 'Data de última interação deve ser uma data válida' }).optional().describe('Data da última interação'),
   observacoes: z.string().optional().describe('Observações adicionais'),
   ativo: z.boolean().default(true).describe('Status de ativação'),
-  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de parte envolvida
@@ -37,7 +37,7 @@ export const CreateParteEnvolvidaSchema = z.object({
   descricao: z.string().optional().describe('Descrição adicional'),
   categoria: z.enum(['CLIENTE', 'FORNECEDOR', 'PARCEIRO', 'REGULADOR', 'INTERNO', 'EXTERNO']).describe('Categoria da parte envolvida'),
   criticidade: z.enum(['BAIXA', 'MEDIA', 'ALTA', 'CRITICA']).default('MEDIA').describe('Criticidade da parte envolvida'),
-  dataCadastro: z.string().datetime({ message: 'Data de cadastro deve ser uma data válida' }).optional().describe('Data de cadastro'),
+  dataCadastro: z.iso.datetime({ message: 'Data de cadastro deve ser uma data válida' }).optional().describe('Data de cadastro'),
   observacoes: z.string().optional().describe('Observações adicionais'),
   ativo: z.boolean().default(true).describe('Status de ativação')
 })
@@ -53,8 +53,8 @@ export const UpdateParteEnvolvidaSchema = z.object({
   descricao: z.string().optional().describe('Descrição adicional'),
   categoria: z.enum(['CLIENTE', 'FORNECEDOR', 'PARCEIRO', 'REGULADOR', 'INTERNO', 'EXTERNO']).optional().describe('Categoria da parte envolvida'),
   criticidade: z.enum(['BAIXA', 'MEDIA', 'ALTA', 'CRITICA']).optional().describe('Criticidade da parte envolvida'),
-  dataCadastro: z.string().datetime({ message: 'Data de cadastro deve ser uma data válida' }).optional().describe('Data de cadastro'),
-  dataUltimaInteracao: z.string().datetime({ message: 'Data de última interação deve ser uma data válida' }).optional().describe('Data da última interação'),
+  dataCadastro: z.iso.datetime({ message: 'Data de cadastro deve ser uma data válida' }).optional().describe('Data de cadastro'),
+  dataUltimaInteracao: z.iso.datetime({ message: 'Data de última interação deve ser uma data válida' }).optional().describe('Data da última interação'),
   observacoes: z.string().optional().describe('Observações adicionais'),
   ativo: z.boolean().optional().describe('Status de ativação')
 })
@@ -74,7 +74,7 @@ export const ParteEnvolvidaWithRelationsSchema = ParteEnvolvidaSchema.extend({
   contratos: z.array(z.object({
     id: z.uuid({ message: 'ID inválido' }).describe('ID do contrato'),
     numero: z.string().describe('Número do contrato'),
-    dataVigencia: z.string().datetime().optional().describe('Data de vigência')
+    dataVigencia: z.iso.datetime().optional().describe('Data de vigência')
   })).optional().describe('Contratos relacionados')
 })
 

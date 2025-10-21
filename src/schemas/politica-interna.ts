@@ -1,45 +1,79 @@
 import { z } from 'zod'
 
+// Enum para status da política
+export const StatusPoliticaEnum = z.enum(['Ativo', 'Inativo', 'Rascunho'])
+
 // Schema base da política interna
 export const PoliticaInternaSchema = z.object({
-  id: z.string(),
-  titulo: z.string().min(1),
-  conteudo: z.string(),
-  versao: z.string().nullable(),
-  ativa: z.boolean().default(true),
-  createdAt: z.string(),
-  updatedAt: z.string()
+  id: z.uuid(),
+  nome: z.string(),
+  descricao: z.string(),
+  categoria: z.string(),
+  objetivo: z.string(),
+  escopo: z.string(),
+  dominioDadosId: z.uuid().nullable(),
+  responsavel: z.string(),
+  dataCriacao: z.iso.datetime(),
+  dataInicioVigencia: z.iso.datetime(),
+  dataTermino: z.iso.datetime().nullable(),
+  status: StatusPoliticaEnum,
+  versao: z.string(),
+  anexosUrl: z.string().nullable(),
+  relacionamento: z.string().nullable(),
+  observacoes: z.string().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime()
 })
 
 // Schema para criação de política interna
 export const CreatePoliticaInternaSchema = z.object({
-  titulo: z.string().min(1, 'Título é obrigatório'),
-  conteudo: z.string().min(1, 'Conteúdo é obrigatório'),
-  versao: z.string().nullable().optional(),
-  ativa: z.boolean().default(true).optional()
+  nome: z.string().min(1, 'Nome é obrigatório'),
+  descricao: z.string().min(1, 'Descrição é obrigatória'),
+  categoria: z.string().min(1, 'Categoria é obrigatória'),
+  objetivo: z.string().min(1, 'Objetivo é obrigatório'),
+  escopo: z.string().min(1, 'Escopo é obrigatório'),
+  dominioDadosId: z.uuid().nullable().optional(),
+  responsavel: z.string().min(1, 'Responsável é obrigatório'),
+  dataCriacao: z.iso.datetime(),
+  dataInicioVigencia: z.iso.datetime(),
+  dataTermino: z.iso.datetime().nullable().optional(),
+  status: StatusPoliticaEnum.default('Rascunho'),
+  versao: z.string().min(1, 'Versão é obrigatória'),
+  anexosUrl: z.string().url().nullable().optional(),
+  relacionamento: z.string().nullable().optional(),
+  observacoes: z.string().nullable().optional()
 })
 
 // Schema para atualização de política interna
 export const UpdatePoliticaInternaSchema = z.object({
-  titulo: z.string().min(1).optional(),
-  conteudo: z.string().min(1).optional(),
-  versao: z.string().nullable().optional(),
-  ativa: z.boolean().optional()
+  nome: z.string().min(1).optional(),
+  descricao: z.string().min(1).optional(),
+  categoria: z.string().min(1).optional(),
+  objetivo: z.string().min(1).optional(),
+  escopo: z.string().min(1).optional(),
+  dominioDadosId: z.uuid().nullable().optional(),
+  responsavel: z.string().min(1).optional(),
+  dataCriacao: z.iso.datetime().optional(),
+  dataInicioVigencia: z.iso.datetime().optional(),
+  dataTermino: z.iso.datetime().nullable().optional(),
+  status: StatusPoliticaEnum.optional(),
+  versao: z.string().min(1).optional(),
+  anexosUrl: z.string().url().nullable().optional(),
+  relacionamento: z.string().nullable().optional(),
+  observacoes: z.string().nullable().optional()
 })
 
 // Schema para resposta com política interna
 export const PoliticaInternaResponseSchema = z.object({
-  message: z.string(),
   data: PoliticaInternaSchema
 })
 
 // Schema para lista de políticas internas
 export const PoliticasInternasListResponseSchema = z.object({
-  message: z.string(),
   data: z.array(PoliticaInternaSchema)
 })
 
 // Schema para parâmetros de rota
 export const PoliticaInternaParamsSchema = z.object({
-  id: z.string()
+  id: z.uuid()
 })

@@ -9,12 +9,12 @@ export const LogAuditoriaSchema = z.object({
   entidade: z.string().min(1, { message: 'Entidade é obrigatória' }).describe('Nome da entidade auditada'),
   entidadeId: z.uuid({ message: 'ID da entidade deve ser um UUID válido' }).describe('ID da entidade auditada'),
   operacao: OperacaoAuditoriaEnum.describe('Tipo de operação realizada'),
-  timestamp: z.string().datetime({ message: 'Timestamp inválido' }).describe('Data e hora da operação'),
+  timestamp: z.iso.datetime({ message: 'Timestamp inválido' }).describe('Data e hora da operação'),
   dadosAntes: z.string().nullable().describe('Dados antes da alteração (JSON)'),
   dadosDepois: z.string().nullable().describe('Dados após a alteração (JSON)'),
   usuarioId: z.uuid({ message: 'ID do usuário deve ser um UUID válido' }).describe('ID do usuário que executou a operação'),
-  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação do log'),
-  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização do log')
+  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação do log'),
+  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização do log')
 })
 
 // Schema com relacionamento do usuário
@@ -35,8 +35,8 @@ export const AuditoriaQuerySchema = z.object({
   entidadeId: z.uuid({ message: 'ID da entidade deve ser um UUID válido' }).optional().describe('Filtrar por ID da entidade'),
   operacao: OperacaoAuditoriaEnum.optional().describe('Filtrar por tipo de operação'),
   usuarioId: z.uuid({ message: 'ID do usuário deve ser um UUID válido' }).optional().describe('Filtrar por usuário'),
-  dataInicio: z.string().datetime({ message: 'Data de início inválida' }).optional().describe('Data de início do filtro'),
-  dataFim: z.string().datetime({ message: 'Data de fim inválida' }).optional().describe('Data de fim do filtro')
+  dataInicio: z.iso.datetime({ message: 'Data de início inválida' }).optional().describe('Data de início do filtro'),
+  dataFim: z.iso.datetime({ message: 'Data de fim inválida' }).optional().describe('Data de fim do filtro')
 })
 
 // Schema para criar log de auditoria

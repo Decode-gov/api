@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
 import { ClassificacaoInformacaoController } from '../controllers/classificacao-informacao.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
 import {
@@ -9,11 +10,28 @@ import {
   AtribuirTermoSchema,
   ClassificacaoInformacaoResponseSchema,
   ClassificacoesListResponseSchema
-} from '../schemas/classificacao-informacao'
+} from '../schemas/classificacao-informacao.js'
 
 export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new ClassificacaoInformacaoController(app.prisma)
+
+  // Schemas adicionais
+  const QueryParamsSchema = z.object({
+    skip: z.coerce.number().int().min(0).default(0),
+    take: z.coerce.number().int().min(1).max(100).default(10),
+    orderBy: z.string().optional(),
+    politicaId: z.uuid().optional()
+  })
+
+  const ErrorResponseSchema = z.object({
+    error: z.string(),
+    message: z.string()
+  })
+
+  const DeleteResponseSchema = z.object({
+    message: z.string()
+  })
 
   // GET /classificacoes-informacao - Listar classificações
   app.get('/', {
@@ -22,15 +40,7 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       description: 'Listar todas as classificações de informação cadastradas',
       tags: ['Classificações de Informação'],
       summary: 'Listar classificações de informação',
-      querystring: {
-        type: 'object',
-        properties: {
-          skip: { type: 'integer', minimum: 0, default: 0 },
-          take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' },
-          politicaId: { type: 'string', format: 'uuid' }
-        }
-      },
+      querystring: QueryParamsSchema,
       response: {
         200: ClassificacoesListResponseSchema
       }
@@ -48,7 +58,8 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       summary: 'Buscar classificação de informação',
       params: ClassificacaoInformacaoParamsSchema,
       response: {
-        200: ClassificacaoInformacaoResponseSchema
+        200: ClassificacaoInformacaoResponseSchema,
+        404: ErrorResponseSchema
       }
     }
   }, async (request, reply) => {
@@ -64,7 +75,8 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       summary: 'Criar classificação de informação',
       body: CreateClassificacaoInformacaoSchema,
       response: {
-        201: ClassificacaoInformacaoResponseSchema
+        201: ClassificacaoInformacaoResponseSchema,
+        400: ErrorResponseSchema
       }
     }
   }, async (request, reply) => {
@@ -81,7 +93,8 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       params: ClassificacaoInformacaoParamsSchema,
       body: UpdateClassificacaoInformacaoSchema,
       response: {
-        200: ClassificacaoInformacaoResponseSchema
+        200: ClassificacaoInformacaoResponseSchema,
+        404: ErrorResponseSchema
       }
     }
   }, async (request, reply) => {
@@ -98,7 +111,8 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       params: ClassificacaoInformacaoParamsSchema,
       body: AtribuirTermoSchema,
       response: {
-        200: ClassificacaoInformacaoResponseSchema
+        200: ClassificacaoInformacaoResponseSchema,
+        404: ErrorResponseSchema
       }
     }
   }, async (request, reply) => {
@@ -114,12 +128,8 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       summary: 'Deletar classificação de informação',
       params: ClassificacaoInformacaoParamsSchema,
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        }
+        200: DeleteResponseSchema,
+        404: ErrorResponseSchema
       }
     }
   }, async (request, reply) => {

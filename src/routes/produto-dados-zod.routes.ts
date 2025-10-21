@@ -7,15 +7,50 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new ProdutoDadosController(app.prisma)
 
-  // Schemas Zod para validação interna
-  const CreateProdutoDadosZod = z.object({
+  // Schemas Zod
+  const ProdutoDadosSchema = z.object({
+    id: z.uuid(),
+    nome: z.string(),
+    descricao: z.string(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime()
+  })
+
+  const QueryParamsSchema = z.object({
+    skip: z.coerce.number().int().min(0).default(0),
+    take: z.coerce.number().int().min(1).max(100).default(10),
+    orderBy: z.string().optional()
+  })
+
+  const ParamsSchema = z.object({
+    id: z.uuid()
+  })
+
+  const CreateProdutoDadosSchema = z.object({
     nome: z.string().min(1, 'Nome é obrigatório'),
     descricao: z.string().min(1, 'Descrição é obrigatória')
   })
 
-  const UpdateProdutoDadosZod = z.object({
+  const UpdateProdutoDadosSchema = z.object({
     nome: z.string().min(1).optional(),
     descricao: z.string().min(1).optional()
+  })
+
+  const ResponseSchema = z.object({
+    data: ProdutoDadosSchema
+  })
+
+  const ListResponseSchema = z.object({
+    data: z.array(ProdutoDadosSchema)
+  })
+
+  const ErrorResponseSchema = z.object({
+    error: z.string(),
+    message: z.string()
+  })
+
+  const DeleteResponseSchema = z.object({
+    message: z.string()
   })
 
   // GET /produtos-dados - Listar produtos
@@ -24,40 +59,12 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
       description: 'Listar todos os produtos de dados do sistema',
       tags: ['Produtos de Dados'],
       summary: 'Listar produtos de dados',
-      querystring: {
-        type: 'object',
-        properties: {
-          skip: { type: 'integer', minimum: 0, default: 0 },
-          take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' }
-        }
-      },
+      querystring: QueryParamsSchema,
       response: {
-        200: {
-          description: 'Lista de produtos de dados',
-          type: 'object',
-          properties: {
-            data: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  id: { type: 'string', format: 'uuid' },
-                  nome: { type: 'string' },
-                  descricao: { type: 'string' },
-                  createdAt: { type: 'string', format: 'date-time' },
-                  updatedAt: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
-        }
+        200: ListResponseSchema
       }
     }
-  }, async (request, reply) => {
-    reply.status(200)
-    return controller.findMany(request as any, reply)
-  })
+  }, controller.findMany.bind(controller))
 
   // GET /produtos-dados/:id - Buscar produto por ID
   app.get('/:id', {
@@ -65,44 +72,13 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
       description: 'Buscar produto de dados por ID',
       tags: ['Produtos de Dados'],
       summary: 'Buscar produto por ID',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
+      params: ParamsSchema,
       response: {
-        200: {
-          description: 'Produto de dados encontrado',
-          type: 'object',
-          properties: {
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                descricao: { type: 'string' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' }
-              }
-            }
-          }
-        },
-        404: {
-          description: 'Produto de dados não encontrado',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        200: ResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    reply.status(200)
-    return controller.findById(request as any, reply)
-  })
+  }, controller.findById.bind(controller))
 
   // POST /produtos-dados - Criar novo produto
   app.post('/', {
@@ -110,48 +86,13 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
       description: 'Criar um novo produto de dados no sistema',
       tags: ['Produtos de Dados'],
       summary: 'Criar produto de dados',
-      body: {
-        type: 'object',
-        properties: {
-          nome: { type: 'string', minLength: 1 },
-          descricao: { type: 'string', minLength: 1 }
-        },
-        required: ['nome', 'descricao']
-      },
+      body: CreateProdutoDadosSchema,
       response: {
-        201: {
-          description: 'Produto de dados criado com sucesso',
-          type: 'object',
-          properties: {
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                descricao: { type: 'string' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' }
-              }
-            }
-          }
-        },
-        400: {
-          description: 'Dados inválidos',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        201: ResponseSchema,
+        400: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    const validation = CreateProdutoDadosZod.safeParse(request.body)
-    if (!validation.success) {
-      return (reply as any).badRequest('Dados de entrada inválidos')
-    }
-    return controller.create(request as any, reply)
-  })
+  }, controller.create.bind(controller))
 
   // PUT /produtos-dados/:id - Atualizar produto
   app.put('/:id', {
@@ -159,54 +100,14 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
       description: 'Atualizar um produto de dados existente',
       tags: ['Produtos de Dados'],
       summary: 'Atualizar produto de dados',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
-      body: {
-        type: 'object',
-        properties: {
-          nome: { type: 'string', minLength: 1 },
-          descricao: { type: 'string', minLength: 1 }
-        }
-      },
+      params: ParamsSchema,
+      body: UpdateProdutoDadosSchema,
       response: {
-        200: {
-          description: 'Produto de dados atualizado com sucesso',
-          type: 'object',
-          properties: {
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                descricao: { type: 'string' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' }
-              }
-            }
-          }
-        },
-        404: {
-          description: 'Produto de dados não encontrado',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        200: ResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    const validation = UpdateProdutoDadosZod.safeParse(request.body)
-    if (!validation.success) {
-      return (reply as any).badRequest('Dados de entrada inválidos')
-    }
-    return controller.update(request as any, reply)
-  })
+  }, controller.update.bind(controller))
 
   // DELETE /produtos-dados/:id - Deletar produto
   app.delete('/:id', {
@@ -214,29 +115,10 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
       description: 'Deletar um produto de dados',
       tags: ['Produtos de Dados'],
       summary: 'Deletar produto de dados',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
+      params: ParamsSchema,
       response: {
-        200: {
-          description: 'Produto de dados deletado com sucesso',
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        },
-        404: {
-          description: 'Produto de dados não encontrado',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        200: DeleteResponseSchema,
+        404: ErrorResponseSchema
       }
     }
   }, controller.delete.bind(controller))

@@ -15,7 +15,7 @@ export async function documentoPolimorficoRoutes(fastify: FastifyInstance) {
 
   // Schemas Zod para validação
   const CreateDocumentoZod = z.object({
-    entidadeId: z.string().uuid('ID da entidade deve ser um UUID válido'),
+    entidadeId: z.uuid({ message: 'ID da entidade deve ser um UUID válido' }),
     tipoEntidade: TipoEntidadeDocumentoEnum,
     nomeArquivo: z.string().min(1, 'Nome do arquivo é obrigatório'),
     tamanhoBytes: z.string().transform(s => BigInt(s)),

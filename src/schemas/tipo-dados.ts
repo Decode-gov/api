@@ -18,8 +18,8 @@ export const TipoDadosSchema = z.object({
   validacao: z.string().optional().describe('Regras de validação específicas'),
   observacoes: z.string().optional().describe('Observações adicionais'),
   ativo: z.boolean().default(true).describe('Status de ativação'),
-  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de tipo de dados

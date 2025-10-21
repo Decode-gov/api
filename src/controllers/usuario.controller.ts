@@ -15,6 +15,15 @@ export class UsuarioController extends BaseController {
     super(prisma, 'usuario')
   }
 
+  // Helper para converter Date para string ISO
+  private formatUserData(user: any) {
+    return {
+      ...user,
+      createdAt: user.createdAt?.toISOString(),
+      updatedAt: user.updatedAt?.toISOString()
+    }
+  }
+
   async register(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { nome, email, senha } = request.body as RegisterRequest
@@ -53,7 +62,7 @@ export class UsuarioController extends BaseController {
 
       reply.status(201).send({
         message: 'Usuário criado com sucesso',
-        data: user
+        data: this.formatUserData(user)
       })
     } catch (error) {
       return this.handleError(reply, error)
@@ -202,7 +211,7 @@ export class UsuarioController extends BaseController {
 
       reply.send({
         message: 'Perfil do usuário',
-        data: user
+        data: this.formatUserData(user)
       })
     } catch (error) {
       return this.handleError(reply, error)
@@ -251,7 +260,7 @@ export class UsuarioController extends BaseController {
 
       reply.send({
         message: 'Perfil atualizado com sucesso',
-        data: updatedUser
+        data: this.formatUserData(updatedUser)
       })
     } catch (error) {
       return this.handleError(reply, error)
@@ -277,11 +286,13 @@ export class UsuarioController extends BaseController {
         }
       })
 
+      const formattedData = data.map(user => this.formatUserData(user))
+
       reply.send({
         message: 'Usuários encontrados',
-        data
+        data: formattedData
       })
-      return { data }
+      return { data: formattedData }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -312,11 +323,13 @@ export class UsuarioController extends BaseController {
         })
       }
 
+      const formattedData = this.formatUserData(data)
+
       reply.send({
         message: 'Usuário encontrado',
-        data
+        data: formattedData
       })
-      return { data }
+      return { data: formattedData }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -360,7 +373,7 @@ export class UsuarioController extends BaseController {
 
       reply.status(201).send({
         message: 'Usuário criado com sucesso',
-        data
+        data: this.formatUserData(data)
       })
     } catch (error) {
       return this.handleError(reply, error)
@@ -404,9 +417,9 @@ export class UsuarioController extends BaseController {
 
       reply.send({
         message: 'Usuário atualizado com sucesso',
-        data
+        data: this.formatUserData(data)
       })
-      return { data }
+      return { data: this.formatUserData(data) }
     } catch (error) {
       return this.handleError(reply, error)
     }

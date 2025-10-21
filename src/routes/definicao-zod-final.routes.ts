@@ -7,19 +7,56 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new DefinicaoController(app.prisma)
 
-  // Schemas Zod para validação interna
-  const CreateDefinicaoZod = z.object({
+  // Schemas Zod
+  const DefinicaoSchema = z.object({
+    id: z.uuid(),
+    nome: z.string(),
+    descricao: z.string().nullable(),
+    sigla: z.string().nullable(),
+    ativo: z.boolean(),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime()
+  })
+
+  const QueryParamsSchema = z.object({
+    skip: z.coerce.number().int().min(0).default(0),
+    take: z.coerce.number().int().min(1).max(100).default(10),
+    orderBy: z.string().optional(),
+    ativo: z.coerce.boolean().optional(),
+    search: z.string().optional()
+  })
+
+  const ParamsSchema = z.object({
+    id: z.uuid()
+  })
+
+  const CreateDefinicaoSchema = z.object({
     nome: z.string().min(1, 'Nome é obrigatório'),
     descricao: z.string().optional(),
     sigla: z.string().optional(),
     ativo: z.boolean().default(true)
   })
 
-  const UpdateDefinicaoZod = z.object({
+  const UpdateDefinicaoSchema = z.object({
     nome: z.string().min(1).optional(),
     descricao: z.string().optional(),
     sigla: z.string().optional(),
     ativo: z.boolean().optional()
+  })
+
+  const ResponseSchema = z.object({
+    message: z.string(),
+    data: DefinicaoSchema
+  })
+
+  const ListResponseSchema = z.object({
+    message: z.string(),
+    data: z.array(DefinicaoSchema)
+  })
+
+  const ErrorResponseSchema = z.object({
+    error: z.string(),
+    message: z.string()
   })
 
   // GET /definicoes - Listar termos
@@ -28,45 +65,12 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as termos do sistema',
       tags: ['Termos'],
       summary: 'Listar termos',
-      querystring: {
-        type: 'object',
-        properties: {
-          skip: { type: 'integer', minimum: 0, default: 0 },
-          take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' },
-          ativo: { type: 'boolean', description: 'Filtrar por status ativo' },
-          search: { type: 'string', description: 'Buscar por nome ou descrição' }
-        }
-      },
+      querystring: QueryParamsSchema,
       response: {
-        200: {
-          description: 'Lista de termos',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  id: { type: 'string', format: 'uuid' },
-                  nome: { type: 'string' },
-                  descricao: { type: ['string', 'null'] },
-                  sigla: { type: ['string', 'null'] },
-                  ativo: { type: 'boolean' },
-                  createdAt: { type: 'string', format: 'date-time' },
-                  updatedAt: { type: 'string', format: 'date-time' }
-                }
-              }
-            }
-          }
-        }
+        200: ListResponseSchema
       }
     }
-  }, async (request, reply) => {
-    reply.status(200)
-    return controller.findMany(request, reply)
-  })
+  }, controller.findMany.bind(controller))
 
   // GET /definicoes/:id - Buscar definição por ID
   app.get('/:id', {
@@ -74,47 +78,13 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Buscar definição específica por ID',
       tags: ['Termos'],
       summary: 'Buscar definição por ID',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
+      params: ParamsSchema,
       response: {
-        200: {
-          description: 'Definição encontrada',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                descricao: { type: ['string', 'null'] },
-                sigla: { type: ['string', 'null'] },
-                ativo: { type: 'boolean' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' }
-              }
-            }
-          }
-        },
-        404: {
-          description: 'Definição não encontrada',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        200: ResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    reply.status(200)
-    return controller.findById(request, reply)
-  })
+  }, controller.findById.bind(controller))
 
   // POST /definicoes - Criar definição
   app.post('/', {
@@ -122,50 +92,13 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Criar nova definição no sistema',
       tags: ['Termos'],
       summary: 'Criar definição',
-      body: {
-        type: 'object',
-        properties: {
-          nome: { type: 'string', minLength: 1, description: 'Nome da definição' },
-          descricao: { type: 'string', description: 'Descrição detalhada da definição' },
-          sigla: { type: 'string', description: 'Sigla associada ao termo, se aplicável' },
-          ativo: { type: 'boolean', default: true, description: 'Se a definição está ativa' }
-        },
-        required: ['nome']
-      },
+      body: CreateDefinicaoSchema,
       response: {
-        201: {
-          description: 'Definição criada com sucesso',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                descricao: { type: ['string', 'null'] },
-                sigla: { type: ['string', 'null'] },
-                ativo: { type: 'boolean' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' }
-              }
-            }
-          }
-        },
-        400: {
-          description: 'Erro de validação',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        201: ResponseSchema,
+        400: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    const validatedData = CreateDefinicaoZod.parse(request.body)
-    return controller.create(request, reply)
-  })
+  }, controller.create.bind(controller))
 
   // PUT /definicoes/:id - Atualizar definição
   app.put('/:id', {
@@ -173,55 +106,14 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Atualizar dados de uma definição específica',
       tags: ['Termos'],
       summary: 'Atualizar definição',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
-      body: {
-        type: 'object',
-        properties: {
-          nome: { type: 'string', minLength: 1 },
-          descricao: { type: 'string' },
-          sigla: { type: 'string' },
-          ativo: { type: 'boolean' }
-        }
-      },
+      params: ParamsSchema,
+      body: UpdateDefinicaoSchema,
       response: {
-        200: {
-          description: 'Definição atualizada com sucesso',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                descricao: { type: ['string', 'null'] },
-                sigla: { type: ['string', 'null'] },
-                ativo: { type: 'boolean' },
-                updatedAt: { type: 'string', format: 'date-time' }
-              }
-            }
-          }
-        },
-        404: {
-          description: 'Definição não encontrada',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        200: ResponseSchema,
+        404: ErrorResponseSchema
       }
     }
-  }, async (request, reply) => {
-    const validatedData = UpdateDefinicaoZod.parse(request.body)
-    return controller.update(request, reply)
-  })
+  }, controller.update.bind(controller))
 
   // DELETE /definicoes/:id - Deletar definição
   app.delete('/:id', {
@@ -229,29 +121,10 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Deletar uma definição do sistema',
       tags: ['Termos'],
       summary: 'Deletar definição',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
+      params: ParamsSchema,
       response: {
-        200: {
-          description: 'Definição deletada com sucesso',
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        },
-        404: {
-          description: 'Definição não encontrada',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
+        200: z.object({ message: z.string() }),
+        404: ErrorResponseSchema
       }
     }
   }, controller.delete.bind(controller))

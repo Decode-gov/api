@@ -24,11 +24,11 @@ export const CriticidadeRegulatoriaSchema = z.object({
   probabilidade: z.enum(['MUITO_BAIXA', 'BAIXA', 'MEDIA', 'ALTA', 'MUITO_ALTA'], {
     message: 'Probabilidade deve ser MUITO_BAIXA, BAIXA, MEDIA, ALTA ou MUITO_ALTA'
   }).describe('Probabilidade de ocorrência'),
-  dataVigencia: z.string().datetime({ message: 'Data de vigência deve ser uma data válida' }).optional().describe('Data de vigência do normativo'),
+  dataVigencia: z.iso.datetime({ message: 'Data de vigência deve ser uma data válida' }).optional().describe('Data de vigência do normativo'),
   observacoes: z.string().optional().describe('Observações adicionais'),
   ativo: z.boolean().default(true).describe('Status de ativação'),
-  createdAt: z.string().datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.string().datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
+  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de criticidade regulatória
@@ -48,7 +48,7 @@ export const CreateCriticidadeRegulatoriaSchema = z.object({
   prazoCorrecao: z.number().min(0).optional().describe('Prazo para correção em dias'),
   impacto: z.enum(['BAIXO', 'MEDIO', 'ALTO', 'MUITO_ALTO']).describe('Impacto do descumprimento'),
   probabilidade: z.enum(['MUITO_BAIXA', 'BAIXA', 'MEDIA', 'ALTA', 'MUITO_ALTA']).describe('Probabilidade de ocorrência'),
-  dataVigencia: z.string().datetime({ message: 'Data de vigência deve ser uma data válida' }).optional().describe('Data de vigência'),
+  dataVigencia: z.iso.datetime({ message: 'Data de vigência deve ser uma data válida' }).optional().describe('Data de vigência'),
   observacoes: z.string().optional().describe('Observações adicionais'),
   ativo: z.boolean().default(true).describe('Status de ativação')
 })
@@ -70,7 +70,7 @@ export const UpdateCriticidadeRegulatoriaSchema = z.object({
   prazoCorrecao: z.number().min(0).optional().describe('Prazo para correção em dias'),
   impacto: z.enum(['BAIXO', 'MEDIO', 'ALTO', 'MUITO_ALTO']).optional().describe('Impacto do descumprimento'),
   probabilidade: z.enum(['MUITO_BAIXA', 'BAIXA', 'MEDIA', 'ALTA', 'MUITO_ALTA']).optional().describe('Probabilidade de ocorrência'),
-  dataVigencia: z.string().datetime({ message: 'Data de vigência deve ser uma data válida' }).optional().describe('Data de vigência'),
+  dataVigencia: z.iso.datetime({ message: 'Data de vigência deve ser uma data válida' }).optional().describe('Data de vigência'),
   observacoes: z.string().optional().describe('Observações adicionais'),
   ativo: z.boolean().optional().describe('Status de ativação')
 })
@@ -90,7 +90,7 @@ export const CriticidadeRegulatoriaWithRelationsSchema = CriticidadeRegulatoriaS
   avaliacoes: z.array(z.object({
     id: z.uuid({ message: 'ID inválido' }).describe('ID da avaliação'),
     resultado: z.string().describe('Resultado da avaliação'),
-    data: z.string().datetime().describe('Data da avaliação')
+    data: z.iso.datetime().describe('Data da avaliação')
   })).optional().describe('Avaliações de conformidade')
 })
 

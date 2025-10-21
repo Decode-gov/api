@@ -1,0 +1,61 @@
+# Multi-stage build para otimizar o tamanho da imagem final
+
+# Stage 1: Build
+FROM node:20-alpine AS builder
+
+# Define o diretório de trabalho
+WORKDIR /app
+
+# Copia os arquivos de dependências
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Instala todas as dependências (incluindo devDependencies para o build)
+RUN npm ci
+
+# Copia o código fonte
+COPY . .
+
+# Gera o cliente Prisma
+RUN npm run db:generate
+
+# Executa o build do projeto
+RUN npm run build
+
+# Remove dependências de desenvolvimento
+RUN npm prune --production
+
+# Stage 2: Production
+FROM node:20-alpine AS production
+
+# Instala apenas as dependências necessárias para executar o Prisma
+RUN apk add --no-cache openssl
+
+# Define o diretório de trabalho
+WORKDIR /app
+
+# Cria um usuário não-root para segurança
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Copia os arquivos necessários do stage de build
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
+
+# Cria o diretório public para anexos
+RUN mkdir -p /app/public/anexos && \
+    chown -R nodejs:nodejs /app/public
+
+# Muda para o usuário não-root
+USER nodejs
+
+# Expõe a porta da aplicação (ajuste conforme necessário)
+EXPOSE 3000
+
+# Define variáveis de ambiente para produção
+ENV NODE_ENV=production
+
+# Comando para iniciar a aplicação
+CMD ["npm", "start"]

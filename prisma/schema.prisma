@@ -228,7 +228,6 @@ model Tabela {
   colunas          Coluna[]
   codificacoes     Codificacao[]     @relation("CodificacaoOnTabela")
   regrasQualidade  RegraQualidade[]
-  documentosTabela DocumentoTabela[]
   listasReferencia ListaReferencia[]
 
   createdAt DateTime? @default(now()) @map("created_at")
@@ -619,11 +618,11 @@ model ListaReferencia {
 }
 
 model DocumentoTabela {
-  id             String               @id @default(uuid()) @db.Uuid
-  termoId        String               @map("termo_id") @db.Uuid
-  termo          Definicao            @relation(fields: [termoId], references: [id])
-  repositorioId  String               @map("repositorio_id") @db.Uuid
-  repositorio    RepositorioDocumento @relation(fields: [repositorioId], references: [id])
+  id            String               @id @default(uuid()) @db.Uuid
+  termoId       String               @map("termo_id") @db.Uuid
+  termo         Definicao            @relation(fields: [termoId], references: [id])
+  repositorioId String               @map("repositorio_id") @db.Uuid
+  repositorio   RepositorioDocumento @relation(fields: [repositorioId], references: [id])
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")

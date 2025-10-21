@@ -24,7 +24,7 @@
     "db:seed": "tsx prisma/seed.ts"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node scripts/seed.js"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",

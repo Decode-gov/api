@@ -41,7 +41,9 @@ RUN addgroup -g 1001 -S nodejs && \
 # Copia os arquivos necessários do stage de build
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nodejs:nodejs /app/scripts ./scripts
+COPY --from=builder --chown=nodejs:nodejs /app/prisma/schema.prisma ./prisma/schema.prisma
+COPY --from=builder --chown=nodejs:nodejs /app/prisma/migrations ./prisma/migrations
 COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
 
 # Cria o diretório public para anexos

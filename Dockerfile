@@ -16,14 +16,10 @@ RUN npm ci
 # Copia o código fonte
 COPY . .
 
-# Gera o cliente Prisma
-RUN npm run db:generate
-
-# Executa o build do projeto
 RUN npm run build
 
-# Remove dependências de desenvolvimento
-RUN npm prune --production
+# Gera o cliente Prisma
+RUN npm run db:generate
 
 # Stage 2: Production
 FROM node:20-alpine AS production
@@ -40,16 +36,14 @@ RUN addgroup -g 1001 -S nodejs && \
 
 # Copia os arquivos necessários do stage de build
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/src ./src
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/scripts ./scripts
 COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
+COPY --from=builder --chown=nodejs:nodejs /app/tsconfig.json ./
 
 # Muda para o usuário não-root
 USER nodejs
-
-# Expõe a porta da aplicação (ajuste conforme necessário)
-EXPOSE 3000
 
 # Define variáveis de ambiente para produção
 ENV NODE_ENV=production

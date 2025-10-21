@@ -61,7 +61,7 @@ await app.register(swaggerUi, {
 await app.register(
   cors,
   {
-    origin: ["app.decodegov.com"],
+    origin: ["https://app.decodegov.com.br"],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
   }

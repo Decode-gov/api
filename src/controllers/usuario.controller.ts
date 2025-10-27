@@ -109,7 +109,7 @@ export class UsuarioController extends BaseController {
       reply.setCookie('authToken', token, {
         path: '/',
         maxAge: 60 * 60 * 24 * 1,
-        // domain: process.env.ENV_DOMAIN,
+        domain: process.env.ENV_DOMAIN,
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',

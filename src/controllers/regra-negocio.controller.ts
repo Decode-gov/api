@@ -33,7 +33,7 @@ export class RegraNegocioController extends BaseController {
         }
       })
 
-      return { data }
+      return { message: 'Regras de negócio listadas com sucesso', data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -61,7 +61,7 @@ export class RegraNegocioController extends BaseController {
         return (reply as any).notFound('Regra de Negócio não encontrada')
       }
 
-      return { data }
+      return { message: 'Regra de negócio encontrada com sucesso', data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -85,7 +85,7 @@ export class RegraNegocioController extends BaseController {
       })
 
       reply.code(201)
-      return { data }
+      return { message: 'Regra de negócio criada com sucesso', data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -111,7 +111,7 @@ export class RegraNegocioController extends BaseController {
         }
       })
 
-      return { data }
+      return { message: 'Regra de negócio atualizada com sucesso', data }
     } catch (error) {
       return this.handleError(reply, error)
     }

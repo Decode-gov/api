@@ -107,12 +107,12 @@ export class UsuarioController extends BaseController {
 
       // Salvar token em cookie seguro
       reply.setCookie('authToken', token, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 1,
+        // domain: process.env.ENV_DOMAIN,
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.ENV_DOMAIN,
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 24 * 60 * 60 * 1000, // 24 horas em millisegundos
-        path: '/'
       })
 
       reply.status(200).send({

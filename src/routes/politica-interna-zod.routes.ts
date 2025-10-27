@@ -16,6 +16,7 @@ export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
   const controller = new PoliticaInternaController(app.prisma)
 
   const DeleteResponseSchema = z.object({
+    message: z.string(),
     data: z.object({
       id: z.uuid(),
       nome: z.string()

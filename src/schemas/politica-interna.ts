@@ -65,11 +65,13 @@ export const UpdatePoliticaInternaSchema = z.object({
 
 // Schema para resposta com política interna
 export const PoliticaInternaResponseSchema = z.object({
+  message: z.string(),
   data: PoliticaInternaSchema
 })
 
 // Schema para lista de políticas internas
 export const PoliticasInternasListResponseSchema = z.object({
+  message: z.string(),
   data: z.array(PoliticaInternaSchema)
 })
 

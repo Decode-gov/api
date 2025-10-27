@@ -23,7 +23,7 @@ export class PoliticaInternaController extends BaseController {
         }
       })
 
-      return { data }
+      return { message: 'Políticas internas listadas com sucesso', data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -48,7 +48,7 @@ export class PoliticaInternaController extends BaseController {
         return (reply as any).notFound('Política interna não encontrada')
       }
 
-      return { data }
+      return { message: 'Política interna encontrada com sucesso', data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -66,7 +66,7 @@ export class PoliticaInternaController extends BaseController {
       })
 
       reply.code(201)
-      return { data }
+      return { message: 'Política interna criada com sucesso', data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -86,11 +86,13 @@ export class PoliticaInternaController extends BaseController {
         }
       })
 
-      return { data }
+      return { message: 'Política interna atualizada com sucesso', data }
     } catch (error) {
       return this.handleError(reply, error)
     }
-  } async delete(request: FastifyRequest, reply: FastifyReply) {
+  }
+
+  async delete(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -99,7 +101,7 @@ export class PoliticaInternaController extends BaseController {
         where: { id: validId }
       })
 
-      return { data }
+      return { message: 'Política interna excluída com sucesso', data }
     } catch (error) {
       return this.handleError(reply, error)
     }

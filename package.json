@@ -1,5 +1,5 @@
 {
-  "name": "api-gdados",
+  "name": "api-decodegov",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,6 @@
     "start": "node dist/server.js",
     "build": "tsup src",
     "clean": "rimraf dist coverage",
-    "lint": "echo \"(add your linter)\"",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",

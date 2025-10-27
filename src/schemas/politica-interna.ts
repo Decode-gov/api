@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 // Enum para status da política
-export const StatusPoliticaEnum = z.enum(['Ativo', 'Inativo', 'Rascunho'])
+export const StatusPoliticaEnum = z.enum(['Em_elaboração', 'Vigente', 'Revogada'])
 
 // Schema base da política interna
 export const PoliticaInternaSchema = z.object({
@@ -37,7 +37,7 @@ export const CreatePoliticaInternaSchema = z.object({
   dataCriacao: z.iso.datetime(),
   dataInicioVigencia: z.iso.datetime(),
   dataTermino: z.iso.datetime().nullable().optional(),
-  status: StatusPoliticaEnum.default('Rascunho'),
+  status: StatusPoliticaEnum.default('Em_elaboração'),
   versao: z.string().min(1, 'Versão é obrigatória'),
   anexosUrl: z.string().url().nullable().optional(),
   relacionamento: z.string().nullable().optional(),

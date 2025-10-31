@@ -3,6 +3,7 @@ import cors from '@fastify/cors'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
 import cookie from '@fastify/cookie'
+import sensible from '@fastify/sensible'
 import {
   ZodTypeProvider,
   serializerCompiler,
@@ -47,6 +48,8 @@ await app.register(swagger, {
       { name: 'Termos', description: 'Gestão de termos' },
       { name: 'Bancos de Dados', description: 'Gestão de bancos de dados' },
       { name: 'Papéis', description: 'Gestão de papéis e responsabilidades' },
+      { name: 'Comitês Aprovadores', description: 'Gestão de comitês aprovadores' },
+      { name: 'Atribuições Papel-Domínio', description: 'Gestão de atribuições de papéis a domínios' },
       { name: 'Necessidades de Informação', description: 'Gestão de necessidades de informação' },
       { name: 'Regras de Negócio', description: 'Gestão de regras de negócio' },
       { name: 'Listas de Referência', description: 'Gestão de listas de referência e valores padronizados' }
@@ -61,7 +64,9 @@ await app.register(swaggerUi, {
 await app.register(
   cors,
   {
-    origin: "https://decodegov.com.br",
+    origin: process.env.NODE_ENV === 'production'
+      ? 'https://decodegov.com.br'
+      : true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
   }
@@ -71,6 +76,9 @@ await app.register(
 await app.register(cookie, {
   secret: process.env.COOKIE_SECRET || 'default-secret-key-change-in-production'
 })
+
+// Registrar plugin sensible (adiciona métodos úteis como reply.notFound(), reply.badRequest(), etc.)
+await app.register(sensible)
 
 await app.register(prismaPlugin)
 

@@ -20,8 +20,11 @@ export class AtribuicaoPapelDominioController extends BaseController {
       if (query.dominioId) {
         where.dominioId = query.dominioId
       }
-      if (query.tipoEntidade) {
-        where.tipoEntidade = query.tipoEntidade
+      if (query.comiteAprovadorId) {
+        where.comiteAprovadorId = query.comiteAprovadorId
+      }
+      if (query.onboarding !== undefined) {
+        where.onboarding = query.onboarding
       }
 
       const data = await this.prisma.atribuicaoPapelDominio.findMany({
@@ -31,11 +34,15 @@ export class AtribuicaoPapelDominioController extends BaseController {
         orderBy,
         include: {
           papel: true,
-          dominio: true
+          dominio: true,
+          comiteAprovador: true
         }
       })
 
-      return { data }
+      return reply.send({
+        message: 'Atribuições encontradas',
+        data
+      })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -50,7 +57,8 @@ export class AtribuicaoPapelDominioController extends BaseController {
         where: { id: validId },
         include: {
           papel: true,
-          dominio: true
+          dominio: true,
+          comiteAprovador: true
         }
       })
 
@@ -58,7 +66,10 @@ export class AtribuicaoPapelDominioController extends BaseController {
         return (reply as any).notFound('Atribuição de papel-domínio não encontrada')
       }
 
-      return { data }
+      return reply.send({
+        message: 'Atribuição encontrada',
+        data
+      })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -72,12 +83,15 @@ export class AtribuicaoPapelDominioController extends BaseController {
         data: body,
         include: {
           papel: true,
-          dominio: true
+          dominio: true,
+          comiteAprovador: true
         }
       })
 
-      reply.code(201)
-      return { data }
+      return reply.status(201).send({
+        message: 'Atribuição criada com sucesso',
+        data
+      })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -94,11 +108,15 @@ export class AtribuicaoPapelDominioController extends BaseController {
         data: body,
         include: {
           papel: true,
-          dominio: true
+          dominio: true,
+          comiteAprovador: true
         }
       })
 
-      return { data }
+      return reply.send({
+        message: 'Atribuição atualizada com sucesso',
+        data
+      })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -113,7 +131,14 @@ export class AtribuicaoPapelDominioController extends BaseController {
         where: { id: validId }
       })
 
-      return { data }
+      return reply.send({
+        message: 'Atribuição excluída com sucesso',
+        data: {
+          id: data.id,
+          papelId: data.papelId,
+          dominioId: data.dominioId
+        }
+      })
     } catch (error) {
       return this.handleError(reply, error)
     }

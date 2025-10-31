@@ -31,7 +31,7 @@ async function main() {
 
   console.log('✅ Usuário admin criado com sucesso!');
   console.log('📧 Email:', admin.email);
-  console.log('🔑 Senha: Admin@123');
+  console.log('🔑 Senha: mudar@123');
   console.log('⚠️  IMPORTANTE: Altere a senha após o primeiro acesso!');
 }
 

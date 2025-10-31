@@ -6,9 +6,6 @@ export const PapelSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do papel'),
   descricao: z.string().min(1, { message: 'Descrição é obrigatória' }).describe('Descrição do papel'),
   politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).describe('ID da política relacionada'),
-  ativo: z.boolean().default(true).describe('Status de ativação do papel'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
 
 // Schema para criação de papel
@@ -16,15 +13,13 @@ export const CreatePapelSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do papel'),
   descricao: z.string().min(1, { message: 'Descrição é obrigatória' }).describe('Descrição do papel'),
   politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).describe('ID da política'),
-  ativo: z.boolean().default(true).describe('Status de ativação')
 })
 
 // Schema para atualização de papel
 export const UpdatePapelSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).optional().describe('Nome do papel'),
   descricao: z.string().min(1, { message: 'Descrição é obrigatória' }).optional().describe('Descrição do papel'),
-  politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).optional().describe('ID da política'),
-  ativo: z.boolean().optional().describe('Status de ativação')
+  politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).optional().describe('ID da política')
 })
 
 // Schema para papel com relacionamentos

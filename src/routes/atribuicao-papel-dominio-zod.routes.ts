@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import { z } from 'zod'
 import { AtribuicaoPapelDominioController } from '../controllers/atribuicao-papel-dominio.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
 import {
@@ -9,13 +10,17 @@ import {
   AtribuicaoParamsSchema,
   AtribuicaoResponseSchema,
   AtribuicoesListResponseSchema,
-  AtribuicaoDeleteResponseSchema,
-  ErrorResponseSchema
+  AtribuicaoDeleteResponseSchema
 } from '../schemas/atribuicao-papel-dominio.js'
 
 export async function atribuicaoPapelDominioRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new AtribuicaoPapelDominioController(app.prisma)
+
+  const ErrorResponseSchema = z.object({
+    error: z.string(),
+    message: z.string()
+  })
 
   // GET /atribuicoes - Listar atribuições
   app.get('/', {

@@ -2,35 +2,25 @@ import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { PrismaClient } from '@prisma/client'
 import { BaseController } from './base.controller.js'
 
-
-export class NecessidadeInformacaoController extends BaseController {
+export class ComiteAprovadorController extends BaseController {
   constructor(prisma: PrismaClient) {
-    super(prisma, 'necessidadeInformacao')
+    super(prisma, 'comiteAprovador')
   }
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { skip, take, orderBy } = this.validatePagination(request.query)
-      const query = request.query as any
 
-      // Construir filtros
-      const where: any = {}
-      if (query.search) {
-        where.questaoGerencial = {
-          contains: query.search,
-          mode: 'insensitive'
-        }
-      }
-
-      const data = await this.prisma.necessidadeInformacao.findMany({
+      const data = await this.prisma.comiteAprovador.findMany({
         skip,
         take,
-        orderBy,
-        where,
+        orderBy
       })
 
-      reply.send({ message: 'Necessidades de informação encontradas', data })
-      return { data }
+      return reply.send({
+        message: 'Comitês aprovadores encontrados',
+        data
+      })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -41,15 +31,18 @@ export class NecessidadeInformacaoController extends BaseController {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
 
-      const data = await this.prisma.necessidadeInformacao.findUnique({
-        where: { id: validId },
+      const data = await this.prisma.comiteAprovador.findUnique({
+        where: { id: validId }
       })
 
       if (!data) {
-        return (reply as any).notFound('Necessidade de Informação não encontrada')
+        return (reply as any).notFound('Comitê aprovador não encontrado')
       }
 
-      return { message: 'Necessidade de informação encontrada', data }
+      return reply.send({
+        message: 'Comitê aprovador encontrado',
+        data
+      })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -59,12 +52,14 @@ export class NecessidadeInformacaoController extends BaseController {
     try {
       const body = request.body as any
 
-      const data = await this.prisma.necessidadeInformacao.create({
-        data: body,
+      const data = await this.prisma.comiteAprovador.create({
+        data: body
       })
 
-      reply.send({ message: 'Necessidade de informação criada com sucesso', data })
-      return { data }
+      return reply.status(201).send({
+        message: 'Comitê aprovador criado com sucesso',
+        data
+      })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -76,12 +71,15 @@ export class NecessidadeInformacaoController extends BaseController {
       const validId = this.validateId(id)
       const body = request.body as any
 
-      const data = await this.prisma.necessidadeInformacao.update({
+      const data = await this.prisma.comiteAprovador.update({
         where: { id: validId },
         data: body
       })
 
-      return { message: 'Necessidade de informação atualizada com sucesso', data }
+      return reply.send({
+        message: 'Comitê aprovador atualizado com sucesso',
+        data
+      })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -92,11 +90,17 @@ export class NecessidadeInformacaoController extends BaseController {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
 
-      const data = await this.prisma.necessidadeInformacao.delete({
+      const data = await this.prisma.comiteAprovador.delete({
         where: { id: validId }
       })
 
-      return { message: 'Necessidade de informação excluída com sucesso', data }
+      return reply.send({
+        message: 'Comitê aprovador excluído com sucesso',
+        data: {
+          id: data.id,
+          nome: data.nome
+        }
+      })
     } catch (error) {
       return this.handleError(reply, error)
     }

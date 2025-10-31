@@ -8,8 +8,10 @@ import {
   CreateNecessidadeInformacaoSchema,
   UpdateNecessidadeInformacaoSchema,
   NecessidadeInformacaoResponseSchema,
-  NecessidadesListResponseSchema
+  NecessidadesListResponseSchema,
+  NecessidadeInformacaoSchema
 } from '../schemas/necessidade-informacao.js'
+import { z } from 'zod'
 
 export async function necessidadeInformacaoZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -27,9 +29,7 @@ export async function necessidadeInformacaoZodRoutes(fastify: FastifyInstance) {
         200: NecessidadesListResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.findMany(request, reply)
-  })
+  }, controller.findMany.bind(controller))
 
   // GET /necessidades-informacao/:id - Buscar necessidade por ID
   app.get('/:id', {
@@ -43,9 +43,7 @@ export async function necessidadeInformacaoZodRoutes(fastify: FastifyInstance) {
         200: NecessidadeInformacaoResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.findById(request, reply)
-  })
+  }, controller.findById.bind(controller))
 
   // POST /necessidades-informacao - Criar necessidade
   app.post('/', {
@@ -59,9 +57,7 @@ export async function necessidadeInformacaoZodRoutes(fastify: FastifyInstance) {
         201: NecessidadeInformacaoResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.create(request, reply)
-  })
+  }, controller.create.bind(controller))
 
   // PUT /necessidades-informacao/:id - Atualizar necessidade
   app.put('/:id', {
@@ -76,9 +72,7 @@ export async function necessidadeInformacaoZodRoutes(fastify: FastifyInstance) {
         200: NecessidadeInformacaoResponseSchema
       }
     }
-  }, async (request, reply) => {
-    return controller.update(request, reply)
-  })
+  }, controller.update.bind(controller))
 
   // DELETE /necessidades-informacao/:id - Deletar necessidade
   app.delete('/:id', {
@@ -89,15 +83,11 @@ export async function necessidadeInformacaoZodRoutes(fastify: FastifyInstance) {
       summary: 'Deletar necessidade de informação',
       params: NecessidadeInformacaoParamsSchema,
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        }
+        200: z.object({
+          message: z.string(),
+          data: NecessidadeInformacaoSchema
+        })
       }
     }
-  }, async (request, reply) => {
-    return controller.delete(request, reply)
-  })
+  }, controller.delete.bind(controller))
 }

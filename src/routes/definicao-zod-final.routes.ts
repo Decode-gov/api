@@ -10,19 +10,17 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
   // Schemas Zod
   const DefinicaoSchema = z.object({
     id: z.uuid(),
-    nome: z.string(),
-    descricao: z.string().nullable(),
+    termo: z.string(),
+    definicao: z.string().min(1, 'Descrição é obrigatória'),
     sigla: z.string().nullable(),
-    ativo: z.boolean(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime()
+    createdAt: z.coerce.date().nullable(),
+    updatedAt: z.coerce.date().nullable()
   })
 
   const QueryParamsSchema = z.object({
     skip: z.coerce.number().int().min(0).default(0),
     take: z.coerce.number().int().min(1).max(100).default(10),
     orderBy: z.string().optional(),
-    ativo: z.coerce.boolean().optional(),
     search: z.string().optional()
   })
 
@@ -31,17 +29,15 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
   })
 
   const CreateDefinicaoSchema = z.object({
-    nome: z.string().min(1, 'Nome é obrigatório'),
-    descricao: z.string().optional(),
-    sigla: z.string().optional(),
-    ativo: z.boolean().default(true)
+    termo: z.string().min(1, 'Termo é obrigatório'),
+    definicao: z.string().min(1, 'Descrição é obrigatória'),
+    sigla: z.string().optional()
   })
 
   const UpdateDefinicaoSchema = z.object({
-    nome: z.string().min(1).optional(),
-    descricao: z.string().optional(),
-    sigla: z.string().optional(),
-    ativo: z.boolean().optional()
+    termo: z.string().min(1).optional(),
+    definicao: z.string().optional(),
+    sigla: z.string().optional()
   })
 
   const ResponseSchema = z.object({

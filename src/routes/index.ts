@@ -6,6 +6,7 @@ import { atribuicaoPapelDominioRoutes } from './atribuicao-papel-dominio-zod.rou
 import { auditoriaZodRoutes } from './auditoria-zod.routes.js'
 import { bancoZodRoutes } from './banco-zod.routes.js'
 import { colunaZodFinalRoutes } from './coluna-zod-final.routes.js'
+import { comiteAprovadorZodRoutes } from './comite-aprovador-zod.routes.js'
 import { comunidadeZodRoutes } from './comunidade-zod.routes.js'
 import { dashboardZodRoutes } from './dashboard-zod.routes.js'
 import { definicaoZodFinalRoutes } from './definicao-zod-final.routes.js'
@@ -76,6 +77,7 @@ export async function registerAllRoutes(app: FastifyInstance) {
     // Rotas de governança
     await app.register(papelZodRoutes, { prefix: '/papeis' })
 
+    await app.register(comiteAprovadorZodRoutes, { prefix: '/comites-aprovadores' })
 
     await app.register(necessidadeInformacaoZodRoutes, { prefix: '/necessidades-informacao' })
 

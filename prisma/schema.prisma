@@ -61,8 +61,7 @@ model Comunidade {
   papeis   Papel[]
   kpis     KPI[]
 
-  necessidadesInformacao NecessidadeInformacao[]
-  atribuicoesPapel       AtribuicaoPapelDominio[]
+  atribuicoesPapel AtribuicaoPapelDominio[]
 
   createdAt       DateTime?         @default(now()) @map("created_at")
   updatedAt       DateTime?         @map("updated_at")
@@ -106,13 +105,11 @@ model PoliticaInterna {
 }
 
 model NecessidadeInformacao {
-  id                  String     @id @default(uuid()) @db.Uuid
-  questaoGerencial    String     @map("questao_gerencial")
-  elementoEstrategico String?    @map("elemento_estrategico")
-  elementoTatico      String?    @map("elemento_tatico")
-  origemQuestao       String     @map("origem_questao")
-  comunidadeId        String     @map("comunidade_id") @db.Uuid
-  comunidade          Comunidade @relation(fields: [comunidadeId], references: [id])
+  id                  String  @id @default(uuid()) @db.Uuid
+  questaoGerencial    String  @map("questao_gerencial")
+  elementoEstrategico String? @map("elemento_estrategico")
+  elementoTatico      String? @map("elemento_tatico")
+  origemQuestao       String  @map("origem_questao")
 
   tabelas                 Tabela[]
   colunas                 Coluna[]
@@ -122,7 +119,6 @@ model NecessidadeInformacao {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
-  @@index([comunidadeId])
   @@map("necessidades_informacao")
 }
 
@@ -140,7 +136,6 @@ model Definicao {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
-  @@unique([termo])
   @@map("definicoes")
 }
 
@@ -421,28 +416,20 @@ model Criticidade {
 }
 
 model Papel {
-  id           String     @id @default(uuid()) @db.Uuid
-  listaPapelId String     @map("lista_papel_id") @db.Uuid
-  comunidadeId String     @map("comunidade_id") @db.Uuid
-  comunidade   Comunidade @relation(fields: [comunidadeId], references: [id])
-
-  nome      String
-  descricao String?
-
+  id         String          @id @default(uuid()) @db.Uuid
+  nome       String
+  descricao  String?
   politicaId String          @map("politica_id") @db.Uuid
   politica   PoliticaInterna @relation(fields: [politicaId], references: [id])
-
-  documentoAtribuicao String? @map("documento_atribuicao")
-  comiteAprovadorId   String? @map("comite_aprovador_id") @db.Uuid
-  onboarding          Boolean @default(false)
 
   // Relacionamentos  
   atribuicoesDominio AtribuicaoPapelDominio[]
 
-  createdAt DateTime? @default(now()) @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  createdAt    DateTime?   @default(now()) @map("created_at")
+  updatedAt    DateTime?   @map("updated_at")
+  Comunidade   Comunidade? @relation(fields: [comunidadeId], references: [id])
+  comunidadeId String?     @db.Uuid
 
-  @@index([comunidadeId])
   @@index([politicaId])
   @@map("papeis")
 }
@@ -492,32 +479,32 @@ model Usuario {
   @@map("usuarios")
 }
 
-// === NOVAS ENTIDADES PARA FUNCIONALIDADES FALTANTES ===
+model ComiteAprovador {
+  id                     String                   @id @default(uuid()) @db.Uuid
+  nome                   String
+  AtribuicaoPapelDominio AtribuicaoPapelDominio[]
 
-// Func. 5 - Atribuição de Papel a Domínio (tabela de junção com metadados)
+  @@map("comites_aprovadores")
+}
+
 model AtribuicaoPapelDominio {
-  id        String     @id @default(uuid()) @db.Uuid
-  papelId   String     @map("papel_id") @db.Uuid
-  papel     Papel      @relation(fields: [papelId], references: [id], onDelete: Cascade)
-  dominioId String     @map("dominio_id") @db.Uuid
-  dominio   Comunidade @relation(fields: [dominioId], references: [id], onDelete: Cascade)
-
-  // Metadados específicos da atribuição
-  tipoEntidade        TipoEntidadeDocumento // Tipo da entidade (Dominio, Sistema, etc)
-  documentoAtribuicao String?               @map("documento_atribuicao")
-  comiteAprovadorId   String?               @map("comite_aprovador_id") @db.Uuid
-  onboarding          Boolean               @default(false)
-  dataInicioVigencia  DateTime              @default(now()) @map("data_inicio_vigencia")
-  dataTermino         DateTime?             @map("data_termino")
-  observacoes         String?
+  id                  String          @id @default(uuid()) @db.Uuid
+  papelId             String          @map("papel_id") @db.Uuid
+  papel               Papel           @relation(fields: [papelId], references: [id], onDelete: Cascade)
+  dominioId           String          @map("dominio_id") @db.Uuid
+  dominio             Comunidade      @relation(fields: [dominioId], references: [id], onDelete: Cascade)
+  documentoAtribuicao String          @map("documento_atribuicao")
+  comiteAprovadorId   String          @map("comite_aprovador_id") @db.Uuid
+  comiteAprovador     ComiteAprovador @relation(fields: [comiteAprovadorId], references: [id])
+  onboarding          Boolean         @default(false)
+  responsavel         String
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
-  @@unique([papelId, dominioId])
   @@index([papelId])
   @@index([dominioId])
-  @@index([tipoEntidade])
+  @@index([comiteAprovadorId])
   @@map("atribuicoes_papel_dominio")
 }
 

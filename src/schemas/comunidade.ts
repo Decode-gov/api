@@ -35,14 +35,6 @@ export const ComunidadeWithRelationsSchema = ComunidadeSchema.extend({
 export const ComunidadeDetailSchema = ComunidadeSchema.extend({
   parent: ComunidadeSchema.nullable().optional(),
   children: z.array(ComunidadeSchema).optional(),
-  papeis: z.array(z.object({
-    id: z.uuid(),
-    nome: z.string(),
-    descricao: z.string(),
-    comunidadeId: z.uuid().nullable(),
-    createdAt: z.coerce.date().nullable(),
-    updatedAt: z.coerce.date().nullable()
-  })).optional(),
   kpis: z.array(z.object({
     id: z.uuid(),
     nome: z.string(),

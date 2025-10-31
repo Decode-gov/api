@@ -65,6 +65,7 @@ model Comunidade {
   createdAt       DateTime?         @default(now()) @map("created_at")
   updatedAt       DateTime?         @map("updated_at")
   PoliticaInterna PoliticaInterna[]
+  Definicao       Definicao[]
 
   @@index([parentId])
   @@map("comunidades")
@@ -122,10 +123,12 @@ model NecessidadeInformacao {
 }
 
 model Definicao {
-  id        String  @id @default(uuid()) @db.Uuid
-  termo     String
-  definicao String
-  sigla     String?
+  id           String      @id @default(uuid()) @db.Uuid
+  comunidadeId String?     @map("comunidade_id") @db.Uuid
+  comunidade   Comunidade? @relation(fields: [comunidadeId], references: [id])
+  termo        String
+  definicao    String
+  sigla        String?
 
   tabelas               Tabela[]
   termosClassificacao   TermoClassificacao[]

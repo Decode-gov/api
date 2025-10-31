@@ -2,20 +2,11 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { DefinicaoController } from '../controllers/definicao.controller.js'
+import { CreateDefinicaoSchema, DefinicaoSchema, UpdateDefinicaoSchema } from '../schemas/definicao.js'
 
 export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new DefinicaoController(app.prisma)
-
-  // Schemas Zod
-  const DefinicaoSchema = z.object({
-    id: z.uuid(),
-    termo: z.string(),
-    definicao: z.string().min(1, 'Descrição é obrigatória'),
-    sigla: z.string().nullable(),
-    createdAt: z.coerce.date().nullable(),
-    updatedAt: z.coerce.date().nullable()
-  })
 
   const QueryParamsSchema = z.object({
     skip: z.coerce.number().int().min(0).default(0),
@@ -26,18 +17,6 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
 
   const ParamsSchema = z.object({
     id: z.uuid()
-  })
-
-  const CreateDefinicaoSchema = z.object({
-    termo: z.string().min(1, 'Termo é obrigatório'),
-    definicao: z.string().min(1, 'Descrição é obrigatória'),
-    sigla: z.string().optional()
-  })
-
-  const UpdateDefinicaoSchema = z.object({
-    termo: z.string().min(1).optional(),
-    definicao: z.string().optional(),
-    sigla: z.string().optional()
   })
 
   const ResponseSchema = z.object({

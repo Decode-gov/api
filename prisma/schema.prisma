@@ -58,7 +58,6 @@ model Comunidade {
   parentId String?      @map("comunidade_id") @db.Uuid
   parent   Comunidade?  @relation("ComunidadeToComunidade", fields: [parentId], references: [id])
   children Comunidade[] @relation("ComunidadeToComunidade")
-  papeis   Papel[]
   kpis     KPI[]
 
   atribuicoesPapel AtribuicaoPapelDominio[]
@@ -425,10 +424,9 @@ model Papel {
   // Relacionamentos  
   atribuicoesDominio AtribuicaoPapelDominio[]
 
-  createdAt    DateTime?   @default(now()) @map("created_at")
-  updatedAt    DateTime?   @map("updated_at")
-  Comunidade   Comunidade? @relation(fields: [comunidadeId], references: [id])
-  comunidadeId String?     @db.Uuid
+  createdAt    DateTime? @default(now()) @map("created_at")
+  updatedAt    DateTime? @map("updated_at")
+  comunidadeId String?   @db.Uuid
 
   @@index([politicaId])
   @@map("papeis")

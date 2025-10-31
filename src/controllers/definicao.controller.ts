@@ -19,6 +19,8 @@ export class DefinicaoController extends BaseController {
           comunidade: true
         }
       })
+      
+      console.log("🚀 ~ DefinicaoController ~ findMany ~ data:", data)
 
       return reply.send({
         message: 'Definições encontradas',

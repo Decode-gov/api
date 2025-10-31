@@ -15,6 +15,9 @@ export class DefinicaoController extends BaseController {
         skip,
         take,
         orderBy,
+        include: {
+          comunidade: true
+        }
       })
 
       return reply.send({
@@ -33,7 +36,7 @@ export class DefinicaoController extends BaseController {
       const data = await this.prisma.definicao.findUniqueOrThrow({
         where: { id },
         include: {
-          tabelas: true
+          comunidade: true
         }
       })
 
@@ -55,6 +58,9 @@ export class DefinicaoController extends BaseController {
           termo,
           definicao,
           sigla
+        },
+        include: {
+          comunidade: true
         }
       })
 
@@ -78,6 +84,9 @@ export class DefinicaoController extends BaseController {
           termo,
           definicao,
           sigla
+        },
+        include: {
+          comunidade: true
         }
       })
 

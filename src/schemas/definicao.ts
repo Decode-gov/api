@@ -4,8 +4,8 @@ import { ComunidadeSchema } from './comunidade'
 // Schema base da definição - conforme especificação do prompt
 export const DefinicaoSchema = z.object({
   id: z.uuid({ message: 'ID deve ser um UUID válido' }).optional().describe('Identificador único da definição'),
-  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da definição (termo)'),
-  descricao: z.string().optional().describe('Descrição da definição'),
+  termo: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da definição (termo)'),
+  definicao: z.string().describe('Descrição da definição'),
   sigla: z.string().optional().describe('Sigla do termo'),
   comunidadeId: z.uuid({ message: 'ID da comunidade deve ser um UUID válido' }).describe('ID da comunidade relacionada'),
   comunidade: ComunidadeSchema,

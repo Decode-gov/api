@@ -5,7 +5,6 @@ export const StatusPoliticaEnum = z.enum(['Em_elaboracao', 'Vigente', 'Revogada'
 
 // Schema base da política interna
 export const PoliticaInternaSchema = z.object({
-  id: z.uuid(),
   nome: z.string().min(1).optional(),
   descricao: z.string().min(1).optional(),
   categoria: z.string().min(1).optional(),

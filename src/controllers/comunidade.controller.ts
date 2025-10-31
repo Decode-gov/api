@@ -21,11 +21,10 @@ export class ComunidadeController extends BaseController {
         }
       })
 
-      reply.send({
+      return reply.send({
         message: 'Comunidades encontradas',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -48,11 +47,10 @@ export class ComunidadeController extends BaseController {
         return (reply as any).notFound('Comunidade não encontrada')
       }
 
-      reply.send({
+      return reply.send({
         message: 'Comunidade encontrada',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -70,11 +68,10 @@ export class ComunidadeController extends BaseController {
         }
       })
 
-      reply.status(201).send({
+      return reply.status(201).send({
         message: 'Comunidade criada com sucesso',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -95,11 +92,10 @@ export class ComunidadeController extends BaseController {
         }
       })
 
-      reply.send({
+      return reply.send({
         message: 'Comunidade atualizada com sucesso',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -114,11 +110,10 @@ export class ComunidadeController extends BaseController {
         where: { id: validId }
       })
 
-      reply.send({
+      return reply.send({
         message: 'Comunidade excluída com sucesso',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }

@@ -18,11 +18,6 @@ export class ComunidadeController extends BaseController {
         include: {
           parent: true,
           children: true,
-          _count: {
-            select: {
-              kpis: true
-            }
-          }
         }
       })
 
@@ -46,7 +41,6 @@ export class ComunidadeController extends BaseController {
         include: {
           parent: true,
           children: true,
-          kpis: true
         }
       })
 

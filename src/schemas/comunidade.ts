@@ -25,24 +25,12 @@ export const UpdateComunidadeSchema = z.object({
 export const ComunidadeWithRelationsSchema = ComunidadeSchema.extend({
   parent: ComunidadeSchema.nullable().optional(),
   children: z.array(ComunidadeSchema).optional(),
-  _count: z.object({
-    papeis: z.number(),
-    kpis: z.number()
-  }).optional()
 })
 
 // Schema detalhado para findById (inclui papeis e kpis completos)
 export const ComunidadeDetailSchema = ComunidadeSchema.extend({
   parent: ComunidadeSchema.nullable().optional(),
   children: z.array(ComunidadeSchema).optional(),
-  kpis: z.array(z.object({
-    id: z.uuid(),
-    nome: z.string(),
-    comunidadeId: z.uuid().nullable(),
-    processoId: z.uuid().nullable(),
-    createdAt: z.coerce.date().nullable(),
-    updatedAt: z.coerce.date().nullable()
-  })).optional()
 })
 
 // Schema para resposta com comunidade (usado em create/update)

@@ -2,29 +2,28 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { ListaClassificacaoController } from '../controllers/lista-classificacao.controller.js'
+import { PoliticaInternaSchema } from '../schemas/politica-interna.js'
+
+export const ListaClassificacaoSchema = z.object({
+  id: z.uuid(),
+  classificacao: z.string(),
+  descricao: z.string(),
+  politicaId: z.uuid(),
+  politica: PoliticaInternaSchema,
+  createdAt: z.coerce.date().describe('Data de criação'),
+  updatedAt: z.coerce.date().nullable().describe('Data de última atualização')
+})
 
 export async function listaClassificacaoRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new ListaClassificacaoController(app.prisma)
 
-  // Enum para categoria de segurança
-  const CategoriaSegurancaEnum = z.enum(['Publico', 'Interno', 'Confidencial', 'Restrito'])
-
   // Schemas Zod
-  const ListaClassificacaoSchema = z.object({
-    id: z.uuid(),
-    categoria: CategoriaSegurancaEnum,
-    descricao: z.string(),
-    politicaId: z.uuid(),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime()
-  })
 
   const QueryParamsSchema = z.object({
     skip: z.coerce.number().int().min(0).default(0),
     take: z.coerce.number().int().min(1).max(100).default(10),
     orderBy: z.string().optional(),
-    categoria: CategoriaSegurancaEnum.optional()
   })
 
   const ParamsSchema = z.object({
@@ -32,13 +31,13 @@ export async function listaClassificacaoRoutes(fastify: FastifyInstance) {
   })
 
   const CreateListaClassificacaoSchema = z.object({
-    categoria: CategoriaSegurancaEnum,
+    classificacao: z.string().min(1, 'Classificação da informação é obrigatória'),
     descricao: z.string().min(1, 'Descrição é obrigatória'),
     politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' })
   })
 
   const UpdateListaClassificacaoSchema = z.object({
-    categoria: CategoriaSegurancaEnum.optional(),
+    classificacao: z.string().min(1).optional(),
     descricao: z.string().min(1).optional(),
     politicaId: z.uuid().optional()
   })

@@ -15,13 +15,8 @@ export class DefinicaoController extends BaseController {
         skip,
         take,
         orderBy,
-        include: {
-          comunidade: true
-        }
       })
       
-      console.log("🚀 ~ DefinicaoController ~ findMany ~ data:", data)
-
       return reply.send({
         message: 'Definições encontradas',
         data
@@ -37,9 +32,6 @@ export class DefinicaoController extends BaseController {
 
       const data = await this.prisma.definicao.findUniqueOrThrow({
         where: { id },
-        include: {
-          comunidade: true
-        }
       })
 
       return reply.send({
@@ -61,9 +53,6 @@ export class DefinicaoController extends BaseController {
           definicao,
           sigla
         },
-        include: {
-          comunidade: true
-        }
       })
 
       return reply.status(201).send({
@@ -87,9 +76,6 @@ export class DefinicaoController extends BaseController {
           definicao,
           sigla
         },
-        include: {
-          comunidade: true
-        }
       })
 
       return reply.send({

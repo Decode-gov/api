@@ -7,7 +7,6 @@ import {
   ClassificacaoInformacaoParamsSchema,
   CreateClassificacaoInformacaoSchema,
   UpdateClassificacaoInformacaoSchema,
-  AtribuirTermoSchema,
   ClassificacaoInformacaoResponseSchema,
   ClassificacoesListResponseSchema
 } from '../schemas/classificacao-informacao.js'
@@ -21,7 +20,6 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
     skip: z.coerce.number().int().min(0).default(0),
     take: z.coerce.number().int().min(1).max(100).default(10),
     orderBy: z.string().optional(),
-    politicaId: z.uuid().optional()
   })
 
   const ErrorResponseSchema = z.object({
@@ -99,24 +97,6 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
     }
   }, async (request, reply) => {
     return controller.update(request as any, reply)
-  })
-
-  // PUT /classificacoes-informacao/:id/termo - Atribuir termo
-  app.put('/:id/termo', {
-    preHandler: authMiddleware,
-    schema: {
-      description: 'Atribuir termo a uma classificação de informação',
-      tags: ['Classificações de Informação'],
-      summary: 'Atribuir termo à classificação',
-      params: ClassificacaoInformacaoParamsSchema,
-      body: AtribuirTermoSchema,
-      response: {
-        200: ClassificacaoInformacaoResponseSchema,
-        404: ErrorResponseSchema
-      }
-    }
-  }, async (request, reply) => {
-    return controller.atribuirTermo(request as any, reply)
   })
 
   // DELETE /classificacoes-informacao/:id - Deletar classificação

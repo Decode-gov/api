@@ -1,56 +1,35 @@
 import { z } from 'zod'
+import { DefinicaoSchema } from './definicao'
+import { ListaReferenciaSchema } from './lista-referencia'
+import { ListaClassificacaoSchema } from '../routes/lista-classificacao-zod.routes'
 
 // Schema base da classificação de informação usando Zod v4
 export const ClassificacaoInformacaoSchema = z.object({
   id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da classificação'),
-  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da classificação'),
-  descricao: z.string().optional().describe('Descrição da classificação'),
-  politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).describe('ID da política relacionada'),
-  termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).optional().describe('ID do termo relacionado'),
-  ativo: z.boolean().default(true).describe('Status de ativação'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  classificacaoId: z.uuid({ message: 'ID da classificação deve ser um UUID válido' }).describe('ID da lista de classificação relacionada'),
+  classificacao: ListaReferenciaSchema.describe('Lista de referência da classificação'),
+  termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).describe('ID do termo relacionado'),
+  termo: DefinicaoSchema.describe('Termo relacionado'),
+  createdAt: z.coerce.date().describe('Data de criação'),
+  updatedAt: z.coerce.date().nullable().describe('Data de última atualização')
 })
 
 // Schema para criação de classificação
 export const CreateClassificacaoInformacaoSchema = z.object({
-  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da classificação'),
-  descricao: z.string().optional().describe('Descrição da classificação'),
-  politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).describe('ID da política'),
-  termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).optional().describe('ID do termo'),
-  ativo: z.boolean().default(true).describe('Status de ativação')
+  classificacaoId: z.uuid({ message: 'ID da classificação deve ser um UUID válido' }).describe('ID da lista de classificação relacionada'),
+  termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).describe('ID do termo'),
 })
 
 // Schema para atualização de classificação
 export const UpdateClassificacaoInformacaoSchema = z.object({
-  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).optional().describe('Nome da classificação'),
-  descricao: z.string().optional().describe('Descrição da classificação'),
-  politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).optional().describe('ID da política'),
+  classificacaoId: z.uuid({ message: 'ID da classificação deve ser um UUID válido' }).optional().describe('ID da lista de classificação relacionada'),
   termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).optional().describe('ID do termo'),
-  ativo: z.boolean().optional().describe('Status de ativação')
-})
-
-// Schema para atribuir termo
-export const AtribuirTermoSchema = z.object({
-  termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).describe('ID do termo para atribuir')
 })
 
 // Schema para classificação com relacionamentos
 export const ClassificacaoInformacaoWithRelationsSchema = ClassificacaoInformacaoSchema.extend({
-  politica: z.object({
-    id: z.uuid({ message: 'ID inválido' }).describe('ID da política'),
-    nome: z.string().describe('Nome da política'),
-    versao: z.string().optional().describe('Versão da política')
-  }).describe('Política relacionada'),
-  termo: z.object({
-    id: z.uuid({ message: 'ID inválido' }).describe('ID do termo'),
-    nome: z.string().describe('Nome do termo'),
-    definicao: z.string().optional().describe('Definição do termo')
-  }).optional().describe('Termo relacionado'),
-  produtos: z.array(z.object({
-    id: z.uuid({ message: 'ID inválido' }).describe('ID do produto'),
-    nome: z.string().describe('Nome do produto')
-  })).optional().describe('Produtos relacionados')
+  classificacao: ListaClassificacaoSchema.describe('Lista de referência da classificação'),
+  termo: DefinicaoSchema.describe('Termo relacionado'),
 })
 
 // Schema para resposta com classificação

@@ -20,11 +20,10 @@ export class ListaClassificacaoController extends BaseController {
         }
       })
 
-      reply.send({
+      return reply.send({
         message: 'Listas de classificação encontradas',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -46,11 +45,10 @@ export class ListaClassificacaoController extends BaseController {
         return (reply as any).notFound('Lista de Classificação não encontrada')
       }
 
-      reply.send({
+      return reply.send({
         message: 'Lista de classificação encontrada',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -67,11 +65,10 @@ export class ListaClassificacaoController extends BaseController {
         }
       })
 
-      reply.status(201).send({
+      return reply.status(201).send({
         message: 'Lista de classificação criada com sucesso',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -91,11 +88,10 @@ export class ListaClassificacaoController extends BaseController {
         }
       })
 
-      reply.send({
+      return reply.send({
         message: 'Lista de classificação atualizada com sucesso',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -110,11 +106,10 @@ export class ListaClassificacaoController extends BaseController {
         where: { id: validId }
       })
 
-      reply.send({
+      return reply.send({
         message: 'Lista de classificação excluída com sucesso',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }

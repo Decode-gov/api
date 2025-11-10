@@ -10,52 +10,35 @@ interface ClassificacaoInformacaoQuery {
   skip?: number
   take?: number
   orderBy?: string
-  politicaId?: string
 }
 
 interface ClassificacaoInformacaoBody {
-  nome: string
-  descricao?: string
-  politicaId: string
-  termoId?: string
+  classificacaoId: string
+  termoId: string
 }
 
 export class ClassificacaoInformacaoController extends BaseController {
   constructor(prisma: PrismaClient) {
-    super(prisma, 'classificacaoInformacao')
+    super(prisma, 'classificacao')
   }
 
   async findMany(request: FastifyRequest<{ Querystring: ClassificacaoInformacaoQuery }>, reply: FastifyReply) {
     try {
-      const { skip = 0, take = 10, orderBy = 'nome', politicaId } = request.query
+      const { skip = 0, take = 10, orderBy = 'createdAt' } = request.query
 
       this.validatePagination({ skip, take })
 
-      const where = politicaId ? { politicaId } : {}
-
-      const classificacoes = await (this.prisma as any).classificacaoInformacao.findMany({
+      const classificacoes = await this.prisma.classificacao.findMany({
         skip,
         take,
-        where,
         orderBy: { [orderBy]: 'asc' },
         include: {
-          politica: {
-            select: {
-              id: true,
-              nome: true
+          classificacao: {
+            include: {
+              politica: true
             }
           },
-          termos: {
-            include: {
-              termo: {
-                select: {
-                  id: true,
-                  termo: true,
-                  definicao: true
-                }
-              }
-            }
-          }
+          termo: true
         }
       })
 
@@ -73,26 +56,15 @@ export class ClassificacaoInformacaoController extends BaseController {
       const { id } = request.params
       this.validateId(id)
 
-      const classificacao = await (this.prisma as any).classificacaoInformacao.findUnique({
+      const classificacao = await this.prisma.classificacao.findUnique({
         where: { id },
         include: {
-          politica: {
-            select: {
-              id: true,
-              nome: true
+          classificacao: {
+            include: {
+              politica: true
             }
           },
-          termos: {
-            include: {
-              termo: {
-                select: {
-                  id: true,
-                  termo: true,
-                  definicao: true
-                }
-              }
-            }
-          }
+          termo: true
         }
       })
 
@@ -114,87 +86,50 @@ export class ClassificacaoInformacaoController extends BaseController {
 
   async create(request: FastifyRequest<{ Body: ClassificacaoInformacaoBody }>, reply: FastifyReply) {
     try {
-      const { nome, descricao, politicaId, termoId } = request.body
+      const { classificacaoId, termoId } = request.body
 
-      // Validar se a política existe
-      const politica = await this.prisma.politicaInterna.findUnique({
-        where: { id: politicaId }
+      // Validar se a lista de classificação existe
+      const listaClassificacao = await this.prisma.listaClassificacao.findUnique({
+        where: { id: classificacaoId }
       })
 
-      if (!politica) {
+      if (!listaClassificacao) {
         return reply.status(400).send({
           error: 'BadRequest',
-          message: 'Política interna não encontrada'
+          message: 'Lista de classificação não encontrada'
         })
       }
 
-      // Se termoId foi fornecido, validar se o termo existe
-      if (termoId) {
-        const termo = await this.prisma.definicao.findUnique({
-          where: { id: termoId }
-        })
-
-        if (!termo) {
-          return reply.status(400).send({
-            error: 'BadRequest',
-            message: 'Termo de definição não encontrado'
-          })
-        }
-      }
-
-      const classificacao = await (this.prisma as any).classificacaoInformacao.create({
-        data: {
-          nome,
-          descricao,
-          politicaId
-        },
-        include: {
-          politica: {
-            select: {
-              id: true,
-              nome: true
-            }
-          }
-        }
+      // Validar se o termo existe
+      const termo = await this.prisma.definicao.findUnique({
+        where: { id: termoId }
       })
 
-      // Se termoId foi fornecido, criar a associação
-      if (termoId) {
-        await (this.prisma as any).termoClassificacao.create({
-          data: {
-            termoId,
-            classificacaoInformacaoId: classificacao.id
-          }
+      if (!termo) {
+        return reply.status(400).send({
+          error: 'BadRequest',
+          message: 'Termo de definição não encontrado'
         })
       }
 
-      // Buscar a classificação criada com todas as relações
-      const classificacaoCompleta = await (this.prisma as any).classificacaoInformacao.findUnique({
-        where: { id: classificacao.id },
+      const classificacao = await this.prisma.classificacao.create({
+        data: {
+          classificacaoId,
+          termoId
+        },
         include: {
-          politica: {
-            select: {
-              id: true,
-              nome: true
+          classificacao: {
+            include: {
+              politica: true
             }
           },
-          termos: {
-            include: {
-              termo: {
-                select: {
-                  id: true,
-                  termo: true,
-                  definicao: true
-                }
-              }
-            }
-          }
+          termo: true
         }
       })
 
       return reply.status(201).send({
         message: 'Classificação de informação criada com sucesso',
-        data: classificacaoCompleta
+        data: classificacao
       })
     } catch (error) {
       this.handleError(reply, error)
@@ -206,26 +141,25 @@ export class ClassificacaoInformacaoController extends BaseController {
       const { id } = request.params
       this.validateId(id)
 
-      const updateData = { ...request.body }
-      const { termoId, ...classificacaoData } = updateData
+      const { classificacaoId, termoId } = request.body
 
-      if (Object.keys(updateData).length === 0) {
+      if (!classificacaoId && !termoId) {
         return reply.status(400).send({
           error: 'BadRequest',
           message: 'Nenhum campo fornecido para atualização'
         })
       }
 
-      // Se está atualizando politicaId, validar se existe
-      if (classificacaoData.politicaId) {
-        const politica = await this.prisma.politicaInterna.findUnique({
-          where: { id: classificacaoData.politicaId }
+      // Se está atualizando classificacaoId, validar se existe
+      if (classificacaoId) {
+        const listaClassificacao = await this.prisma.listaClassificacao.findUnique({
+          where: { id: classificacaoId }
         })
 
-        if (!politica) {
+        if (!listaClassificacao) {
           return reply.status(400).send({
             error: 'BadRequest',
-            message: 'Política interna não encontrada'
+            message: 'Lista de classificação não encontrada'
           })
         }
       }
@@ -242,49 +176,21 @@ export class ClassificacaoInformacaoController extends BaseController {
             message: 'Termo de definição não encontrado'
           })
         }
-
-        // Remover termos existentes e adicionar o novo
-        await (this.prisma as any).termoClassificacao.deleteMany({
-          where: { classificacaoInformacaoId: id }
-        })
-
-        await (this.prisma as any).termoClassificacao.create({
-          data: {
-            termoId,
-            classificacaoInformacaoId: id
-          }
-        })
       }
 
-      // Atualizar apenas os dados da classificação (sem termoId)
-      if (Object.keys(classificacaoData).length > 0) {
-        await (this.prisma as any).classificacaoInformacao.update({
-          where: { id },
-          data: classificacaoData
-        })
-      }
-
-      // Buscar a classificação atualizada com todas as relações
-      const classificacao = await (this.prisma as any).classificacaoInformacao.findUnique({
+      const classificacao = await this.prisma.classificacao.update({
         where: { id },
+        data: {
+          ...(classificacaoId && { classificacaoId }),
+          ...(termoId && { termoId })
+        },
         include: {
-          politica: {
-            select: {
-              id: true,
-              nome: true
+          classificacao: {
+            include: {
+              politica: true
             }
           },
-          termos: {
-            include: {
-              termo: {
-                select: {
-                  id: true,
-                  termo: true,
-                  definicao: true
-                }
-              }
-            }
-          }
+          termo: true
         }
       })
 
@@ -302,7 +208,7 @@ export class ClassificacaoInformacaoController extends BaseController {
       const { id } = request.params
       this.validateId(id)
 
-      await (this.prisma as any).classificacaoInformacao.delete({
+      await this.prisma.classificacao.delete({
         where: { id }
       })
 
@@ -313,212 +219,4 @@ export class ClassificacaoInformacaoController extends BaseController {
       this.handleError(reply, error)
     }
   }
-
-  // Método específico para atualizar apenas o termo de definição
-  async atualizarTermo(request: FastifyRequest<{ Params: { id: string }; Body: { termoId: string } }>, reply: FastifyReply) {
-    try {
-      const { id } = request.params
-      const { termoId } = request.body
-
-      this.validateId(id)
-      this.validateId(termoId)
-
-      // Verificar se a classificação existe
-      const classificacao = await (this.prisma as any).classificacaoInformacao.findUnique({
-        where: { id }
-      })
-
-      if (!classificacao) {
-        return reply.status(404).send({
-          error: 'NotFound',
-          message: 'Classificação de informação não encontrada'
-        })
-      }
-
-      // Verificar se o termo existe
-      const termo = await this.prisma.definicao.findUnique({
-        where: { id: termoId }
-      })
-
-      if (!termo) {
-        return reply.status(404).send({
-          error: 'NotFound',
-          message: 'Termo não encontrado'
-        })
-      }
-
-      // Remover termos existentes e adicionar o novo
-      await (this.prisma as any).termoClassificacao.deleteMany({
-        where: { classificacaoInformacaoId: id }
-      })
-
-      const termoClassificacao = await (this.prisma as any).termoClassificacao.create({
-        data: {
-          termoId,
-          classificacaoInformacaoId: id
-        },
-        include: {
-          termo: {
-            select: {
-              id: true,
-              termo: true,
-              definicao: true
-            }
-          },
-          classificacaoInformacao: {
-            select: {
-              id: true,
-              nome: true
-            }
-          }
-        }
-      })
-
-      return reply.status(200).send({
-        message: 'Termo de definição atualizado com sucesso',
-        data: termoClassificacao
-      })
-    } catch (error) {
-      this.handleError(reply, error)
-    }
-  }
-
-  // Método para listar todas as classificações (sem paginação)
-  async listarTodas(request: FastifyRequest, reply: FastifyReply) {
-    try {
-      const classificacoes = await (this.prisma as any).classificacaoInformacao.findMany({
-        include: {
-          politica: {
-            select: {
-              id: true,
-              nome: true
-            }
-          },
-          termos: {
-            include: {
-              termo: {
-                select: {
-                  id: true,
-                  termo: true,
-                  definicao: true
-                }
-              }
-            }
-          }
-        },
-        orderBy: { nome: 'asc' }
-      })
-
-      return reply.status(200).send({
-        message: 'Todas as classificações de informação encontradas',
-        data: classificacoes,
-        total: classificacoes.length
-      })
-    } catch (error) {
-      this.handleError(reply, error)
-    }
-  }
-
-  // Método específico para atribuir classificação a um termo
-  async atribuirTermo(request: FastifyRequest<{ Params: { id: string }; Body: { termoId: string } }>, reply: FastifyReply) {
-    try {
-      const { id } = request.params
-      const { termoId } = request.body
-
-      this.validateId(id)
-      this.validateId(termoId)
-
-      // Verificar se a classificação existe
-      const classificacao = await (this.prisma as any).classificacaoInformacao.findUnique({
-        where: { id }
-      })
-
-      if (!classificacao) {
-        return reply.status(404).send({
-          error: 'NotFound',
-          message: 'Classificação de informação não encontrada'
-        })
-      }
-
-      // Verificar se o termo existe
-      const termo = await this.prisma.definicao.findUnique({
-        where: { id: termoId }
-      })
-
-      if (!termo) {
-        return reply.status(404).send({
-          error: 'NotFound',
-          message: 'Termo não encontrado'
-        })
-      }
-
-      // Criar a associação
-      const termoClassificacao = await (this.prisma as any).termoClassificacao.create({
-        data: {
-          termoId,
-          classificacaoInformacaoId: id
-        },
-        include: {
-          termo: {
-            select: {
-              id: true,
-              termo: true,
-              definicao: true
-            }
-          },
-          classificacaoInformacao: {
-            select: {
-              id: true,
-              nome: true
-            }
-          }
-        }
-      })
-
-      return reply.status(201).send({
-        message: 'Termo atribuído à classificação com sucesso',
-        data: termoClassificacao
-      })
-    } catch (error) {
-      this.handleError(reply, error)
-    }
-  }
-
-  // Método para listar classificações por nível (DEPRECADO - campo nivel não existe no schema)
-  /*
-  async listarPorNivel(request: FastifyRequest<{ Params: { nivel: string } }>, reply: FastifyReply) {
-    try {
-      const { nivel } = request.params
-
-      // Validar nível
-      const niveisValidos = ['PUBLICO', 'INTERNO', 'CONFIDENCIAL', 'SECRETO']
-      if (!niveisValidos.includes(nivel)) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: `Nível deve ser um dos seguintes: ${niveisValidos.join(', ')}`
-        })
-      }
-
-      const classificacoes = await (this.prisma as any).classificacaoInformacao.findMany({
-        where: { nivel },
-        include: {
-          politica: {
-            select: {
-              nome: true,
-              versao: true
-            }
-          }
-        },
-        orderBy: { nome: 'asc' }
-      })
-
-      return reply.status(200).send({
-        message: `Classificações do nível ${nivel} encontradas`,
-        data: classificacoes
-      })
-    } catch (error) {
-      this.handleError(reply, error)
-    }
-  }
-  */
 }

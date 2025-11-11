@@ -20,11 +20,10 @@ export class PapelController extends BaseController {
         }
       })
 
-      reply.send({
+      return reply.send({
         message: 'Papéis encontrados',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -46,11 +45,10 @@ export class PapelController extends BaseController {
         return (reply as any).notFound('Papel não encontrado')
       }
 
-      reply.send({
+      return reply.send({
         message: 'Papel encontrado',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -67,11 +65,10 @@ export class PapelController extends BaseController {
         }
       })
 
-      reply.status(201).send({
+      return reply.status(201).send({
         message: 'Papel criado com sucesso',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -91,11 +88,10 @@ export class PapelController extends BaseController {
         }
       })
 
-      reply.send({
+      return reply.send({
         message: 'Papel atualizado com sucesso',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -110,11 +106,10 @@ export class PapelController extends BaseController {
         where: { id: validId }
       })
 
-      reply.send({
+      return reply.send({
         message: 'Papel excluído com sucesso',
         data
       })
-      return { data }
     } catch (error) {
       return this.handleError(reply, error)
     }

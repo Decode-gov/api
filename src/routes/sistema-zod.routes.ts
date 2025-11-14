@@ -14,12 +14,13 @@ import { PaginationSchema, ErrorSchema } from '../schemas/common.js'
 
 export async function sistemaZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
+  const controller = new SistemaController(app.prisma)
 
   // GET /api/sistemas - Listar todos os sistemas
   app.get('/', {
     preHandler: authMiddleware,
     schema: {
-      description: 'Listar todos os sistemas cadastrados',
+      description: 'Listar todos os sistemas cadastrados com seus relacionamentos',
       tags: ['Sistemas'],
       summary: 'Listar sistemas',
       querystring: PaginationSchema,
@@ -28,15 +29,14 @@ export async function sistemaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    const controller = new SistemaController(app.prisma)
-    return controller.findMany(request, reply)
+    await controller.findMany(request, reply)
   })
 
   // GET /api/sistemas/:id - Buscar sistema por ID
   app.get('/:id', {
     preHandler: authMiddleware,
     schema: {
-      description: 'Buscar sistema específico por ID',
+      description: 'Buscar sistema específico por ID com seus bancos de dados',
       tags: ['Sistemas'],
       summary: 'Buscar sistema por ID',
       params: SistemaParamsSchema,
@@ -46,8 +46,7 @@ export async function sistemaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    const controller = new SistemaController(app.prisma)
-    return controller.findById(request, reply)
+    await controller.findById(request, reply)
   })
 
   // POST /api/sistemas - Criar novo sistema
@@ -64,8 +63,7 @@ export async function sistemaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    const controller = new SistemaController(app.prisma)
-    return controller.create(request, reply)
+    await controller.create(request, reply)
   })
 
   // PUT /api/sistemas/:id - Atualizar sistema
@@ -84,25 +82,27 @@ export async function sistemaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    const controller = new SistemaController(app.prisma)
-    return controller.update(request, reply)
+    await controller.update(request, reply)
   })
 
   // DELETE /api/sistemas/:id - Deletar sistema
   app.delete('/:id', {
     preHandler: authMiddleware,
     schema: {
-      description: 'Excluir sistema do catálogo',
+      description: 'Excluir sistema do catálogo (somente se não estiver em uso)',
       tags: ['Sistemas'],
       summary: 'Excluir sistema',
       params: SistemaParamsSchema,
       response: {
-        200: z.object({ message: z.string() }),
+        200: z.object({
+          message: z.string(),
+          data: SistemaResponseSchema.shape.data
+        }),
+        400: ErrorSchema,
         404: ErrorSchema
       }
     }
   }, async (request, reply) => {
-    const controller = new SistemaController(app.prisma)
-    return controller.delete(request, reply)
+    await controller.delete(request, reply)
   })
 }

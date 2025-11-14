@@ -32,14 +32,10 @@ export class TipoDadosController extends BaseController {
         take,
         where,
         orderBy,
-        include: {
-          colunas: {
-            select: {
-              id: true,
-              nome: true,
-              tabelaId: true
-            }
-          }
+        select: {
+          id: true,
+          nome: true,
+          descricao: true
         }
       })
 
@@ -60,14 +56,10 @@ export class TipoDadosController extends BaseController {
 
       const data = await this.prisma.tipoDados.findUnique({
         where: { id: validId },
-        include: {
-          colunas: {
-            select: {
-              id: true,
-              nome: true,
-              tabelaId: true
-            }
-          }
+        select: {
+          id: true,
+          nome: true,
+          descricao: true
         }
       })
 
@@ -91,14 +83,10 @@ export class TipoDadosController extends BaseController {
 
       const data = await this.prisma.tipoDados.create({
         data: body,
-        include: {
-          colunas: {
-            select: {
-              id: true,
-              nome: true,
-              tabelaId: true
-            }
-          }
+        select: {
+          id: true,
+          nome: true,
+          descricao: true
         }
       })
 
@@ -121,14 +109,10 @@ export class TipoDadosController extends BaseController {
       const data = await this.prisma.tipoDados.update({
         where: { id: validId },
         data: body,
-        include: {
-          colunas: {
-            select: {
-              id: true,
-              nome: true,
-              tabelaId: true
-            }
-          }
+        select: {
+          id: true,
+          nome: true,
+          descricao: true
         }
       })
 

@@ -15,9 +15,10 @@ export class CodificacaoController extends BaseController {
         skip,
         take,
         orderBy,
-        include: {
-          tabela: true,
-          coluna: true
+        select: {
+          id: true,
+          nome: true,
+          colunaId: true
         }
       })
 
@@ -34,9 +35,10 @@ export class CodificacaoController extends BaseController {
 
       const data = await this.prisma.codificacao.findUnique({
         where: { id: validId },
-        include: {
-          tabela: true,
-          coluna: true
+        select: {
+          id: true,
+          nome: true,
+          colunaId: true
         }
       })
 
@@ -56,9 +58,10 @@ export class CodificacaoController extends BaseController {
 
       const data = await this.prisma.codificacao.create({
         data: body,
-        include: {
-          tabela: true,
-          coluna: true
+        select: {
+          id: true,
+          nome: true,
+          colunaId: true
         }
       })
 
@@ -78,9 +81,10 @@ export class CodificacaoController extends BaseController {
       const data = await this.prisma.codificacao.update({
         where: { id: validId },
         data: body,
-        include: {
-          tabela: true,
-          coluna: true
+        select: {
+          id: true,
+          nome: true,
+          colunaId: true
         }
       })
 

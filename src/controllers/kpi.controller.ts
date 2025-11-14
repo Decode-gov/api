@@ -15,9 +15,16 @@ export class KpiController extends BaseController {
         skip,
         take,
         orderBy,
-        include: {
-          comunidade: true,
-          processo: true
+        select: {
+          id: true,
+          nome: true,
+          comunidadeId: true,
+          comunidade: {
+            select: {
+              id: true,
+              nome: true
+            }
+          }
         }
       })
 
@@ -38,9 +45,16 @@ export class KpiController extends BaseController {
 
       const data = await this.prisma.kPI.findUnique({
         where: { id: validId },
-        include: {
-          comunidade: true,
-          processo: true
+        select: {
+          id: true,
+          nome: true,
+          comunidadeId: true,
+          comunidade: {
+            select: {
+              id: true,
+              nome: true
+            }
+          }
         }
       })
 
@@ -62,43 +76,18 @@ export class KpiController extends BaseController {
     try {
       const body = request.body as any
 
-      // Validar que o KPI deve estar associado a um processo
-      if (!body.processoId) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: 'KPI deve estar associado a um processo'
-        })
-      }
-
-      // Validar se processo existe
-      const processo = await this.prisma.processo.findUnique({
-        where: { id: body.processoId }
-      })
-      if (!processo) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: 'Processo não encontrado'
-        })
-      }
-
-      // Validar se comunidade existe (se fornecida)
-      if (body.comunidadeId) {
-        const comunidade = await this.prisma.comunidade.findUnique({
-          where: { id: body.comunidadeId }
-        })
-        if (!comunidade) {
-          return reply.status(400).send({
-            error: 'BadRequest',
-            message: 'Comunidade não encontrada'
-          })
-        }
-      }
-
       const data = await this.prisma.kPI.create({
         data: body,
-        include: {
-          comunidade: true,
-          processo: true
+        select: {
+          id: true,
+          nome: true,
+          comunidadeId: true,
+          comunidade: {
+            select: {
+              id: true,
+              nome: true
+            }
+          }
         }
       })
 
@@ -121,9 +110,16 @@ export class KpiController extends BaseController {
       const data = await this.prisma.kPI.update({
         where: { id: validId },
         data: body,
-        include: {
-          comunidade: true,
-          processo: true
+        select: {
+          id: true,
+          nome: true,
+          comunidadeId: true,
+          comunidade: {
+            select: {
+              id: true,
+              nome: true
+            }
+          }
         }
       })
 

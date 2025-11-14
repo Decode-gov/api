@@ -1,34 +1,24 @@
 import { z } from 'zod'
+import { TimestampsSchema } from './common.js'
+import { SistemaSchema } from './sistema.js'
 
-// Schema base do banco usando funcionalidades do Zod v4
-export const BancoSchema = z.object({
-  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do banco'),
+// Schema base para dados do banco (apenas campos de input)
+const BancoBaseSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do banco de dados'),
-  descricao: z.string().nullable().describe('Descrição do banco'),
-  servidor: z.string().nullable().describe('Endereço do servidor'),
-  porta: z.coerce.number().int().positive({ message: 'Porta deve ser um número positivo' }).nullable().describe('Porta de conexão'),
-  tipo: z.string().nullable().describe('Tipo do banco de dados'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  sistemaId: z.uuid({ message: 'ID do sistema deve ser um UUID válido' }).nullable().optional().describe('ID do sistema associado'),
+  sistema: SistemaSchema.nullable().optional()
 })
 
-// Schema para criação de banco
-export const CreateBancoSchema = z.object({
-  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do banco'),
-  descricao: z.string().nullable().optional().describe('Descrição opcional'),
-  servidor: z.string().nullable().optional().describe('Endereço do servidor'),
-  porta: z.coerce.number().int().positive({ message: 'Porta deve ser um número positivo' }).nullable().optional().describe('Porta de conexão'),
-  tipo: z.string().nullable().optional().describe('Tipo do banco')
-})
+// Schema completo com ID e timestamps
+export const BancoSchema = BancoBaseSchema.extend({
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do banco')
+}).merge(TimestampsSchema.partial())
 
-// Schema para atualização de banco
-export const UpdateBancoSchema = z.object({
-  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).optional().describe('Nome do banco'),
-  descricao: z.string().nullable().optional().describe('Descrição'),
-  servidor: z.string().nullable().optional().describe('Endereço do servidor'),
-  porta: z.coerce.number().int().positive({ message: 'Porta deve ser um número positivo' }).nullable().optional().describe('Porta de conexão'),
-  tipo: z.string().nullable().optional().describe('Tipo do banco')
-})
+// Schema para criação (apenas campos necessários)
+export const CreateBancoSchema = BancoBaseSchema
+
+// Schema para atualização (todos os campos opcionais)
+export const UpdateBancoSchema = BancoBaseSchema.partial()
 
 // Schema para resposta com banco
 export const BancoResponseSchema = z.object({
@@ -46,3 +36,8 @@ export const BancosListResponseSchema = z.object({
 export const BancoParamsSchema = z.object({
   id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('ID do banco')
 })
+
+// Type exports para uso em controllers
+export type Banco = z.infer<typeof BancoSchema>
+export type CreateBanco = z.infer<typeof CreateBancoSchema>
+export type UpdateBanco = z.infer<typeof UpdateBancoSchema>

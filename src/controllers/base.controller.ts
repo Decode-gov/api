@@ -25,18 +25,7 @@ export abstract class BaseController {
   protected validatePagination(query: any) {
     const skip = query?.skip ? Number(query.skip) : 0
     const take = query?.take ? Math.min(Number(query.take), 100) : 20
-    let orderBy = query?.orderBy
-
-    // Se orderBy for uma string JSON, fazer parse
-    if (typeof orderBy === 'string') {
-      try {
-        orderBy = JSON.parse(orderBy)
-      } catch {
-        orderBy = { id: 'asc' }
-      }
-    } else if (!orderBy) {
-      orderBy = { id: 'asc' }
-    }
+    const orderBy = query?.orderBy
 
     return { skip, take, orderBy }
   }

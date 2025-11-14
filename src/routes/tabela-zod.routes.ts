@@ -14,12 +14,13 @@ import { authMiddleware } from '../middleware/auth.js'
 
 export async function tabelaZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
+  const controller = new TabelaController(app.prisma)
 
   // GET /api/tabelas - Listar todas as tabelas
   app.get('/', {
     preHandler: authMiddleware,
     schema: {
-      description: 'Listar todas as tabelas cadastradas no sistema',
+      description: 'Listar todas as tabelas cadastradas no sistema com seus relacionamentos',
       tags: ['Tabelas'],
       summary: 'Listar tabelas',
       querystring: PaginationSchema,
@@ -28,15 +29,14 @@ export async function tabelaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    const controller = new TabelaController(app.prisma)
-    return controller.findMany(request, reply)
+    await controller.findMany(request, reply)
   })
 
   // GET /api/tabelas/:id - Buscar tabela por ID
   app.get('/:id', {
     preHandler: authMiddleware,
     schema: {
-      description: 'Buscar tabela específica por ID',
+      description: 'Buscar tabela específica por ID com suas colunas e relacionamentos',
       tags: ['Tabelas'],
       summary: 'Buscar tabela por ID',
       params: TabelaParamsSchema,
@@ -46,8 +46,7 @@ export async function tabelaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    const controller = new TabelaController(app.prisma)
-    return controller.findById(request, reply)
+    await controller.findById(request, reply)
   })
 
   // POST /api/tabelas - Criar nova tabela
@@ -64,8 +63,7 @@ export async function tabelaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    const controller = new TabelaController(app.prisma)
-    return controller.create(request, reply)
+    await controller.create(request, reply)
   })
 
   // PUT /api/tabelas/:id - Atualizar tabela
@@ -84,25 +82,27 @@ export async function tabelaZodRoutes(fastify: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    const controller = new TabelaController(app.prisma)
-    return controller.update(request, reply)
+    await controller.update(request, reply)
   })
 
   // DELETE /api/tabelas/:id - Deletar tabela
   app.delete('/:id', {
     preHandler: authMiddleware,
     schema: {
-      description: 'Excluir tabela do catálogo de dados',
+      description: 'Excluir tabela do catálogo de dados (somente se não possuir colunas)',
       tags: ['Tabelas'],
       summary: 'Excluir tabela',
       params: TabelaParamsSchema,
       response: {
-        200: z.object({ message: z.string() }),
+        200: z.object({
+          message: z.string(),
+          data: TabelaResponseSchema.shape.data
+        }),
+        400: ErrorSchema,
         404: ErrorSchema
       }
     }
   }, async (request, reply) => {
-    const controller = new TabelaController(app.prisma)
-    return controller.delete(request, reply)
+    await controller.delete(request, reply)
   })
 }

@@ -32,7 +32,7 @@ export class RegulacaoCompletaController extends BaseController {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
-      const data = await this.prisma.regulacaoCompleta.findUnique({ where: { id: validId }, include: { criticidadesRegulatorias: { include: { regraQualidade: { include: { dimensao: { select: { id: true, nome: true, politica: { select: { id: true, nome: true } } } }, tabela: { select: { id: true, nome: true } }, coluna: { select: { id: true, nome: true } }, responsavel: { select: { id: true, nome: true, email: true } } } } } } } })
+      const data = await this.prisma.regulacaoCompleta.findUnique({ where: { id: validId }, include: { criticidadesRegulatorias: { include: { regraQualidade: { include: { dimensao: { select: { id: true, nome: true, politica: { select: { id: true, nome: true } } } }, tabela: { select: { id: true, nome: true } }, coluna: { select: { id: true, nome: true } }, responsavel: { select: { id: true, nome: true, descricao: true } } } } } } } })
       if (!data) return (reply as any).notFound('Regulação não encontrada')
       return { data }
     } catch (error) {

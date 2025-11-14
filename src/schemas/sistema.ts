@@ -1,25 +1,23 @@
 import { z } from 'zod'
+import { TimestampsSchema } from './common.js'
 
-// Schema base do sistema usando Zod v4
-export const SistemaSchema = z.object({
-  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do sistema'),
+// Schema base para dados do sistema (apenas campos de input)
+const SistemaBaseSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do sistema'),
-  descricao: z.string().nullable().describe('Descrição do sistema'),
-  createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
-  updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
+  descricao: z.string().nullable().optional().describe('Descrição do sistema'),
+  repositorio: z.string().describe('URL do repositório do sistema')
 })
 
-// Schema para criação de sistema
-export const CreateSistemaSchema = z.object({
-  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do sistema'),
-  descricao: z.string().nullable().optional().describe('Descrição opcional do sistema')
-})
+// Schema completo com ID e timestamps
+export const SistemaSchema = SistemaBaseSchema.extend({
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do sistema')
+}).merge(TimestampsSchema.partial())
 
-// Schema para atualização de sistema
-export const UpdateSistemaSchema = z.object({
-  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).optional().describe('Nome do sistema'),
-  descricao: z.string().nullable().optional().describe('Descrição do sistema')
-})
+// Schema para criação (apenas campos necessários)
+export const CreateSistemaSchema = SistemaBaseSchema
+
+// Schema para atualização (todos os campos opcionais)
+export const UpdateSistemaSchema = SistemaBaseSchema.partial()
 
 // Schema para resposta com sistema
 export const SistemaResponseSchema = z.object({
@@ -37,3 +35,8 @@ export const SistemasListResponseSchema = z.object({
 export const SistemaParamsSchema = z.object({
   id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('ID do sistema')
 })
+
+// Type exports para uso em controllers
+export type Sistema = z.infer<typeof SistemaSchema>
+export type CreateSistema = z.infer<typeof CreateSistemaSchema>
+export type UpdateSistema = z.infer<typeof UpdateSistemaSchema>

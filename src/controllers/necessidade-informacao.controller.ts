@@ -29,8 +29,7 @@ export class NecessidadeInformacaoController extends BaseController {
         where,
       })
 
-      reply.send({ message: 'Necessidades de informação encontradas', data })
-      return { data }
+      return reply.send({ message: 'Necessidades de informação encontradas', data })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -49,7 +48,7 @@ export class NecessidadeInformacaoController extends BaseController {
         return (reply as any).notFound('Necessidade de Informação não encontrada')
       }
 
-      return { message: 'Necessidade de informação encontrada', data }
+      return reply.send({ message: 'Necessidade de informação encontrada', data })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -63,8 +62,7 @@ export class NecessidadeInformacaoController extends BaseController {
         data: body,
       })
 
-      reply.send({ message: 'Necessidade de informação criada com sucesso', data })
-      return { data }
+      return reply.send({ message: 'Necessidade de informação criada com sucesso', data })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -81,7 +79,7 @@ export class NecessidadeInformacaoController extends BaseController {
         data: body
       })
 
-      return { message: 'Necessidade de informação atualizada com sucesso', data }
+      return reply.send({ message: 'Necessidade de informação atualizada com sucesso', data })
     } catch (error) {
       return this.handleError(reply, error)
     }
@@ -96,7 +94,7 @@ export class NecessidadeInformacaoController extends BaseController {
         where: { id: validId }
       })
 
-      return { message: 'Necessidade de informação excluída com sucesso', data }
+      return reply.send({ message: 'Necessidade de informação excluída com sucesso', data })
     } catch (error) {
       return this.handleError(reply, error)
     }

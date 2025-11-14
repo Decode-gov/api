@@ -1,27 +1,34 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { PrismaClient } from '@prisma/client'
 import { BaseController } from './base.controller.js'
+import type { CreateBanco, UpdateBanco } from '../schemas/banco.js'
 
 export class BancoController extends BaseController {
   constructor(prisma: PrismaClient) {
     super(prisma, 'banco')
   }
 
-  async findMany(request: FastifyRequest, reply: FastifyReply) {
+  async findMany(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { skip, take, orderBy } = this.validatePagination(request.query)
 
       const data = await this.prisma.banco.findMany({
         skip,
         take,
-        orderBy: typeof orderBy === 'object' ? orderBy : { nome: 'asc' },
-        include: {
-          tabelas: true,
-          _count: {
+        orderBy: orderBy && typeof orderBy === 'string' ? { [orderBy]: 'asc' } : { nome: 'asc' },
+        select: {
+          id: true,
+          nome: true,
+          sistemaId: true,
+          sistema: {
             select: {
-              tabelas: true
+              id: true,
+              nome: true,
+              repositorio: true,
+              createdAt: true,
+              updatedAt: true
             }
-          }
+          },
         }
       })
 
@@ -30,19 +37,30 @@ export class BancoController extends BaseController {
         data
       })
     } catch (error) {
-      return this.handleError(reply, error)
+      this.handleError(reply, error)
     }
   }
 
-  async findById(request: FastifyRequest, reply: FastifyReply) {
+  async findById(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
 
       const data = await this.prisma.banco.findUnique({
         where: { id: validId },
-        include: {
-          tabelas: true
+        select: {
+          id: true,
+          nome: true,
+          sistemaId: true,
+          sistema: {
+            select: {
+              id: true,
+              nome: true,
+              repositorio: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          },
         }
       })
 
@@ -58,16 +76,33 @@ export class BancoController extends BaseController {
         data
       })
     } catch (error) {
-      return this.handleError(reply, error)
+      this.handleError(reply, error)
     }
   }
 
-  async create(request: FastifyRequest, reply: FastifyReply) {
+  async create(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
-      const body = request.body as any
+      const body = request.body as CreateBanco
 
       const data = await this.prisma.banco.create({
-        data: body
+        data: {
+          nome: body.nome,
+          sistemaId: body.sistemaId
+        },
+        select: {
+          id: true,
+          nome: true,
+          sistemaId: true,
+          sistema: {
+            select: {
+              id: true,
+              nome: true,
+              repositorio: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          }
+        }
       })
 
       return reply.status(201).send({
@@ -75,19 +110,36 @@ export class BancoController extends BaseController {
         data
       })
     } catch (error) {
-      return this.handleError(reply, error)
+      this.handleError(reply, error)
     }
   }
 
-  async update(request: FastifyRequest, reply: FastifyReply) {
+  async update(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
-      const body = request.body as any
+      const body = request.body as UpdateBanco
 
       const data = await this.prisma.banco.update({
         where: { id: validId },
-        data: body
+        data: {
+          nome: body.nome,
+          sistemaId: body.sistemaId
+        },
+        select: {
+          id: true,
+          nome: true,
+          sistemaId: true,
+          sistema: {
+            select: {
+              id: true,
+              nome: true,
+              repositorio: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          }
+        }
       })
 
       return reply.send({
@@ -95,11 +147,11 @@ export class BancoController extends BaseController {
         data
       })
     } catch (error) {
-      return this.handleError(reply, error)
+      this.handleError(reply, error)
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -117,7 +169,21 @@ export class BancoController extends BaseController {
       }
 
       const data = await this.prisma.banco.delete({
-        where: { id: validId }
+        where: { id: validId },
+        select: {
+          id: true,
+          nome: true,
+          sistemaId: true,
+          sistema: {
+            select: {
+              id: true,
+              nome: true,
+              repositorio: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          }
+        }
       })
 
       return reply.send({
@@ -125,7 +191,7 @@ export class BancoController extends BaseController {
         data
       })
     } catch (error) {
-      return this.handleError(reply, error)
+      this.handleError(reply, error)
     }
   }
 }

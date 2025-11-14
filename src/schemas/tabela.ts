@@ -1,37 +1,22 @@
 import { z } from 'zod'
+import { TimestampsSchema } from './common.js'
 
-// Schema base da tabela alinhado com Prisma
-export const TabelaSchema = z.object({
-  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da tabela'),
+// Schema base para dados da tabela (apenas campos de input)
+const TabelaBaseSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da tabela'),
-  bancoId: z.uuid({ message: 'ID do banco deve ser um UUID válido' }).nullable().optional().describe('ID do banco de dados'),
-  sistemaId: z.uuid({ message: 'ID do sistema deve ser um UUID válido' }).nullable().optional().describe('ID do sistema'),
-  termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).nullable().optional().describe('ID do termo de negócio'),
-  necessidadeInfoId: z.uuid({ message: 'ID da necessidade deve ser um UUID válido' }).nullable().optional().describe('ID da necessidade de informação'),
-  questaoGerencialId: z.uuid({ message: 'ID da questão gerencial deve ser um UUID válido' }).describe('ID da questão gerencial (necessidade de informação)'),
-  createdAt: z.iso.datetime().nullable().optional().describe('Data de criação'),
-  updatedAt: z.iso.datetime().nullable().optional().describe('Data de última atualização')
+  bancoId: z.uuid({ message: 'ID do banco deve ser um UUID válido' }).nullable().optional().describe('ID do banco de dados')
 })
 
-// Schema para criação de tabela
-export const CreateTabelaSchema = z.object({
-  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da tabela'),
-  bancoId: z.uuid({ message: 'ID do banco deve ser um UUID válido' }).nullable().optional().describe('ID do banco de dados'),
-  sistemaId: z.uuid({ message: 'ID do sistema deve ser um UUID válido' }).nullable().optional().describe('ID do sistema'),
-  termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).nullable().optional().describe('ID do termo'),
-  necessidadeInfoId: z.uuid({ message: 'ID da necessidade deve ser um UUID válido' }).nullable().optional().describe('ID da necessidade'),
-  questaoGerencialId: z.uuid({ message: 'ID da questão gerencial deve ser um UUID válido' }).describe('ID da questão gerencial')
-})
+// Schema completo com ID e timestamps
+export const TabelaSchema = TabelaBaseSchema.extend({
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da tabela')
+}).merge(TimestampsSchema.partial())
 
-// Schema para atualização de tabela
-export const UpdateTabelaSchema = z.object({
-  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).optional().describe('Nome da tabela'),
-  bancoId: z.uuid({ message: 'ID do banco deve ser um UUID válido' }).nullable().optional().describe('ID do banco'),
-  sistemaId: z.uuid({ message: 'ID do sistema deve ser um UUID válido' }).nullable().optional().describe('ID do sistema'),
-  termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).nullable().optional().describe('ID do termo'),
-  necessidadeInfoId: z.uuid({ message: 'ID da necessidade deve ser um UUID válido' }).nullable().optional().describe('ID da necessidade'),
-  questaoGerencialId: z.uuid({ message: 'ID da questão gerencial deve ser um UUID válido' }).optional().describe('ID da questão gerencial')
-})
+// Schema para criação (apenas campos necessários)
+export const CreateTabelaSchema = TabelaBaseSchema
+
+// Schema para atualização (todos os campos opcionais)
+export const UpdateTabelaSchema = TabelaBaseSchema.partial()
 
 // Schema para resposta com tabela
 export const TabelaResponseSchema = z.object({
@@ -49,3 +34,8 @@ export const TabelasListResponseSchema = z.object({
 export const TabelaParamsSchema = z.object({
   id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('ID da tabela')
 })
+
+// Type exports para uso em controllers
+export type Tabela = z.infer<typeof TabelaSchema>
+export type CreateTabela = z.infer<typeof CreateTabelaSchema>
+export type UpdateTabela = z.infer<typeof UpdateTabelaSchema>

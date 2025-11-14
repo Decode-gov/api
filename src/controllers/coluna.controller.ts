@@ -1,125 +1,198 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { PrismaClient } from '@prisma/client'
 import { BaseController } from './base.controller.js'
+import type { CreateColuna, UpdateColuna } from '../schemas/coluna.js'
 
 export class ColunaController extends BaseController {
   constructor(prisma: PrismaClient) {
     super(prisma, 'coluna')
   }
 
-  async findMany(request: FastifyRequest, reply: FastifyReply) {
+  async findMany(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { skip, take, orderBy } = this.validatePagination(request.query)
 
       const data = await this.prisma.coluna.findMany({
         skip,
         take,
-        orderBy,
-        include: {
+        orderBy: orderBy && typeof orderBy === 'string' ? { [orderBy]: 'asc' } : { nome: 'asc' },
+        select: {
+          id: true,
+          nome: true,
+          descricao: true,
+          tabelaId: true,
+          necessidadeInformacaoId: true,
+          necessidadeInformacao: true,
+          termoId: true,
+          termo: true,
           tabela: true,
-          tipoDados: true,
-          politicaInterna: true,
-          necessidadeInfo: true,
-          questaoGerencial: true,
-          codificacoes: true,
-          regrasQualidade: true
+          createdAt: true,
+          updatedAt: true
         }
       })
 
-      return { data }
+      return reply.send({
+        message: 'Colunas encontradas',
+        data
+      })
     } catch (error) {
-      return this.handleError(reply, error)
+      this.handleError(reply, error)
     }
   }
 
-  async findById(request: FastifyRequest, reply: FastifyReply) {
+  async findById(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
 
       const data = await this.prisma.coluna.findUnique({
         where: { id: validId },
-        include: {
+        select: {
+          id: true,
+          nome: true,
+          descricao: true,
+          tabelaId: true,
+          necessidadeInformacaoId: true,
+          necessidadeInformacao: true,
+          termoId: true,
+          termo: true,
           tabela: true,
-          tipoDados: true,
-          politicaInterna: true,
-          necessidadeInfo: true,
-          questaoGerencial: true,
-          codificacoes: true,
-          regrasQualidade: true
+          createdAt: true,
+          updatedAt: true
         }
       })
 
       if (!data) {
-        return (reply as any).notFound('Coluna não encontrada')
+        return reply.status(404).send({
+          message: 'Coluna não encontrada',
+          error: 'NotFound'
+        })
       }
 
-      return { data }
+      return reply.send({
+        message: 'Coluna encontrada',
+        data
+      })
     } catch (error) {
-      return this.handleError(reply, error)
+      this.handleError(reply, error)
     }
   }
 
-  async create(request: FastifyRequest, reply: FastifyReply) {
+  async create(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
-      const body = request.body as any
+      const body = request.body as CreateColuna
 
       const data = await this.prisma.coluna.create({
-        data: body,
-        include: {
+        data: body as any,
+        select: {
+          id: true,
+          nome: true,
+          descricao: true,
+          tabelaId: true,
+          necessidadeInformacaoId: true,
+          necessidadeInformacao: true,
+          termoId: true,
+          termo: true,
           tabela: true,
-          tipoDados: true,
-          politicaInterna: true,
-          necessidadeInfo: true,
-          questaoGerencial: true,
-          codificacoes: true
+          createdAt: true,
+          updatedAt: true
         }
       })
 
-      reply.code(201)
-      return { data }
+      return reply.status(201).send({
+        message: 'Coluna criada com sucesso',
+        data
+      })
     } catch (error) {
-      return this.handleError(reply, error)
+      this.handleError(reply, error)
     }
   }
 
-  async update(request: FastifyRequest, reply: FastifyReply) {
+  async update(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
-      const body = request.body as any
+      const body = request.body as UpdateColuna
 
       const data = await this.prisma.coluna.update({
         where: { id: validId },
-        data: body,
-        include: {
+        data: body as any,
+        select: {
+          id: true,
+          nome: true,
+          descricao: true,
+          tabelaId: true,
+          necessidadeInformacaoId: true,
+          necessidadeInformacao: true,
+          termoId: true,
+          termo: true,
           tabela: true,
-          tipoDados: true,
-          politicaInterna: true,
-          necessidadeInfo: true,
-          questaoGerencial: true,
-          codificacoes: true
+          createdAt: true,
+          updatedAt: true
         }
       })
 
-      return { data }
+      return reply.send({
+        message: 'Coluna atualizada com sucesso',
+        data
+      })
     } catch (error) {
-      return this.handleError(reply, error)
+      this.handleError(reply, error)
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
 
-      const data = await this.prisma.coluna.delete({
-        where: { id: validId }
+      // Verificar se a coluna está sendo usada por regras de qualidade
+      const regrasQualidadeUsandoColuna = await this.prisma.regraQualidade.count({
+        where: { colunaId: validId }
       })
 
-      return { data }
+      if (regrasQualidadeUsandoColuna > 0) {
+        return reply.status(400).send({
+          error: 'BadRequest',
+          message: `Não é possível deletar a coluna. Ela está sendo usada por ${regrasQualidadeUsandoColuna} regra(s) de qualidade.`
+        })
+      }
+
+      // Verificar se a coluna está sendo usada por listas de referência
+      const listasReferenciaUsandoColuna = await this.prisma.listaReferencia.count({
+        where: { colunaId: validId }
+      })
+
+      if (listasReferenciaUsandoColuna > 0) {
+        return reply.status(400).send({
+          error: 'BadRequest',
+          message: `Não é possível deletar a coluna. Ela está sendo usada por ${listasReferenciaUsandoColuna} lista(s) de referência.`
+        })
+      }
+
+      const data = await this.prisma.coluna.delete({
+        where: { id: validId },
+        select: {
+          id: true,
+          nome: true,
+          descricao: true,
+          tabelaId: true,
+          necessidadeInformacaoId: true,
+          necessidadeInformacao: true,
+          termoId: true,
+          termo: true,
+          tabela: true,
+          createdAt: true,
+          updatedAt: true
+        }
+      })
+
+      return reply.send({
+        message: 'Coluna excluída com sucesso',
+        data
+      })
     } catch (error) {
-      return this.handleError(reply, error)
+      this.handleError(reply, error)
     }
   }
 }

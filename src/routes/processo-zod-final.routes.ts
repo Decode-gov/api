@@ -3,26 +3,23 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { ProcessoController } from '../controllers/processo.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
+import {
+  CreateProcessoSchema,
+  UpdateProcessoSchema, ProcessoResponseSchema,
+  ProcessosListResponseSchema,
+  ProcessoWithRelationsResponseSchema,
+  ProcessoParamsSchema,
+  ProcessoQuerySchema
+} from '../schemas/processo.js'
 
 export async function processoZodFinalRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new ProcessoController(app.prisma)
 
-  // Schemas Zod para validação interna
-  const CreateProcessoZod = z.object({
-    nome: z.string().min(1, 'Nome é obrigatório'),
-    descricao: z.string().optional(),
-    ativo: z.boolean().default(true),
-    sistemaId: z.uuid({ message: 'SistemaId deve ser um UUID válido' }),
-    usuarioId: z.uuid({ message: 'UsuarioId deve ser um UUID válido' })
-  })
-
-  const UpdateProcessoZod = z.object({
-    nome: z.string().min(1).optional(),
-    descricao: z.string().optional(),
-    ativo: z.boolean().optional(),
-    sistemaId: z.string().optional(),
-    usuarioId: z.string().optional()
+  // Schema de erro
+  const ErrorResponseSchema = z.object({
+    error: z.string(),
+    message: z.string(),
   })
 
   // GET /processos - Listar processos
@@ -32,58 +29,11 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Listar todos os processos do sistema com relacionamentos',
       tags: ['Processos'],
       summary: 'Listar processos',
-      querystring: {
-        type: 'object',
-        properties: {
-          skip: { type: 'integer', minimum: 0, default: 0 },
-          take: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          orderBy: { type: 'string' },
-          sistemaId: { type: 'string', format: 'uuid', description: 'Filtrar por ID do sistema' },
-          usuarioId: { type: 'string', format: 'uuid', description: 'Filtrar por ID do usuário' },
-          ativo: { type: 'boolean', description: 'Filtrar por status ativo' }
-        }
-      },
+      querystring: ProcessoQuerySchema,
       response: {
-        200: {
-          description: 'Lista de processos',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  id: { type: 'string', format: 'uuid' },
-                  nome: { type: 'string' },
-                  descricao: { type: ['string', 'null'] },
-                  ativo: { type: 'boolean' },
-                  sistemaId: { type: 'string', format: 'uuid' },
-                  usuarioId: { type: 'string', format: 'uuid' },
-                  createdAt: { type: 'string', format: 'date-time' },
-                  updatedAt: { type: 'string', format: 'date-time' },
-                  sistema: {
-                    type: 'object',
-                    properties: {
-                      id: { type: 'string', format: 'uuid' },
-                      nome: { type: 'string' }
-                    }
-                  },
-                  usuario: {
-                    type: 'object',
-                    properties: {
-                      id: { type: 'string', format: 'uuid' },
-                      nome: { type: 'string' },
-                      email: { type: 'string' }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+        200: ProcessosListResponseSchema,
+      },
+    },
   }, async (request, reply) => {
     reply.status(200)
     return controller.findMany(request, reply)
@@ -96,59 +46,12 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Buscar processo específico por ID com relacionamentos',
       tags: ['Processos'],
       summary: 'Buscar processo por ID',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
+      params: ProcessoParamsSchema,
       response: {
-        200: {
-          description: 'Processo encontrado',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                descricao: { type: ['string', 'null'] },
-                ativo: { type: 'boolean' },
-                sistemaId: { type: 'string', format: 'uuid' },
-                usuarioId: { type: 'string', format: 'uuid' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' },
-                sistema: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'string', format: 'uuid' },
-                    nome: { type: 'string' }
-                  }
-                },
-                usuario: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'string', format: 'uuid' },
-                    nome: { type: 'string' },
-                    email: { type: 'string' }
-                  }
-                }
-              }
-            }
-          }
-        },
-        404: {
-          description: 'Processo não encontrado',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
-      }
-    }
+        200: ProcessoWithRelationsResponseSchema,
+        404: ErrorResponseSchema,
+      },
+    },
   }, async (request, reply) => {
     reply.status(200)
     return controller.findById(request, reply)
@@ -161,50 +64,14 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Criar novo processo no sistema',
       tags: ['Processos'],
       summary: 'Criar processo',
-      body: {
-        type: 'object',
-        properties: {
-          nome: { type: 'string', minLength: 1, description: 'Nome do processo' },
-          descricao: { type: 'string', description: 'Descrição do processo' },
-          ativo: { type: 'boolean', default: true, description: 'Se o processo está ativo' },
-          sistemaId: { type: 'string', format: 'uuid', description: 'ID do sistema associado' },
-          usuarioId: { type: 'string', format: 'uuid', description: 'ID do usuário responsável' }
-        },
-        required: ['nome', 'sistemaId', 'usuarioId']
-      },
+      body: CreateProcessoSchema,
       response: {
-        201: {
-          description: 'Processo criado com sucesso',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                descricao: { type: ['string', 'null'] },
-                ativo: { type: 'boolean' },
-                sistemaId: { type: 'string', format: 'uuid' },
-                usuarioId: { type: 'string', format: 'uuid' },
-                createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' }
-              }
-            }
-          }
-        },
-        400: {
-          description: 'Erro de validação',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
-      }
-    }
+        201: ProcessoResponseSchema,
+        400: ErrorResponseSchema,
+      },
+    },
   }, async (request, reply) => {
-    const validatedData = CreateProcessoZod.parse(request.body)
+    reply.status(201)
     return controller.create(request, reply)
   })
 
@@ -215,55 +82,15 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Atualizar dados de um processo específico',
       tags: ['Processos'],
       summary: 'Atualizar processo',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
-      body: {
-        type: 'object',
-        properties: {
-          nome: { type: 'string', minLength: 1 },
-          descricao: { type: 'string' },
-          ativo: { type: 'boolean' },
-          sistemaId: { type: 'string', format: 'uuid' },
-          usuarioId: { type: 'string', format: 'uuid' }
-        }
-      },
+      params: ProcessoParamsSchema,
+      body: UpdateProcessoSchema,
       response: {
-        200: {
-          description: 'Processo atualizado com sucesso',
-          type: 'object',
-          properties: {
-            message: { type: 'string' },
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                nome: { type: 'string' },
-                descricao: { type: ['string', 'null'] },
-                ativo: { type: 'boolean' },
-                sistemaId: { type: 'string', format: 'uuid' },
-                usuarioId: { type: 'string', format: 'uuid' },
-                updatedAt: { type: 'string', format: 'date-time' }
-              }
-            }
-          }
-        },
-        404: {
-          description: 'Processo não encontrado',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
-      }
-    }
+        200: ProcessoResponseSchema,
+        404: ErrorResponseSchema,
+      },
+    },
   }, async (request, reply) => {
-    const validatedData = UpdateProcessoZod.parse(request.body)
+    reply.status(200)
     return controller.update(request, reply)
   })
 
@@ -274,31 +101,14 @@ export async function processoZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Deletar um processo do sistema',
       tags: ['Processos'],
       summary: 'Deletar processo',
-      params: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' }
-        },
-        required: ['id']
-      },
+      params: ProcessoParamsSchema,
       response: {
-        200: {
-          description: 'Processo deletado com sucesso',
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        },
-        404: {
-          description: 'Processo não encontrado',
-          type: 'object',
-          properties: {
-            error: { type: 'string' },
-            message: { type: 'string' }
-          }
-        }
-      }
-    }
+        200: z.object({
+          message: z.string(),
+        }),
+        404: ErrorResponseSchema,
+      },
+    },
   }, controller.delete.bind(controller))
 }
 

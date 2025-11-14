@@ -5,7 +5,7 @@ import { usuarioZodFinalRoutes } from './usuario-zod-final.routes.js'
 import { atribuicaoPapelDominioRoutes } from './atribuicao-papel-dominio-zod.routes.js'
 import { auditoriaZodRoutes } from './auditoria-zod.routes.js'
 import { bancoZodRoutes } from './banco-zod.routes.js'
-import { colunaZodFinalRoutes } from './coluna-zod-final.routes.js'
+import { colunaZodRoutes } from './coluna-zod.routes.js'
 import { comiteAprovadorZodRoutes } from './comite-aprovador-zod.routes.js'
 import { comunidadeZodRoutes } from './comunidade-zod.routes.js'
 import { dashboardZodRoutes } from './dashboard-zod.routes.js'
@@ -55,7 +55,7 @@ export async function registerAllRoutes(app: FastifyInstance) {
     await app.register(tabelaZodRoutes, { prefix: '/tabelas' })
 
 
-    await app.register(colunaZodFinalRoutes, { prefix: '/colunas' })
+    await app.register(colunaZodRoutes, { prefix: '/colunas' })
 
 
     // Rotas de gestão de dados

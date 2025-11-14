@@ -90,14 +90,14 @@ model PoliticaInterna {
   observacoes        String?
 
   papeis                   Papel[]
-  colunas                  Coluna[]
   listaClassificacoes      ListaClassificacao[]
   listaDimensoes           ListaDimensao[]
   dimensoesQualidade       DimensaoQualidade[]
   classificacoesInformacao ClassificacaoInformacao[]
 
-  createdAt DateTime? @default(now()) @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  createdAt     DateTime?      @default(now()) @map("created_at")
+  updatedAt     DateTime?      @map("updated_at")
+  regraNegocios RegraNegocio[]
 
   @@index([dominioDadosId])
   @@map("politicas_internas")
@@ -110,13 +110,9 @@ model NecessidadeInformacao {
   elementoTatico      String? @map("elemento_tatico")
   origemQuestao       String  @map("origem_questao")
 
-  tabelas                 Tabela[]
-  colunas                 Coluna[]
-  tabelasQuestaoGerencial Tabela[] @relation("QuestaoGerencialTabela")
-  colunasQuestaoGerencial Coluna[] @relation("QuestaoGerencialColuna")
-
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
+  colunas   Coluna[]
 
   @@map("necessidades_informacao")
 }
@@ -127,7 +123,6 @@ model Definicao {
   definicao String
   sigla     String?
 
-  tabelas               Tabela[]
   termosClassificacao   TermoClassificacao[]
   documentosTabela      DocumentoTabela[]
   documentosRepositorio DocumentoRepositorio[]
@@ -135,6 +130,8 @@ model Definicao {
   createdAt      DateTime?       @default(now()) @map("created_at")
   updatedAt      DateTime?       @map("updated_at")
   classificacaos Classificacao[]
+  colunas        Coluna[]
+  regraNegocios  RegraNegocio[]
 
   @@map("definicoes")
 }
@@ -168,26 +165,26 @@ model Classificacao {
 }
 
 model Sistema {
-  id        String  @id @default(uuid()) @db.Uuid
-  nome      String
-  descricao String?
+  id          String  @id @default(uuid()) @db.Uuid
+  nome        String
+  descricao   String?
+  repositorio String?
 
-  tabelas              Tabela[]
-  processosAtualizados ProcessoAtualizado[]
-
-  createdAt DateTime? @default(now()) @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  createdAt     DateTime?      @default(now()) @map("created_at")
+  updatedAt     DateTime?      @map("updated_at")
+  bancos        Banco[]
+  regraNegocios RegraNegocio[]
 
   @@map("sistemas")
 }
 
 model Banco {
-  id        String  @id @default(uuid()) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   nome      String
-  descricao String?
+  sistemaId String?  @map("sistema_id") @db.Uuid
+  sistema   Sistema? @relation(fields: [sistemaId], references: [id])
 
-  tabelas      Tabela[]
-  repositorios RepositorioBanco[]
+  tabelas Tabela[]
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
@@ -195,83 +192,43 @@ model Banco {
   @@map("bancos")
 }
 
-model Repositorio {
-  id            String   @id @default(uuid()) @db.Uuid
-  nome          String
-  ged           Boolean?
-  drive         Boolean?
-  descricao     String?
-  urlDocumentos String?  @map("url_documentos")
+model Tabela {
+  id      String  @id @default(uuid()) @db.Uuid
+  nome    String  @map("tabela")
+  bancoId String? @map("banco_id") @db.Uuid
+  banco   Banco?  @relation(fields: [bancoId], references: [id])
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
-  @@map("repositorios")
-}
-
-model Tabela {
-  id                 String                 @id @default(uuid()) @db.Uuid
-  nome               String                 @map("tabela")
-  bancoId            String?                @map("banco_id") @db.Uuid
-  banco              Banco?                 @relation(fields: [bancoId], references: [id])
-  sistemaId          String?                @map("sistema_id") @db.Uuid
-  sistema            Sistema?               @relation(fields: [sistemaId], references: [id])
-  termoId            String?                @map("termo_id") @db.Uuid
-  termo              Definicao?             @relation(fields: [termoId], references: [id])
-  necessidadeInfoId  String?                @map("necessidade_info_id") @db.Uuid
-  necessidadeInfo    NecessidadeInformacao? @relation(fields: [necessidadeInfoId], references: [id])
-  questaoGerencialId String                 @map("questao_gerencial_id") @db.Uuid
-  questaoGerencial   NecessidadeInformacao  @relation("QuestaoGerencialTabela", fields: [questaoGerencialId], references: [id])
-
   colunas          Coluna[]
-  codificacoes     Codificacao[]     @relation("CodificacaoOnTabela")
   regrasQualidade  RegraQualidade[]
   listasReferencia ListaReferencia[]
 
-  createdAt DateTime? @default(now()) @map("created_at")
-  updatedAt DateTime? @map("updated_at")
-
   @@unique([bancoId, nome], map: "uq_banco_tabela")
-  @@unique([sistemaId, nome], map: "uq_sistema_tabela")
-  @@index([termoId])
-  @@index([necessidadeInfoId])
-  @@index([questaoGerencialId])
   @@index([bancoId])
-  @@index([sistemaId])
   @@map("tabelas")
 }
 
 model Coluna {
-  id                 String                 @id @default(uuid()) @db.Uuid
-  nome               String                 @map("coluna")
-  descricao          String?
-  obrigatorio        Boolean                @default(false)
-  unicidade          Boolean                @default(false)
-  ativo              Boolean                @default(true)
-  tabelaId           String                 @map("tabela_id") @db.Uuid
-  tabela             Tabela                 @relation(fields: [tabelaId], references: [id])
-  tipoDadosId        String?                @map("tipo_dados_id") @db.Uuid
-  tipoDados          TipoDados?             @relation(fields: [tipoDadosId], references: [id])
-  politicaInternaId  String?                @map("politica_interna_id") @db.Uuid
-  politicaInterna    PoliticaInterna?       @relation(fields: [politicaInternaId], references: [id])
-  necessidadeInfoId  String?                @map("necessidade_info_id") @db.Uuid
-  necessidadeInfo    NecessidadeInformacao? @relation(fields: [necessidadeInfoId], references: [id])
-  questaoGerencialId String                 @map("questao_gerencial_id") @db.Uuid
-  questaoGerencial   NecessidadeInformacao  @relation("QuestaoGerencialColuna", fields: [questaoGerencialId], references: [id])
+  id                      String                @id @default(uuid()) @db.Uuid
+  nome                    String                @map("coluna")
+  descricao               String?
+  tabelaId                String                @map("tabela_id") @db.Uuid
+  tabela                  Tabela                @relation(fields: [tabelaId], references: [id])
+  createdAt               DateTime?             @default(now()) @map("created_at")
+  updatedAt               DateTime?             @map("updated_at")
+  necessidadeInformacaoId String                @db.Uuid
+  necessidadeInformacao   NecessidadeInformacao @relation(fields: [necessidadeInformacaoId], references: [id])
+  termoId                 String                @map("termo_id") @db.Uuid
+  termo                   Definicao             @relation(fields: [termoId], references: [id])
 
-  codificacoes     Codificacao[]     @relation("CodificacaoOnColuna")
   regrasQualidade  RegraQualidade[]
   listasReferencia ListaReferencia[]
 
-  createdAt DateTime? @default(now()) @map("created_at")
-  updatedAt DateTime? @map("updated_at")
-
   @@unique([tabelaId, nome], map: "uq_tabela_coluna")
   @@index([tabelaId])
-  @@index([necessidadeInfoId])
-  @@index([questaoGerencialId])
-  @@index([politicaInternaId])
-  @@index([tipoDadosId])
+  @@index([necessidadeInformacaoId])
   @@map("colunas")
 }
 
@@ -279,16 +236,11 @@ model Codificacao {
   id   String @id @default(uuid()) @db.Uuid
   nome String
 
-  tabelaId String? @map("tabela_id") @db.Uuid
-  tabela   Tabela? @relation("CodificacaoOnTabela", fields: [tabelaId], references: [id])
-
   colunaId String? @map("coluna_id") @db.Uuid
-  coluna   Coluna? @relation("CodificacaoOnColuna", fields: [colunaId], references: [id])
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
-  @@index([tabelaId])
   @@index([colunaId])
   @@map("codificacoes")
 }
@@ -334,9 +286,6 @@ model Processo {
   nome      String
   descricao String?
 
-  regrasNegocio RegraNegocio[]
-  kpis          KPI[]
-
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
@@ -344,15 +293,21 @@ model Processo {
 }
 
 model RegraNegocio {
-  id         String   @id @default(uuid()) @db.Uuid
-  processoId String   @map("processo_id") @db.Uuid
-  processo   Processo @relation(fields: [processoId], references: [id])
-  descricao  String
+  id            String          @id @default(uuid()) @db.Uuid
+  descricao     String
+  politicaId    String          @map("politica_id") @db.Uuid
+  politica      PoliticaInterna @relation(fields: [politicaId], references: [id])
+  sistemaId     String?         @map("sistema_id") @db.Uuid
+  sistema       Sistema?        @relation(fields: [sistemaId], references: [id])
+  responsavelId String          @map("responsavel_id") @db.Uuid
+  responsavel   Papel           @relation(fields: [responsavelId], references: [id])
+  termoId       String          @map("termo_id") @db.Uuid
+  termo         Definicao       @relation(fields: [termoId], references: [id])
 
-  createdAt DateTime? @default(now()) @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  createdAt       DateTime?        @default(now()) @map("created_at")
+  updatedAt       DateTime?        @map("updated_at")
+  regraQualidades RegraQualidade[]
 
-  @@index([processoId])
   @@map("regras_negocio")
 }
 
@@ -428,9 +383,11 @@ model Papel {
   // Relacionamentos  
   atribuicoesDominio AtribuicaoPapelDominio[]
 
-  createdAt    DateTime? @default(now()) @map("created_at")
-  updatedAt    DateTime? @map("updated_at")
-  comunidadeId String?   @db.Uuid
+  createdAt       DateTime?        @default(now()) @map("created_at")
+  updatedAt       DateTime?        @map("updated_at")
+  comunidadeId    String?          @db.Uuid
+  regraQualidades RegraQualidade[]
+  regraNegocios   RegraNegocio[]
 
   @@index([politicaId])
   @@map("papeis")
@@ -441,14 +398,11 @@ model KPI {
   nome         String
   comunidadeId String?     @map("comunidade_id") @db.Uuid
   comunidade   Comunidade? @relation(fields: [comunidadeId], references: [id])
-  processoId   String?     @map("processo_id") @db.Uuid
-  processo     Processo?   @relation(fields: [processoId], references: [id])
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
   @@index([comunidadeId])
-  @@index([processoId])
   @@map("kpis")
 }
 
@@ -472,7 +426,6 @@ model Usuario {
   ativo Boolean @default(true)
 
   processosAtualizados ProcessoAtualizado[]
-  regrasQualidade      RegraQualidade[]
   logsAuditoria        LogAuditoria[]
 
   createdAt DateTime? @default(now()) @map("created_at")
@@ -514,8 +467,6 @@ model TipoDados {
   id        String  @id @default(uuid()) @db.Uuid
   nome      String
   descricao String?
-
-  colunas Coluna[]
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
@@ -563,29 +514,12 @@ model RepositorioDocumento {
   responsavel String
 
   documentos       DocumentoRepositorio[]
-  bancos           RepositorioBanco[]
   documentosTabela DocumentoTabela[]
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
   @@map("repositorios_documentos")
-}
-
-model RepositorioBanco {
-  id            String               @id @default(uuid()) @db.Uuid
-  bancoId       String               @map("banco_id") @db.Uuid
-  banco         Banco                @relation(fields: [bancoId], references: [id])
-  repositorioId String               @map("repositorio_id") @db.Uuid
-  repositorio   RepositorioDocumento @relation(fields: [repositorioId], references: [id])
-
-  createdAt DateTime? @default(now()) @map("created_at")
-  updatedAt DateTime? @map("updated_at")
-
-  @@unique([bancoId, repositorioId])
-  @@index([bancoId])
-  @@index([repositorioId])
-  @@map("repositorios_bancos")
 }
 
 model ListaReferencia {
@@ -653,16 +587,18 @@ model DimensaoQualidade {
 }
 
 model RegraQualidade {
-  id            String            @id @default(uuid()) @db.Uuid
-  descricao     String
-  dimensaoId    String            @map("dimensao_id") @db.Uuid
-  dimensao      DimensaoQualidade @relation(fields: [dimensaoId], references: [id])
-  tabelaId      String?           @map("tabela_id") @db.Uuid
-  tabela        Tabela?           @relation(fields: [tabelaId], references: [id])
-  colunaId      String?           @map("coluna_id") @db.Uuid
-  coluna        Coluna?           @relation(fields: [colunaId], references: [id])
-  responsavelId String            @map("responsavel_id") @db.Uuid
-  responsavel   Usuario           @relation(fields: [responsavelId], references: [id])
+  id             String            @id @default(uuid()) @db.Uuid
+  descricao      String
+  regraNegocioId String?           @map("regra_negocio_id") @db.Uuid
+  regraNegocio   RegraNegocio?     @relation(fields: [regraNegocioId], references: [id])
+  dimensaoId     String            @map("dimensao_id") @db.Uuid
+  dimensao       DimensaoQualidade @relation(fields: [dimensaoId], references: [id])
+  tabelaId       String            @map("tabela_id") @db.Uuid
+  tabela         Tabela            @relation(fields: [tabelaId], references: [id])
+  colunaId       String            @map("coluna_id") @db.Uuid
+  coluna         Coluna            @relation(fields: [colunaId], references: [id])
+  responsavelId  String            @map("responsavel_id") @db.Uuid
+  responsavel    Papel             @relation(fields: [responsavelId], references: [id])
 
   criticidadesRegulatorias CriticidadeRegulatoria[]
 
@@ -727,15 +663,12 @@ model ProcessoAtualizado {
   nome      String
   descricao String?
   ativo     Boolean @default(true)
-  sistemaId String  @map("sistema_id") @db.Uuid
-  sistema   Sistema @relation(fields: [sistemaId], references: [id])
   usuarioId String  @map("usuario_id") @db.Uuid
   usuario   Usuario @relation(fields: [usuarioId], references: [id])
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
-  @@index([sistemaId])
   @@index([usuarioId])
   @@map("processos_atualizados")
 }

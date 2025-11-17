@@ -15,8 +15,13 @@ export class DefinicaoController extends BaseController {
         skip,
         take,
         orderBy,
+        include: {
+          comunidade: true
+        }
       })
-      
+
+      console.log("🚀 ~ DefinicaoController ~ findMany ~ data:", data)
+
       return reply.send({
         message: 'Definições encontradas',
         data
@@ -32,6 +37,9 @@ export class DefinicaoController extends BaseController {
 
       const data = await this.prisma.definicao.findUniqueOrThrow({
         where: { id },
+        include: {
+          comunidade: true
+        }
       })
 
       return reply.send({
@@ -45,14 +53,18 @@ export class DefinicaoController extends BaseController {
 
   async create(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { termo, definicao, sigla } = request.body as any
+      const { termo, definicao, sigla, comunidadeId } = request.body as any
 
       const data = await this.prisma.definicao.create({
         data: {
           termo,
           definicao,
-          sigla
+          sigla,
+          comunidadeId
         },
+        include: {
+          comunidade: true
+        }
       })
 
       return reply.status(201).send({
@@ -67,15 +79,19 @@ export class DefinicaoController extends BaseController {
   async update(request: FastifyRequest, reply: FastifyReply) {
     try {
       const id = this.validateId((request.params as any)?.id)
-      const { termo, definicao, sigla } = request.body as any
+      const { termo, definicao, sigla, comunidadeId } = request.body as any
 
       const data = await this.prisma.definicao.update({
         where: { id },
         data: {
           termo,
           definicao,
-          sigla
+          sigla,
+          comunidadeId
         },
+        include: {
+          comunidade: true
+        }
       })
 
       return reply.send({

@@ -43,8 +43,8 @@ const RegraQualidadeBaseSchema = z.object({
   descricao: z.string().min(1, { message: 'Descrição é obrigatória' }).describe('Descrição detalhada da regra'),
   regraNegocioId: z.uuid({ message: 'regraNegocioId deve ser um UUID válido' }).nullable().optional().describe('ID da regra de negócio (opcional)'),
   dimensaoId: z.uuid({ message: 'dimensaoId deve ser um UUID válido' }).describe('ID da dimensão de qualidade'),
-  tabelaId: z.uuid({ message: 'tabelaId deve ser um UUID válido' }).describe('ID da tabela'),
-  colunaId: z.uuid({ message: 'colunaId deve ser um UUID válido' }).describe('ID da coluna'),
+  tabelaId: z.uuid({ message: 'tabelaId deve ser um UUID válido' }).optional().nullable().describe('ID da tabela'),
+  colunaId: z.uuid({ message: 'colunaId deve ser um UUID válido' }).optional().nullable().describe('ID da coluna'),
   responsavelId: z.uuid({ message: 'responsavelId deve ser um UUID válido' }).describe('ID do papel responsável')
 })
 

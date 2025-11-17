@@ -65,6 +65,7 @@ model Comunidade {
   createdAt       DateTime?         @default(now()) @map("created_at")
   updatedAt       DateTime?         @map("updated_at")
   PoliticaInterna PoliticaInterna[]
+  definicaos      Definicao[]
 
   @@index([parentId])
   @@map("comunidades")
@@ -118,10 +119,12 @@ model NecessidadeInformacao {
 }
 
 model Definicao {
-  id        String  @id @default(uuid()) @db.Uuid
-  termo     String
-  definicao String
-  sigla     String?
+  id           String      @id @default(uuid()) @db.Uuid
+  termo        String
+  definicao    String
+  sigla        String?
+  comunidadeId String?     @db.Uuid
+  comunidade   Comunidade? @relation(fields: [comunidadeId], references: [id])
 
   termosClassificacao   TermoClassificacao[]
   documentosTabela      DocumentoTabela[]
@@ -593,10 +596,10 @@ model RegraQualidade {
   regraNegocio   RegraNegocio?     @relation(fields: [regraNegocioId], references: [id])
   dimensaoId     String            @map("dimensao_id") @db.Uuid
   dimensao       DimensaoQualidade @relation(fields: [dimensaoId], references: [id])
-  tabelaId       String            @map("tabela_id") @db.Uuid
-  tabela         Tabela            @relation(fields: [tabelaId], references: [id])
-  colunaId       String            @map("coluna_id") @db.Uuid
-  coluna         Coluna            @relation(fields: [colunaId], references: [id])
+  tabelaId       String?            @map("tabela_id") @db.Uuid
+  tabela         Tabela?            @relation(fields: [tabelaId], references: [id])
+  colunaId       String?            @map("coluna_id") @db.Uuid
+  coluna         Coluna?            @relation(fields: [colunaId], references: [id])
   responsavelId  String            @map("responsavel_id") @db.Uuid
   responsavel    Papel             @relation(fields: [responsavelId], references: [id])
 

@@ -1,300 +1,152 @@
-import type { FastifyRequest, FastifyReply } from 'fastify'
+import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { PrismaClient } from '@prisma/client'
 import { BaseController } from './base.controller.js'
-
-interface RepositorioDocumentoParams {
-  id: string
-}
-
-interface RepositorioDocumentoQuery {
-  skip?: number
-  take?: number
-  orderBy?: string
-  tipo?: string
-}
-
-interface RepositorioDocumentoBody {
-  nome: string
-  tipo: string
-  localizacao: string
-  responsavel: string
-}
 
 export class RepositorioDocumentoController extends BaseController {
   constructor(prisma: PrismaClient) {
     super(prisma, 'repositorioDocumento')
   }
 
-  async findMany(request: FastifyRequest<{ Querystring: RepositorioDocumentoQuery }>, reply: FastifyReply) {
+  async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip = 0, take = 10, orderBy = 'nome', tipo } = request.query
+      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const query = request.query as any
 
-      this.validatePagination({ skip, take })
+      const where: any = {}
+      if (query.nome) {
+        where.nome = {
+          contains: query.nome,
+          mode: 'insensitive'
+        }
+      }
+      if (query.ged !== undefined) where.ged = query.ged === 'true' || query.ged === true
+      if (query.rede !== undefined) where.rede = query.rede === 'true' || query.rede === true
 
-      const where = tipo ? { tipo } : {}
-
-      const repositorios = await (this.prisma as any).repositorioDocumento.findMany({
+      const data = await this.prisma.repositorioDocumento.findMany({
         skip,
         take,
         where,
-        orderBy: { [orderBy]: 'asc' },
-        include: {
-          documentos: {
-            select: {
-              id: true,
-              caminhoArquivo: true,
-              dataUpload: true,
-              termo: {
-                select: {
-                  id: true,
-                  termo: true,
-                  definicao: true
-                }
-              }
-            }
-          },
-          bancos: {
-            include: {
-              banco: {
-                select: {
-                  id: true,
-                  nome: true,
-                  tecnologia: true
-                }
-              }
-            }
-          },
-          documentosTabela: {
-            select: {
-              id: true,
-              caminhoArquivo: true,
-              dataUpload: true,
-              tabela: {
-                select: {
-                  id: true,
-                  nome: true
-                }
-              }
-            }
-          }
+        ...(orderBy && { orderBy }),
+        select: {
+          id: true,
+          nome: true,
+          ged: true,
+          rede: true,
+          createdAt: true,
+          updatedAt: true
         }
       })
 
-      return reply.status(200).send({
+      return reply.send({
         message: 'Repositórios de documentos encontrados',
-        data: repositorios
+        data
       })
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async findById(request: FastifyRequest<{ Params: RepositorioDocumentoParams }>, reply: FastifyReply) {
+  async findById(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params
-      this.validateId(id)
+      const { id } = request.params as { id: string }
+      const validId = this.validateId(id)
 
-      const repositorio = await (this.prisma as any).repositorioDocumento.findUnique({
-        where: { id },
-        include: {
-          documentos: {
-            include: {
-              termo: {
-                select: {
-                  id: true,
-                  termo: true,
-                  definicao: true
-                }
-              }
-            }
-          },
-          bancos: {
-            include: {
-              banco: {
-                select: {
-                  id: true,
-                  nome: true,
-                  tecnologia: true,
-                  sistema: {
-                    select: {
-                      id: true,
-                      nome: true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          documentosTabela: {
-            include: {
-              tabela: {
-                select: {
-                  id: true,
-                  nome: true
-                }
-              },
-              termo: {
-                select: {
-                  id: true,
-                  termo: true,
-                  definicao: true
-                }
-              }
-            }
-          }
+      const data = await this.prisma.repositorioDocumento.findUnique({
+        where: { id: validId },
+        select: {
+          id: true,
+          nome: true,
+          ged: true,
+          rede: true,
+          createdAt: true,
+          updatedAt: true
         }
       })
 
-      if (!repositorio) {
-        return reply.status(404).send({
-          error: 'NotFound',
-          message: 'Repositório de documentos não encontrado'
-        })
+      if (!data) {
+        return (reply as any).notFound('Repositório de documentos não encontrado')
       }
 
-      return reply.status(200).send({
+      return reply.send({
         message: 'Repositório de documentos encontrado',
-        data: repositorio
+        data
       })
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async create(request: FastifyRequest<{ Body: RepositorioDocumentoBody }>, reply: FastifyReply) {
+  async create(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { nome, tipo, localizacao, responsavel } = request.body
+      const body = request.body as any
 
-      const repositorio = await (this.prisma as any).repositorioDocumento.create({
-        data: {
-          nome,
-          tipo,
-          localizacao,
-          responsavel
+      const data = await this.prisma.repositorioDocumento.create({
+        data: body,
+        select: {
+          id: true,
+          nome: true,
+          ged: true,
+          rede: true,
+          createdAt: true,
+          updatedAt: true
         }
       })
 
-      return reply.status(201).send({
+      return reply.code(201).send({
         message: 'Repositório de documentos criado com sucesso',
-        data: repositorio
+        data
       })
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async update(request: FastifyRequest<{ Params: RepositorioDocumentoParams; Body: Partial<RepositorioDocumentoBody> }>, reply: FastifyReply) {
+  async update(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params
-      this.validateId(id)
+      const { id } = request.params as { id: string }
+      const validId = this.validateId(id)
+      const body = request.body as any
 
-      const updateData = { ...request.body }
-      if (Object.keys(updateData).length === 0) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: 'Nenhum campo fornecido para atualização'
-        })
+      if (Object.keys(body).length === 0) {
+        return reply.status(400).send({ error: 'BadRequest', message: 'Nenhum campo fornecido para atualização' })
       }
 
-      const repositorio = await (this.prisma as any).repositorioDocumento.update({
-        where: { id },
-        data: updateData
+      const data = await this.prisma.repositorioDocumento.update({
+        where: { id: validId },
+        data: body,
+        select: {
+          id: true,
+          nome: true,
+          ged: true,
+          rede: true,
+          createdAt: true,
+          updatedAt: true
+        }
       })
 
-      return reply.status(200).send({
+      return reply.send({
         message: 'Repositório de documentos atualizado com sucesso',
-        data: repositorio
+        data
       })
     } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 
-  async delete(request: FastifyRequest<{ Params: RepositorioDocumentoParams }>, reply: FastifyReply) {
+  async delete(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = request.params
-      this.validateId(id)
+      const { id } = request.params as { id: string }
+      const validId = this.validateId(id)
 
-      await (this.prisma as any).repositorioDocumento.delete({
-        where: { id }
+      await this.prisma.repositorioDocumento.delete({
+        where: { id: validId }
       })
 
-      return reply.status(200).send({
+      return reply.send({
         message: 'Repositório de documentos deletado com sucesso'
       })
     } catch (error) {
-      this.handleError(reply, error)
-    }
-  }
-
-  // Método para fazer upload de documento
-  async uploadDocumento(request: FastifyRequest<{
-    Params: { id: string };
-    Body: { termoId: string; caminhoArquivo: string }
-  }>, reply: FastifyReply) {
-    try {
-      const { id } = request.params
-      const { termoId, caminhoArquivo } = request.body
-
-      this.validateId(id)
-      this.validateId(termoId)
-
-      // Verificar se o repositório existe
-      const repositorio = await (this.prisma as any).repositorioDocumento.findUnique({
-        where: { id }
-      })
-
-      if (!repositorio) {
-        return reply.status(404).send({
-          error: 'NotFound',
-          message: 'Repositório não encontrado'
-        })
-      }
-
-      // Verificar se o termo existe
-      const termo = await this.prisma.definicao.findUnique({
-        where: { id: termoId }
-      })
-
-      if (!termo) {
-        return reply.status(404).send({
-          error: 'NotFound',
-          message: 'Termo não encontrado'
-        })
-      }
-
-      // Criar o documento
-      const documento = await (this.prisma as any).documentoRepositorio.create({
-        data: {
-          termoId,
-          repositorioId: id,
-          caminhoArquivo,
-          dataUpload: new Date()
-        },
-        include: {
-          termo: {
-            select: {
-              id: true,
-              termo: true,
-              definicao: true
-            }
-          },
-          repositorio: {
-            select: {
-              id: true,
-              nome: true,
-              tipo: true
-            }
-          }
-        }
-      })
-
-      return reply.status(201).send({
-        message: 'Documento enviado com sucesso',
-        data: documento
-      })
-    } catch (error) {
-      this.handleError(reply, error)
+      return this.handleError(reply, error)
     }
   }
 }

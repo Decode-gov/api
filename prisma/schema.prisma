@@ -510,14 +510,10 @@ model TermoClassificacao {
 }
 
 model RepositorioDocumento {
-  id          String @id @default(uuid()) @db.Uuid
-  nome        String
-  tipo        String
-  localizacao String
-  responsavel String
-
-  documentos       DocumentoRepositorio[]
-  documentosTabela DocumentoTabela[]
+  id   String  @id @default(uuid()) @db.Uuid
+  nome String
+  ged  Boolean @default(false)
+  rede Boolean @default(false)
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
@@ -547,14 +543,11 @@ model DocumentoTabela {
   id            String               @id @default(uuid()) @db.Uuid
   termoId       String               @map("termo_id") @db.Uuid
   termo         Definicao            @relation(fields: [termoId], references: [id])
-  repositorioId String               @map("repositorio_id") @db.Uuid
-  repositorio   RepositorioDocumento @relation(fields: [repositorioId], references: [id])
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
   @@index([termoId])
-  @@index([repositorioId])
   @@map("documentos_arquivo")
 }
 
@@ -562,14 +555,11 @@ model DocumentoRepositorio {
   id            String               @id @default(uuid()) @db.Uuid
   termoId       String               @map("termo_id") @db.Uuid
   termo         Definicao            @relation(fields: [termoId], references: [id])
-  repositorioId String               @map("repositorio_id") @db.Uuid
-  repositorio   RepositorioDocumento @relation(fields: [repositorioId], references: [id])
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
   @@index([termoId])
-  @@index([repositorioId])
   @@map("documentos_repositorio")
 }
 
@@ -596,10 +586,10 @@ model RegraQualidade {
   regraNegocio   RegraNegocio?     @relation(fields: [regraNegocioId], references: [id])
   dimensaoId     String            @map("dimensao_id") @db.Uuid
   dimensao       DimensaoQualidade @relation(fields: [dimensaoId], references: [id])
-  tabelaId       String?            @map("tabela_id") @db.Uuid
-  tabela         Tabela?            @relation(fields: [tabelaId], references: [id])
-  colunaId       String?            @map("coluna_id") @db.Uuid
-  coluna         Coluna?            @relation(fields: [colunaId], references: [id])
+  tabelaId       String?           @map("tabela_id") @db.Uuid
+  tabela         Tabela?           @relation(fields: [tabelaId], references: [id])
+  colunaId       String?           @map("coluna_id") @db.Uuid
+  coluna         Coluna?           @relation(fields: [colunaId], references: [id])
   responsavelId  String            @map("responsavel_id") @db.Uuid
   responsavel    Papel             @relation(fields: [responsavelId], references: [id])
 

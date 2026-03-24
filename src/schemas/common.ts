@@ -7,8 +7,8 @@ export const IdSchema = z.object({
 
 // Schema comum para paginação com coerção de tipos
 export const PaginationSchema = z.object({
-  skip: z.coerce.number().int().min(0, { message: 'Skip deve ser >= 0' }).default(0).describe('Número de registros para pular'),
-  take: z.coerce.number().int().min(1, { message: 'Take deve ser >= 1' }).max(100, { message: 'Take deve ser <= 100' }).default(10).describe('Número de registros para retornar'),
+  skip: z.coerce.number().int().min(0, { message: 'Skip deve ser >= 0' }).optional().describe('Número de registros para pular'),
+  take: z.coerce.number().int().min(1, { message: 'Take deve ser >= 1' }).max(100, { message: 'Take deve ser <= 100' }).optional().describe('Número de registros para retornar'),
   orderBy: z.string().optional().describe('Campo para ordenação')
 })
 

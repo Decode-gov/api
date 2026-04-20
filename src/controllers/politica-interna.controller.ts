@@ -10,11 +10,9 @@ export class PoliticaInternaController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const { orderBy } = this.validatePagination(request.query)
 
       const data = await this.prisma.politicaInterna.findMany({
-        skip,
-        take,
         orderBy,
         include: {
           dominioDados: true,

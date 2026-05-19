@@ -52,13 +52,15 @@ export class DefinicaoController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { termo, definicao, sigla, comunidadeId } = request.body as any
+      const empresaId = this.resolveEmpresaIdForCreate(request, request.body)
 
       const data = await this.prisma.definicao.create({
         data: {
           termo,
           definicao,
           sigla,
-          comunidadeId
+          comunidadeId,
+          empresaId
         },
         include: {
           comunidade: true

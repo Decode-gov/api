@@ -38,13 +38,14 @@ export class CriticidadeRegulatoriaController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const body = request.body as any
+      const empresaId = this.resolveEmpresaIdForCreate(request, body)
       const regulacao = await this.prisma.regulacaoCompleta.findUnique({ where: { id: body.regulacaoId } })
       if (!regulacao) return reply.status(400).send({ error: 'BadRequest', message: 'Regulação não encontrada' })
       const regraQualidade = await this.prisma.regraQualidade.findUnique({ where: { id: body.regraQualidadeId } })
       if (!regraQualidade) return reply.status(400).send({ error: 'BadRequest', message: 'Regra de qualidade não encontrada' })
       const existente = await this.prisma.criticidadeRegulatoria.findFirst({ where: { regulacaoId: body.regulacaoId, regraQualidadeId: body.regraQualidadeId } })
       if (existente) return reply.status(400).send({ error: 'BadRequest', message: 'Já existe uma criticidade regulatória para esta combinação de regulação e regra de qualidade' })
-      const data = await this.prisma.criticidadeRegulatoria.create({ data: body, include: { regulacao: { select: { id: true, epigrafe: true, orgao: true, descricao: true } }, regraQualidade: { select: { id: true, descricao: true, dimensao: { select: { id: true, nome: true } } } } } })
+      const data = await this.prisma.criticidadeRegulatoria.create({ data: { ...body, empresaId }, include: { regulacao: { select: { id: true, epigrafe: true, orgao: true, descricao: true } }, regraQualidade: { select: { id: true, descricao: true, dimensao: { select: { id: true, nome: true } } } } } })
       reply.code(201)
       return { data }
     } catch (error) {

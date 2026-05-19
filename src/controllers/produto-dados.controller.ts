@@ -51,9 +51,10 @@ export class ProdutoDadosController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const body = request.body as any
+      const empresaId = this.resolveEmpresaIdForCreate(request, body)
 
       const data = await this.prisma.produtoDados.create({
-        data: body
+        data: { ...body, empresaId }
       })
 
       reply.status(201).send({

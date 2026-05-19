@@ -45,12 +45,13 @@ export class RegulacaoCompletaController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const body = request.body as any
+      const empresaId = this.resolveEmpresaIdForCreate(request, body)
       const dataInicioDate = new Date(body.dataInicio)
       const dataFimDate = body.dataFim ? new Date(body.dataFim) : null
       if (isNaN(dataInicioDate.getTime())) return reply.status(400).send({ error: 'BadRequest', message: 'Data de início inválida' })
       if (dataFimDate && isNaN(dataFimDate.getTime())) return reply.status(400).send({ error: 'BadRequest', message: 'Data de fim inválida' })
       if (dataFimDate && dataFimDate <= dataInicioDate) return reply.status(400).send({ error: 'BadRequest', message: 'Data de fim deve ser posterior à data de início' })
-      const data = await this.prisma.regulacaoCompleta.create({ data: { epigrafe: body.epigrafe, orgao: body.orgao, descricao: body.descricao, dataInicio: dataInicioDate, dataFim: dataFimDate } })
+      const data = await this.prisma.regulacaoCompleta.create({ data: { epigrafe: body.epigrafe, orgao: body.orgao, descricao: body.descricao, dataInicio: dataInicioDate, dataFim: dataFimDate, empresaId } })
       reply.code(201)
       return { data }
     } catch (error) {

@@ -31,6 +31,7 @@ export const CreateColunaSchema = z.object({
   tabelaId: z.uuid({ message: 'ID da tabela deve ser um UUID válido' }).describe('ID da tabela pai'),
   necessidadeInformacaoId: z.uuid({ message: 'ID da necessidade de informação deve ser um UUID válido' }).describe('ID da necessidade de informação'),
   termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).describe('ID do termo/definição'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)'),
 })
 
 // Schema para atualização (todos os campos opcionais)

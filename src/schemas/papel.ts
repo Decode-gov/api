@@ -13,6 +13,7 @@ export const CreatePapelSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do papel'),
   descricao: z.string().min(1, { message: 'Descrição é obrigatória' }).describe('Descrição do papel'),
   politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }).describe('ID da política'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)'),
 })
 
 // Schema para atualização de papel

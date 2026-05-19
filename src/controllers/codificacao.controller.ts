@@ -53,9 +53,10 @@ export class Codificacao extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const body = request.body as any
+      const empresaId = this.resolveEmpresaIdForCreate(request, body)
 
       const data = await this.prisma.codificacao.create({
-        data: body,
+        data: { ...body, empresaId },
         select: {
           id: true,
           nome: true,

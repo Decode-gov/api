@@ -5,7 +5,8 @@ import { TimestampsSchema } from './common.js';
 const SistemaBaseSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do sistema'),
   descricao: z.string().nullable().optional().describe('Descrição do sistema'),
-  repositorio: z.string().describe('URL do repositório do sistema')
+  repositorio: z.string().describe('URL do repositório do sistema'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)')
 })
 
 // Schema completo com ID e timestamps

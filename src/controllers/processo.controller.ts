@@ -44,11 +44,13 @@ export class ProcessoController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { nome, descricao } = request.body as any
+      const empresaId = this.resolveEmpresaIdForCreate(request, request.body)
 
       const data = await this.prisma.processo.create({
         data: {
           nome,
-          descricao
+          descricao,
+          empresaId
         },
       })
 

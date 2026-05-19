@@ -44,7 +44,8 @@ export const CreateOperacaoSchema = z.object({
   documentada: z.boolean().default(false).describe('Operação documentada'),
   responsavel: z.string().min(1, { message: 'Responsável é obrigatório' }).describe('Responsável pela operação'),
   observacoes: z.string().optional().describe('Observações adicionais'),
-  ativo: z.boolean().default(true).describe('Status de ativação')
+  ativo: z.boolean().default(true).describe('Status de ativação'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)')
 })
 
 // Schema para atualização de operação

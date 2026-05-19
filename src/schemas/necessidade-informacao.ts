@@ -16,7 +16,8 @@ export const CreateNecessidadeInformacaoSchema = z.object({
   questaoGerencial: z.string().min(1, { message: 'Questão gerencial é obrigatória' }).describe('Questão gerencial'),
   elementoEstrategico: z.string().nullable().optional().describe('Elemento estratégico'),
   elementoTatico: z.string().nullable().optional().describe('Elemento tático'),
-  origemQuestao: z.string().min(1, { message: 'Origem da questão é obrigatória' }).describe('Origem da questão')
+  origemQuestao: z.string().min(1, { message: 'Origem da questão é obrigatória' }).describe('Origem da questão'),
+  empresaId: z.uuid().optional()
 })
 
 // Schema para atualização de necessidade de informação

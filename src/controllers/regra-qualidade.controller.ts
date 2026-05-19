@@ -143,6 +143,7 @@ export class RegraQualidadeController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const body = request.body as any
+      const empresaId = this.resolveEmpresaIdForCreate(request, body)
 
       // Validar regra de negócio se fornecida
       if (body.regraNegocioId) {
@@ -182,7 +183,7 @@ export class RegraQualidadeController extends BaseController {
       }
 
       const data = await this.prisma.regraQualidade.create({
-        data: body,
+        data: { ...body, empresaId },
         select: {
           id: true,
           descricao: true,

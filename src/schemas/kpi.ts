@@ -14,7 +14,8 @@ export const KpiSchema = z.object({
 export const CreateKpiSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do KPI'),
   descricao: z.string().optional().describe('Descrição do KPI'),
-  comunidadeId: z.uuid({ message: 'ID da comunidade deve ser um UUID válido' }).optional().describe('ID da comunidade')
+  comunidadeId: z.uuid({ message: 'ID da comunidade deve ser um UUID válido' }).optional().describe('ID da comunidade'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)')
 })
 
 // Schema para atualização de KPI - conforme especificação do prompt

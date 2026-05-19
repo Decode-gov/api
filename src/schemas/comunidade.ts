@@ -12,7 +12,8 @@ export const ComunidadeSchema = z.object({
 // Schema para criação de comunidade
 export const CreateComunidadeSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da comunidade'),
-  parentId: z.uuid({ message: 'Parent ID deve ser um UUID válido' }).optional().describe('ID da comunidade pai (opcional)')
+  parentId: z.uuid({ message: 'Parent ID deve ser um UUID válido' }).optional().describe('ID da comunidade pai (opcional)'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)')
 })
 
 // Schema para atualização de comunidade

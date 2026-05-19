@@ -31,6 +31,7 @@ export const CreateAtividadeSchema = z.object({
   descricao: z.string().min(1, { message: 'Descrição é obrigatória' }).describe('Descrição da atividade'),
   processoId: z.uuid({ message: 'ID do processo deve ser um UUID válido' }).describe('ID do processo'),
   sistemaId: z.uuid({ message: 'ID do sistema deve ser um UUID válido' }).optional().describe('ID do sistema'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)'),
   responsavel: z.string().min(1, { message: 'Responsável é obrigatório' }).describe('Responsável pela atividade'),
   status: z.enum(['PLANEJADA', 'EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA', 'PAUSADA']).default('PLANEJADA').describe('Status da atividade'),
   prioridade: z.enum(['BAIXA', 'MEDIA', 'ALTA', 'CRITICA']).default('MEDIA').describe('Prioridade da atividade'),

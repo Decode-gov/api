@@ -81,6 +81,7 @@ export class ClassificacaoInformacaoController extends BaseController {
   async create(request: FastifyRequest<{ Body: ClassificacaoInformacaoBody }>, reply: FastifyReply) {
     try {
       const { classificacaoId, termoId } = request.body
+      const empresaId = this.resolveEmpresaIdForCreate(request, request.body)
 
       // Validar se a lista de classificação existe
       const listaClassificacao = await this.prisma.listaClassificacao.findUnique({
@@ -109,7 +110,8 @@ export class ClassificacaoInformacaoController extends BaseController {
       const classificacao = await this.prisma.classificacao.create({
         data: {
           classificacaoId,
-          termoId
+          termoId,
+          empresaId
         },
         include: {
           classificacao: {

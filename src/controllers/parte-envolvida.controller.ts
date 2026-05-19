@@ -79,6 +79,7 @@ export class ParteEnvolvidaController extends BaseController {
   async create(request: FastifyRequest<{ Body: ParteEnvolvidaBody }>, reply: FastifyReply) {
     try {
       const { nome, descricao, contato } = request.body
+      const empresaId = this.resolveEmpresaIdForCreate(request, request.body)
 
       // Validar se já existe uma parte com o mesmo nome ou contato
       const existingParte = await (this.prisma as any).parteEnvolvida.findFirst({
@@ -101,7 +102,8 @@ export class ParteEnvolvidaController extends BaseController {
         data: {
           nome,
           descricao,
-          contato
+          contato,
+          empresaId
         }
       })
 

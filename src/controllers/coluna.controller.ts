@@ -79,9 +79,10 @@ export class ColunaController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const body = request.body as CreateColuna
+      const empresaId = this.resolveEmpresaIdForCreate(request, body)
 
       const data = await this.prisma.coluna.create({
-        data: body as any,
+        data: { ...(body as any), empresaId },
         select: {
           id: true,
           nome: true,

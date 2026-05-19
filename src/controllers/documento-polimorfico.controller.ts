@@ -22,6 +22,7 @@ export class DocumentoPolimorficoController extends BaseController {
         checksum?: string
         versao?: number
       }
+      const empresaId = this.resolveEmpresaIdForCreate(request, body)
 
       const dados = await this.prisma.documentoPolimorfico.create({
         data: {
@@ -34,7 +35,8 @@ export class DocumentoPolimorficoController extends BaseController {
           descricao: body.descricao,
           metadados: body.metadados,
           checksum: body.checksum,
-          versao: body.versao || 1
+          versao: body.versao || 1,
+          empresaId
         }
       })
 

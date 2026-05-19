@@ -72,6 +72,7 @@ export class ListaReferenciaController extends BaseController {
   async create(request: FastifyRequest<{ Body: ListaReferenciaBody }>, reply: FastifyReply) {
     try {
       const { nome, descricao, valores, tabelaId, colunaId } = request.body
+      const empresaId = this.resolveEmpresaIdForCreate(request, request.body)
 
       // Validar e sanitizar valores JSON
       const valoresValidados = this.validarValores(valores)
@@ -113,7 +114,8 @@ export class ListaReferenciaController extends BaseController {
           descricao,
           valores: JSON.stringify(valoresValidados.valores),
           tabelaId,
-          colunaId
+          colunaId,
+          empresaId
         },
         include: {
           tabela: {

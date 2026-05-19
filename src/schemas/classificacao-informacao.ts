@@ -18,6 +18,7 @@ export const ClassificacaoInformacaoSchema = z.object({
 export const CreateClassificacaoInformacaoSchema = z.object({
   classificacaoId: z.uuid({ message: 'ID da classificação deve ser um UUID válido' }).describe('ID da lista de classificação relacionada'),
   termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).describe('ID do termo'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)'),
 })
 
 // Schema para atualização de classificação

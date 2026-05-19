@@ -20,7 +20,8 @@ export const PoliticaInternaSchema = z.object({
   versao: z.string().min(1),
   anexosUrl: z.coerce.string().nullable().optional(),
   relacionamento: z.string().nullable().optional(),
-  observacoes: z.string().nullable().optional()
+  observacoes: z.string().nullable().optional(),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)')
 })
 
 // Schema para criação de política interna

@@ -36,7 +36,8 @@ export const CreateTipoDadosSchema = z.object({
   mascara: z.string().optional().describe('Máscara de formatação'),
   validacao: z.string().optional().describe('Regras de validação'),
   observacoes: z.string().optional().describe('Observações adicionais'),
-  ativo: z.boolean().default(true).describe('Status de ativação')
+  ativo: z.boolean().default(true).describe('Status de ativação'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)')
 })
 
 // Schema para atualização de tipo de dados

@@ -18,7 +18,8 @@ export const CreateDefinicaoSchema = z.object({
   termo: z.string().min(1, { message: 'Termo é obrigatório' }).describe('Nome da definição (termo)'),
   definicao: z.string().min(1, { message: 'Definição é obrigatória' }).describe('Descrição da definição'),
   sigla: z.string().optional().describe('Sigla do termo'),
-  comunidadeId: z.string().uuid().optional().describe('ID da comunidade relacionada')
+  comunidadeId: z.string().uuid().optional().describe('ID da comunidade relacionada'),
+  empresaId: z.string().uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)')
 })
 
 // Schema para atualização de definição - conforme especificação do prompt

@@ -1,6 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { PrismaClient } from '@prisma/client'
 import { idSchema } from '../types/common.js'
+import type { JwtPayload } from '../types/auth.js'
 
 export abstract class BaseController {
   protected constructor(
@@ -30,6 +31,23 @@ export abstract class BaseController {
     }
 
     return user.empresaId || undefined
+  }
+
+  protected resolveEmpresaIdForCreate(request: FastifyRequest, body: any): string {
+    const user = (request as any).user as JwtPayload | undefined
+
+    if (user?.tipo === 'ADMIN') {
+      if (!body?.empresaId) {
+        throw new Error('empresaId inválido: obrigatório para usuários ADMIN')
+      }
+      return body.empresaId
+    }
+
+    if (!user?.empresaId) {
+      throw new Error('empresaId inválido: não encontrado no token do usuário')
+    }
+
+    return user.empresaId
   }
 
   protected handleError(reply: FastifyReply, error: any) {

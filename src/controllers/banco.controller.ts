@@ -81,11 +81,13 @@ export class BancoController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const body = request.body as CreateBanco
+      const empresaId = this.resolveEmpresaIdForCreate(request, body)
 
       const data = await this.prisma.banco.create({
         data: {
           nome: body.nome,
-          sistemaId: body.sistemaId
+          sistemaId: body.sistemaId,
+          empresaId
         },
         select: {
           id: true,

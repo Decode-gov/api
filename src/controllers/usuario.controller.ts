@@ -354,6 +354,7 @@ export class UsuarioController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply): Promise<any> {
     try {
       const { nome, email, senha, ativo } = request.body as RegisterRequest & { ativo?: boolean }
+      const empresaId = this.resolveEmpresaIdForCreate(request, request.body)
 
       // Verificar se o email já existe
       const existingUser = await this.prisma.usuario.findUnique({
@@ -375,7 +376,8 @@ export class UsuarioController extends BaseController {
           nome,
           email,
           senha: hashedPassword,
-          ativo: ativo ?? true
+          ativo: ativo ?? true,
+          empresaId
         },
         select: {
           id: true,

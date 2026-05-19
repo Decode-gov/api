@@ -134,6 +134,7 @@ export class RegraNegocioController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const body = request.body as any
+      const empresaId = this.resolveEmpresaIdForCreate(request, body)
 
       // Validar política (obrigatória)
       const politica = await this.prisma.politicaInterna.findUnique({ where: { id: body.politicaId } })
@@ -162,7 +163,7 @@ export class RegraNegocioController extends BaseController {
       }
 
       const data = await this.prisma.regraNegocio.create({
-        data: body,
+        data: { ...body, empresaId },
         select: {
           id: true,
           descricao: true,

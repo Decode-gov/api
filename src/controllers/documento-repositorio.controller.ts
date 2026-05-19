@@ -95,6 +95,7 @@ export class DocumentoRepositorioController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { termoId, repositorioId } = request.body as any
+      const empresaId = this.resolveEmpresaIdForCreate(request, request.body)
 
       // Validar FK: Termo
       const termo = await (this.prisma as any).definicao.findUnique({
@@ -135,7 +136,8 @@ export class DocumentoRepositorioController extends BaseController {
       const documento = await (this.prisma as any).documentoRepositorio.create({
         data: {
           termoId,
-          repositorioId
+          repositorioId,
+          empresaId
         },
         include: {
           termo: {

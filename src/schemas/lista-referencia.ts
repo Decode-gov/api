@@ -18,7 +18,8 @@ export const CreateListaReferenciaSchema = z.object({
   descricao: z.string().nullable().optional(),
   valores: z.string().min(1, 'Valores são obrigatórios'),
   tabelaId: z.string().nullable().optional(),
-  colunaId: z.string().nullable().optional()
+  colunaId: z.string().nullable().optional(),
+  empresaId: z.string().uuid({ message: 'empresaId deve ser um UUID válido' }).optional()
 })
 
 // Schema para atualização de lista de referência

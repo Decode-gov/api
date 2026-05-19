@@ -94,9 +94,10 @@ export class TabelaController extends BaseController {
   async create(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
       const body = request.body as CreateTabela
+      const empresaId = this.resolveEmpresaIdForCreate(request, body)
 
       const data = await this.prisma.tabela.create({
-        data: body as any,
+        data: { ...(body as any), empresaId },
         select: {
           id: true,
           nome: true,

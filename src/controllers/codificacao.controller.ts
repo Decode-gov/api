@@ -1,7 +1,8 @@
 import type { PrismaClient } from '@prisma/client';
 import { BaseController } from './base.controller.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
-export class Codificacaoextends BaseController {
+export class Codificacao extends BaseController {
   constructor(prisma: PrismaClient) {
     super(prisma, 'codificacao')
   }

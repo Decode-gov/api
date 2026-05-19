@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 // Schema base da lista de referência
 export const ListaReferenciaSchema = z.object({

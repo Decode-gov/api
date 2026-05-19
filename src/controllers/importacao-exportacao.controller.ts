@@ -1,6 +1,6 @@
-import type { FastifyRequest, FastifyReply } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
 
 interface ImportacaoParams {
   id: string
@@ -297,19 +297,18 @@ export class ImportacaoExportacaoController extends BaseController {
   // Método para listar importações/exportações
   async findMany(request: FastifyRequest<{ Querystring: any }>, reply: FastifyReply) {
     try {
+      const empresaId = this.getEmpresaFilter(request)
       const query = request.query as any
-      const { skip = 0, take = 10, tipo, status, usuarioId } = query
+      const { tipo, status, usuarioId } = query
 
-      this.validatePagination({ skip, take })
-
-      const where: any = {}
+      const where: any = {
+        ...(empresaId ? { empresaId } : {})
+      }
       if (tipo) where.tipo = tipo
       if (status) where.status = status
       if (usuarioId) where.usuarioId = usuarioId
 
       const operacoes = await (this.prisma as any).importacaoExportacao.findMany({
-        skip,
-        take,
         where,
         include: {
           usuario: {
@@ -323,17 +322,9 @@ export class ImportacaoExportacaoController extends BaseController {
         orderBy: { createdAt: 'desc' }
       })
 
-      const total = await (this.prisma as any).importacaoExportacao.count({ where })
-
       return reply.status(200).send({
         message: 'Operações de importação/exportação encontradas',
-        data: operacoes,
-        pagination: {
-          total,
-          skip,
-          take,
-          pages: Math.ceil(total / take)
-        }
+        data: operacoes
       })
     } catch (error) {
       this.handleError(reply, error)
@@ -441,7 +432,7 @@ export class ImportacaoExportacaoController extends BaseController {
     })
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     return reply.status(405).send({
       error: 'MethodNotAllowed',
       message: 'Operações de importação/exportação não podem ser deletadas'

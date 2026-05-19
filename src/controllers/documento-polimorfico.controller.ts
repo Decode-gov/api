@@ -1,6 +1,6 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class DocumentoPolimorficoController extends BaseController {
   constructor(prisma: PrismaClient) {
@@ -49,17 +49,13 @@ export class DocumentoPolimorficoController extends BaseController {
   async listarDocumentosPorEntidade(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { entidadeId, tipoEntidade } = request.params as { entidadeId: string, tipoEntidade: string }
-      const { skip, take, orderBy } = this.validatePagination(request.query)
 
       const dados = await this.prisma.documentoPolimorfico.findMany({
         where: {
           entidadeId,
           tipoEntidade: tipoEntidade as any,
           ativo: true
-        },
-        skip,
-        take,
-        orderBy
+        }
       })
 
       return { data: dados }
@@ -109,10 +105,13 @@ export class DocumentoPolimorficoController extends BaseController {
   // Implementações dos métodos abstratos do BaseController
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
       const query = request.query as any
 
-      const where: any = { ativo: true }
+      const where: any = {
+        ativo: true,
+        ...(empresaId ? { empresaId } : {})
+      }
 
       if (query.tipoEntidade) {
         where.tipoEntidade = query.tipoEntidade
@@ -122,10 +121,7 @@ export class DocumentoPolimorficoController extends BaseController {
       }
 
       const dados = await this.prisma.documentoPolimorfico.findMany({
-        where,
-        skip,
-        take,
-        orderBy
+        where
       })
 
       return { data: dados }
@@ -155,7 +151,7 @@ export class DocumentoPolimorficoController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)

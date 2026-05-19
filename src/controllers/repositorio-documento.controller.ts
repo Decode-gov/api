@@ -1,6 +1,6 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class RepositorioDocumentoController extends BaseController {
   constructor(prisma: PrismaClient) {
@@ -9,10 +9,12 @@ export class RepositorioDocumentoController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
       const query = request.query as any
 
-      const where: any = {}
+      const where: any = {
+        ...(empresaId ? { empresaId } : {})
+      }
       if (query.nome) {
         where.nome = {
           contains: query.nome,
@@ -23,10 +25,7 @@ export class RepositorioDocumentoController extends BaseController {
       if (query.rede !== undefined) where.rede = query.rede === 'true' || query.rede === true
 
       const data = await this.prisma.repositorioDocumento.findMany({
-        skip,
-        take,
         where,
-        ...(orderBy && { orderBy }),
         select: {
           id: true,
           nome: true,
@@ -133,7 +132,7 @@ export class RepositorioDocumentoController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)

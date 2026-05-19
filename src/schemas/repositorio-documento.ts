@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { TimestampsSchema } from './common.js'
+import { z } from 'zod';
+import { TimestampsSchema } from './common.js';
 
 // Schema base para dados do repositório de documento (apenas campos de input)
 const RepositorioDocumentoBaseSchema = z.object({
@@ -9,9 +9,11 @@ const RepositorioDocumentoBaseSchema = z.object({
 })
 
 // Schema completo com ID e timestamps
-export const RepositorioDocumentoSchema = RepositorioDocumentoBaseSchema.extend({
-  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do repositório')
-}).merge(TimestampsSchema.partial())
+export const RepositorioDocumentoSchema = z.object({
+  ...RepositorioDocumentoBaseSchema.shape,
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do repositório'),
+  ...TimestampsSchema.partial().shape
+})
 
 // Schema para criação (apenas campos necessários)
 export const CreateRepositorioDocumentoSchema = RepositorioDocumentoBaseSchema
@@ -38,9 +40,7 @@ export const RepositorioDocumentoParamsSchema = z.object({
 
 // Schema para query params
 export const RepositorioDocumentoQueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional().describe('Número de registros para pular'),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional().describe('Número de registros para retornar'),
-  orderBy: z.string().optional().describe('Campo para ordenação'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('Filtrar por empresa'),
   nome: z.string().optional().describe('Filtrar por nome'),
   ged: z.coerce.boolean().optional().describe('Filtrar por repositórios GED'),
   rede: z.coerce.boolean().optional().describe('Filtrar por repositórios em rede')

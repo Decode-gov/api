@@ -5,10 +5,11 @@ import swaggerUi from '@fastify/swagger-ui'
 import cookie from '@fastify/cookie'
 import sensible from '@fastify/sensible'
 import {
-  ZodTypeProvider,
+  jsonSchemaTransform,
   serializerCompiler,
-  validatorCompiler
-} from 'fastify-type-provider-zod'
+  validatorCompiler,
+  type ZodTypeProvider,
+} from "fastify-type-provider-zod";
 import { prismaPlugin } from './plugins/prisma.js'
 import { registerAllRoutes } from './routes/index.js'
 import { AuditMiddleware } from './middleware/audit.middleware.js'
@@ -36,7 +37,17 @@ await app.register(swagger, {
         description: 'Servidor de desenvolvimento'
       }
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    },
     tags: [
+      { name: 'Empresas', description: 'Gestão de empresas — acesso exclusivo para ADMIN' },
       { name: 'Usuários', description: 'Gestão de usuários' },
       { name: 'Sistemas', description: 'Gestão de sistemas' },
       { name: 'Tabelas', description: 'Gestão de tabelas' },
@@ -54,7 +65,8 @@ await app.register(swagger, {
       { name: 'Regras de Negócio', description: 'Gestão de regras de negócio' },
       { name: 'Listas de Referência', description: 'Gestão de listas de referência e valores padronizados' }
     ]
-  }
+  },
+  transform: jsonSchemaTransform,
 })
 
 await app.register(swaggerUi, {

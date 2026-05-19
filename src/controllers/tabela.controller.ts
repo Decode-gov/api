@@ -1,7 +1,7 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
-import type { CreateTabela, UpdateTabela } from '../schemas/tabela.js'
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import type { CreateTabela, UpdateTabela } from '../schemas/tabela.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class TabelaController extends BaseController {
   constructor(prisma: PrismaClient) {
@@ -10,12 +10,10 @@ export class TabelaController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
 
       const data = await this.prisma.tabela.findMany({
-        skip,
-        take,
-        orderBy: orderBy && typeof orderBy === 'string' ? { [orderBy]: 'asc' } : { nome: 'asc' },
+        where: empresaId ? { empresaId } : undefined,
         select: {
           id: true,
           nome: true,

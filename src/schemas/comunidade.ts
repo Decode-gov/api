@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 // Schema base da comunidade usando Zod v4 (refletindo o modelo Prisma)
 export const ComunidadeSchema = z.object({

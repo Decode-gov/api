@@ -1,13 +1,11 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 // Schema base do KPI usando Zod v4 - conforme especificação do prompt
 export const KpiSchema = z.object({
   id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do KPI'),
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do KPI'),
   descricao: z.string().optional().describe('Descrição do KPI'),
-  processoId: z.uuid({ message: 'ID do processo deve ser um UUID válido' }).describe('ID do processo'),
-  comunidadeId: z.uuid({ message: 'ID da comunidade deve ser um UUID válido' }).describe('ID da comunidade'),
-  usuarioId: z.uuid({ message: 'ID do usuário deve ser um UUID válido' }).describe('ID do usuário responsável'),
+  comunidadeId: z.uuid({ message: 'ID da comunidade deve ser um UUID válido' }).optional().describe('ID da comunidade'),
   createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).describe('Data de criação'),
   updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).describe('Data de última atualização')
 })
@@ -16,18 +14,14 @@ export const KpiSchema = z.object({
 export const CreateKpiSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do KPI'),
   descricao: z.string().optional().describe('Descrição do KPI'),
-  processoId: z.uuid({ message: 'ID do processo deve ser um UUID válido' }).describe('ID do processo'),
-  comunidadeId: z.uuid({ message: 'ID da comunidade deve ser um UUID válido' }).describe('ID da comunidade'),
-  usuarioId: z.uuid({ message: 'ID do usuário deve ser um UUID válido' }).describe('ID do usuário responsável')
+  comunidadeId: z.uuid({ message: 'ID da comunidade deve ser um UUID válido' }).optional().describe('ID da comunidade')
 })
 
 // Schema para atualização de KPI - conforme especificação do prompt
 export const UpdateKpiSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).optional().describe('Nome do KPI'),
   descricao: z.string().optional().describe('Descrição do KPI'),
-  processoId: z.uuid({ message: 'ID do processo deve ser um UUID válido' }).optional().describe('ID do processo'),
-  comunidadeId: z.uuid({ message: 'ID da comunidade deve ser um UUID válido' }).optional().describe('ID da comunidade'),
-  usuarioId: z.uuid({ message: 'ID do usuário deve ser um UUID válido' }).optional().describe('ID do usuário responsável')
+  comunidadeId: z.uuid({ message: 'ID da comunidade deve ser um UUID válido' }).optional().describe('ID da comunidade')
 })
 
 // Schema para KPI com relacionamentos
@@ -35,11 +29,7 @@ export const KpiWithRelationsSchema = KpiSchema.extend({
   comunidade: z.object({
     id: z.uuid({ message: 'ID inválido' }).describe('ID da comunidade'),
     nome: z.string().describe('Nome da comunidade')
-  }).nullable().describe('Comunidade relacionada'),
-  processo: z.object({
-    id: z.uuid({ message: 'ID inválido' }).describe('ID do processo'),
-    nome: z.string().describe('Nome do processo')
-  }).nullable().describe('Processo relacionado')
+  }).nullable().describe('Comunidade relacionada')
 })
 
 // Schema para resposta com KPI

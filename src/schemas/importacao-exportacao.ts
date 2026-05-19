@@ -30,8 +30,7 @@ export const ImportacaoSchema = z.object({
 
 // Schema para query de listagem com coerção do Zod v4
 export const ImportacaoExportacaoQuerySchema = z.object({
-  skip: z.coerce.number().int().min(0, { message: 'Skip deve ser >= 0' }).optional().describe('Registros para pular'),
-  take: z.coerce.number().int().min(1, { message: 'Take deve ser >= 1' }).max(100, { message: 'Máximo 100 registros' }).optional().describe('Registros para retornar'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('Filtrar por empresa'),
   tipo: TipoOperacaoEnum.optional().describe('Filtrar por tipo de operação'),
   status: StatusOperacaoEnum.optional().describe('Filtrar por status'),
   usuarioId: z.uuid({ message: 'ID do usuário deve ser um UUID válido' }).optional().describe('Filtrar por usuário')

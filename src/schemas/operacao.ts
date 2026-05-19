@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 // Schema base da operação usando Zod v4
 export const OperacaoSchema = z.object({
@@ -70,8 +70,7 @@ export const UpdateOperacaoSchema = z.object({
 export const OperacaoWithRelationsSchema = OperacaoSchema.extend({
   atividade: z.object({
     id: z.uuid({ message: 'ID inválido' }).describe('ID da atividade'),
-    nome: z.string().describe('Nome da atividade'),
-    processoId: z.uuid({ message: 'ID inválido' }).describe('ID do processo')
+    nome: z.string().describe('Nome da atividade')
   }).describe('Atividade relacionada'),
   sistema: z.object({
     id: z.uuid({ message: 'ID inválido' }).describe('ID do sistema'),

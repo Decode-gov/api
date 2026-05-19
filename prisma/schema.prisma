@@ -35,6 +35,11 @@ enum PeriodicidadeKPI {
   Anual
 }
 
+enum TipoUsuario {
+  ADMIN
+  USUARIO
+}
+
 enum TipoEntidadeDocumento {
   Politica
   Papel
@@ -67,7 +72,11 @@ model Comunidade {
   PoliticaInterna PoliticaInterna[]
   definicaos      Definicao[]
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([parentId])
+  @@index([empresaId])
   @@map("comunidades")
 }
 
@@ -100,7 +109,11 @@ model PoliticaInterna {
   updatedAt     DateTime?      @map("updated_at")
   regraNegocios RegraNegocio[]
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([dominioDadosId])
+  @@index([empresaId])
   @@map("politicas_internas")
 }
 
@@ -115,6 +128,10 @@ model NecessidadeInformacao {
   updatedAt DateTime? @map("updated_at")
   colunas   Coluna[]
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("necessidades_informacao")
 }
 
@@ -136,6 +153,10 @@ model Definicao {
   colunas        Coluna[]
   regraNegocios  RegraNegocio[]
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("definicoes")
 }
 
@@ -150,7 +171,11 @@ model ListaClassificacao {
   updatedAt      DateTime?       @map("updated_at")
   classificacaos Classificacao[]
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([politicaId])
+  @@index([empresaId])
   @@map("lista_classificacoes")
 }
 
@@ -164,6 +189,10 @@ model Classificacao {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("classificacoes")
 }
 
@@ -178,6 +207,10 @@ model Sistema {
   bancos        Banco[]
   regraNegocios RegraNegocio[]
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("sistemas")
 }
 
@@ -192,6 +225,10 @@ model Banco {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("bancos")
 }
 
@@ -208,8 +245,12 @@ model Tabela {
   regrasQualidade  RegraQualidade[]
   listasReferencia ListaReferencia[]
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@unique([bancoId, nome], map: "uq_banco_tabela")
   @@index([bancoId])
+  @@index([empresaId])
   @@map("tabelas")
 }
 
@@ -229,9 +270,13 @@ model Coluna {
   regrasQualidade  RegraQualidade[]
   listasReferencia ListaReferencia[]
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@unique([tabelaId, nome], map: "uq_tabela_coluna")
   @@index([tabelaId])
   @@index([necessidadeInformacaoId])
+  @@index([empresaId])
   @@map("colunas")
 }
 
@@ -244,7 +289,11 @@ model Codificacao {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([colunaId])
+  @@index([empresaId])
   @@map("codificacoes")
 }
 
@@ -256,6 +305,10 @@ model Documento {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("documentos")
 }
 
@@ -277,10 +330,14 @@ model DocumentoPolimorfico {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@unique([entidadeId, tipoEntidade, nomeArquivo, versao])
   @@index([entidadeId])
   @@index([tipoEntidade])
   @@index([ativo])
+  @@index([empresaId])
   @@map("documentos_polimorficos")
 }
 
@@ -292,6 +349,10 @@ model Processo {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("processos")
 }
 
@@ -311,6 +372,10 @@ model RegraNegocio {
   updatedAt       DateTime?        @map("updated_at")
   regraQualidades RegraQualidade[]
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("regras_negocio")
 }
 
@@ -324,7 +389,11 @@ model ListaDimensao {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([politicaId])
+  @@index([empresaId])
   @@map("lista_dimensoes")
 }
 
@@ -336,6 +405,10 @@ model Qualidade {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("qualidades")
 }
 
@@ -347,6 +420,10 @@ model ListaParte {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("lista_partes")
 }
 
@@ -360,6 +437,10 @@ model Regulacao {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("regulacoes")
 }
 
@@ -372,7 +453,11 @@ model Criticidade {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([epigrafeId])
+  @@index([empresaId])
   @@map("criticidades")
 }
 
@@ -383,7 +468,7 @@ model Papel {
   politicaId String          @map("politica_id") @db.Uuid
   politica   PoliticaInterna @relation(fields: [politicaId], references: [id])
 
-  // Relacionamentos  
+  // Relacionamentos
   atribuicoesDominio AtribuicaoPapelDominio[]
 
   createdAt       DateTime?        @default(now()) @map("created_at")
@@ -392,7 +477,11 @@ model Papel {
   regraQualidades RegraQualidade[]
   regraNegocios   RegraNegocio[]
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([politicaId])
+  @@index([empresaId])
   @@map("papeis")
 }
 
@@ -405,7 +494,11 @@ model KPI {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([comunidadeId])
+  @@index([empresaId])
   @@map("kpis")
 }
 
@@ -418,15 +511,20 @@ model ProdutoDados {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("produtos_dados")
 }
 
 model Usuario {
-  id    String  @id @default(uuid()) @db.Uuid
+  id    String      @id @default(uuid()) @db.Uuid
   nome  String
-  email String  @unique
+  email String      @unique
   senha String
-  ativo Boolean @default(true)
+  ativo Boolean     @default(true)
+  tipo  TipoUsuario @default(USUARIO)
 
   processosAtualizados ProcessoAtualizado[]
   logsAuditoria        LogAuditoria[]
@@ -434,6 +532,10 @@ model Usuario {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("usuarios")
 }
 
@@ -442,6 +544,10 @@ model ComiteAprovador {
   nome                   String
   AtribuicaoPapelDominio AtribuicaoPapelDominio[]
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("comites_aprovadores")
 }
 
@@ -460,9 +566,13 @@ model AtribuicaoPapelDominio {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([papelId])
   @@index([dominioId])
   @@index([comiteAprovadorId])
+  @@index([empresaId])
   @@map("atribuicoes_papel_dominio")
 }
 
@@ -474,6 +584,10 @@ model TipoDados {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("tipos_dados")
 }
 
@@ -489,7 +603,11 @@ model ClassificacaoInformacao {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([politicaId])
+  @@index([empresaId])
   @@map("classificacoes_informacao")
 }
 
@@ -503,9 +621,13 @@ model TermoClassificacao {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@unique([termoId, classificacaoInformacaoId])
   @@index([termoId])
   @@index([classificacaoInformacaoId])
+  @@index([empresaId])
   @@map("termos_classificacao")
 }
 
@@ -518,6 +640,10 @@ model RepositorioDocumento {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("repositorios_documentos")
 }
 
@@ -534,32 +660,44 @@ model ListaReferencia {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([tabelaId])
   @@index([colunaId])
+  @@index([empresaId])
   @@map("listas_referencia")
 }
 
 model DocumentoTabela {
-  id            String               @id @default(uuid()) @db.Uuid
-  termoId       String               @map("termo_id") @db.Uuid
-  termo         Definicao            @relation(fields: [termoId], references: [id])
+  id      String    @id @default(uuid()) @db.Uuid
+  termoId String    @map("termo_id") @db.Uuid
+  termo   Definicao @relation(fields: [termoId], references: [id])
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([termoId])
+  @@index([empresaId])
   @@map("documentos_arquivo")
 }
 
 model DocumentoRepositorio {
-  id            String               @id @default(uuid()) @db.Uuid
-  termoId       String               @map("termo_id") @db.Uuid
-  termo         Definicao            @relation(fields: [termoId], references: [id])
+  id      String    @id @default(uuid()) @db.Uuid
+  termoId String    @map("termo_id") @db.Uuid
+  termo   Definicao @relation(fields: [termoId], references: [id])
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([termoId])
+  @@index([empresaId])
   @@map("documentos_repositorio")
 }
 
@@ -575,7 +713,11 @@ model DimensaoQualidade {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([politicaId])
+  @@index([empresaId])
   @@map("dimensoes_qualidade")
 }
 
@@ -598,10 +740,14 @@ model RegraQualidade {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([dimensaoId])
   @@index([tabelaId])
   @@index([colunaId])
   @@index([responsavelId])
+  @@index([empresaId])
   @@map("regras_qualidade")
 }
 
@@ -614,6 +760,10 @@ model ParteEnvolvida {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("partes_envolvidas")
 }
 
@@ -630,6 +780,10 @@ model RegulacaoCompleta {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId])
   @@map("regulacoes_completas")
 }
 
@@ -644,9 +798,13 @@ model CriticidadeRegulatoria {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@unique([regulacaoId, regraQualidadeId])
   @@index([regulacaoId])
   @@index([regraQualidadeId])
+  @@index([empresaId])
   @@map("criticidades_regulatorias")
 }
 
@@ -662,7 +820,11 @@ model ProcessoAtualizado {
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([usuarioId])
+  @@index([empresaId])
   @@map("processos_atualizados")
 }
 
@@ -678,9 +840,65 @@ model LogAuditoria {
   usuario     Usuario  @relation(fields: [usuarioId], references: [id])
   timestamp   DateTime @default(now())
 
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+
   @@index([entidade])
   @@index([entidadeId])
   @@index([usuarioId])
   @@index([timestamp])
+  @@index([empresaId])
   @@map("logs_auditoria")
+}
+
+model Empresa {
+  id   String @id @default(uuid()) @db.Uuid
+  nome String
+
+  comunidades              Comunidade[]
+  politicasInternas        PoliticaInterna[]
+  necessidadesInformacao   NecessidadeInformacao[]
+  definicoes               Definicao[]
+  listasClassificacao      ListaClassificacao[]
+  classificacoes           Classificacao[]
+  sistemas                 Sistema[]
+  bancos                   Banco[]
+  tabelas                  Tabela[]
+  colunas                  Coluna[]
+  codificacoes             Codificacao[]
+  documentos               Documento[]
+  documentosPolimorficos   DocumentoPolimorfico[]
+  processos                Processo[]
+  regrasNegocio            RegraNegocio[]
+  listasDimensao           ListaDimensao[]
+  qualidades               Qualidade[]
+  listasPartes             ListaParte[]
+  regulacoes               Regulacao[]
+  criticidades             Criticidade[]
+  papeis                   Papel[]
+  kpis                     KPI[]
+  produtosDados            ProdutoDados[]
+  usuarios                 Usuario[]
+  comitesAprovadores       ComiteAprovador[]
+  atribuicoesPapelDominio  AtribuicaoPapelDominio[]
+  tiposDados               TipoDados[]
+  classificacoesInformacao ClassificacaoInformacao[]
+  termosClassificacao      TermoClassificacao[]
+  repositoriosDocumento    RepositorioDocumento[]
+  listasReferencia         ListaReferencia[]
+  documentosTabela         DocumentoTabela[]
+  documentosRepositorio    DocumentoRepositorio[]
+  dimensoesQualidade       DimensaoQualidade[]
+  regrasQualidade          RegraQualidade[]
+  partesEnvolvidas         ParteEnvolvida[]
+  regulacoesCompletas      RegulacaoCompleta[]
+  criticidadesRegulatorias CriticidadeRegulatoria[]
+  processosAtualizados     ProcessoAtualizado[]
+  logsAuditoria            LogAuditoria[]
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("empresas")
 }

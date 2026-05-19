@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { OperacaoController } from '../controllers/operacao.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 import {
   OperacaoParamsSchema,
   CreateOperacaoSchema,
@@ -14,24 +15,6 @@ import {
 export async function operacaoZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new OperacaoController(app.prisma)
-
-  // Enums para query params
-  const TipoOperacaoEnum = z.enum(['CREATE', 'READ', 'UPDATE', 'DELETE', 'PROCESS', 'VALIDATE', 'TRANSFORM'])
-  const FrequenciaEnum = z.enum(['UNICA', 'DIARIA', 'SEMANAL', 'MENSAL', 'TRIMESTRAL', 'ANUAL', 'EVENTUAL'])
-  const ComplexidadeEnum = z.enum(['BAIXA', 'MEDIA', 'ALTA'])
-
-  // Schemas adicionais
-  const QueryParamsSchema = z.object({
-    skip: z.coerce.number().int().min(0).default(0),
-    take: z.coerce.number().int().min(1).max(100).default(10),
-    orderBy: z.string().optional(),
-    tipo: TipoOperacaoEnum.optional(),
-    frequencia: FrequenciaEnum.optional(),
-    complexidade: ComplexidadeEnum.optional(),
-    atividadeId: z.uuid().optional(),
-    automatizada: z.coerce.boolean().optional(),
-    critica: z.coerce.boolean().optional()
-  })
 
   const ErrorResponseSchema = z.object({
     error: z.string(),
@@ -53,7 +36,7 @@ export async function operacaoZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as operações cadastradas no sistema',
       tags: ['Operações'],
       summary: 'Listar operações',
-      querystring: QueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: OperacoesListResponseSchema
       }

@@ -1,15 +1,13 @@
-import type { FastifyRequest, FastifyReply } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
 
 interface ClassificacaoInformacaoParams {
   id: string
 }
 
 interface ClassificacaoInformacaoQuery {
-  skip?: number
-  take?: number
-  orderBy?: string
+  empresaId?: string
 }
 
 interface ClassificacaoInformacaoBody {
@@ -24,14 +22,10 @@ export class ClassificacaoInformacaoController extends BaseController {
 
   async findMany(request: FastifyRequest<{ Querystring: ClassificacaoInformacaoQuery }>, reply: FastifyReply) {
     try {
-      const { skip = 0, take = 10, orderBy = 'createdAt' } = request.query
-
-      this.validatePagination({ skip, take })
+      const empresaId = this.getEmpresaFilter(request)
 
       const classificacoes = await this.prisma.classificacao.findMany({
-        skip,
-        take,
-        orderBy: { [orderBy]: 'asc' },
+        where: empresaId ? { empresaId } : undefined,
         include: {
           classificacao: {
             include: {
@@ -203,7 +197,7 @@ export class ClassificacaoInformacaoController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest<{ Params: ClassificacaoInformacaoParams }>, reply: FastifyReply) {
+  async delete (request: FastifyRequest<{ Params: ClassificacaoInformacaoParams }>, reply: FastifyReply) {
     try {
       const { id } = request.params
       this.validateId(id)

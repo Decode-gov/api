@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { UsuarioController } from '../controllers/usuario.controller.js'
 import { registerSchema, loginSchema, updateUserSchema, loginResponseSchema, userSchema, changePasswordSchema } from '../types/auth.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 
 export async function usuarioZodFinalRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -12,14 +13,6 @@ export async function usuarioZodFinalRoutes(fastify: FastifyInstance) {
   const ParamsSchema = z.object({
     id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('ID do usuário')
   })
-
-  const QuerySchema = z.object({
-    skip: z.coerce.number().int().min(0, { message: 'Skip deve ser >= 0' }).default(0).describe('Registros para pular'),
-    take: z.coerce.number().int().min(1, { message: 'Take deve ser >= 1' }).max(100, { message: 'Máximo 100 registros' }).default(10).describe('Registros para retornar'),
-    orderBy: z.string().optional().describe('Campo para ordenação')
-  })
-
-
 
   // Schemas de resposta para diferentes operações
   const SuccessResponseSchema = z.object({
@@ -149,11 +142,12 @@ export async function usuarioZodFinalRoutes(fastify: FastifyInstance) {
 
   // GET /usuarios - Listar usuários
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar todos os usuários do sistema',
       tags: ['Usuários'],
       summary: 'Listar usuários',
-      querystring: QuerySchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: z.object({
           message: z.string(),

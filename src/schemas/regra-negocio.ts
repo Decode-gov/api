@@ -1,9 +1,9 @@
-import { z } from 'zod'
-import { TimestampsSchema } from './common.js'
-import { PoliticaInternaSchema } from './politica-interna.js'
-import { SistemaSchema } from './sistema.js'
-import { PapelSchema } from './papel.js'
-import { DefinicaoSchema } from './definicao.js'
+import { z } from 'zod';
+import { TimestampsSchema } from './common.js';
+import { PoliticaInternaSchema } from './politica-interna.js';
+import { SistemaSchema } from './sistema.js';
+import { PapelSchema } from './papel.js';
+import { DefinicaoSchema } from './definicao.js';
 
 // Schemas simplificados para relacionamentos (usando .pick() do Zod v4)
 const PoliticaSimplifiedSchema = PoliticaInternaSchema.pick({
@@ -40,9 +40,11 @@ const RegraNegocioBaseSchema = z.object({
 })
 
 // Schema completo com ID e timestamps
-export const RegraNegocioSchema = RegraNegocioBaseSchema.extend({
-  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da regra de negócio')
-}).merge(TimestampsSchema.partial())
+export const RegraNegocioSchema = z.object({
+  ...RegraNegocioBaseSchema.shape,
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da regra de negócio'),
+  ...TimestampsSchema.partial().shape
+})
 
 // Schema para criação (apenas campos necessários)
 export const CreateRegraNegocioSchema = RegraNegocioBaseSchema
@@ -77,9 +79,7 @@ export const RegraNegocioParamsSchema = z.object({
 
 // Schema para query params
 export const RegraNegocioQueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional().describe('Número de registros para pular'),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional().describe('Número de registros para retornar'),
-  orderBy: z.string().optional().describe('Campo para ordenação'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('Filtrar por empresa'),
   politicaId: z.uuid({ message: 'politicaId deve ser um UUID válido' }).optional().describe('Filtrar por política'),
   sistemaId: z.uuid({ message: 'sistemaId deve ser um UUID válido' }).optional().describe('Filtrar por sistema'),
   responsavelId: z.uuid({ message: 'responsavelId deve ser um UUID válido' }).optional().describe('Filtrar por responsável'),

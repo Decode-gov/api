@@ -1,15 +1,14 @@
-import type { FastifyRequest, FastifyReply } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
-import * as crypto from 'crypto'
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import * as crypto from 'crypto';
 
 interface MfaParams {
   id: string
 }
 
 interface MfaQuery {
-  skip?: number
-  take?: number
+  empresaId?: string
   usuarioId?: string
   tipo?: string
   ativo?: boolean
@@ -41,18 +40,17 @@ export class MfaController extends BaseController {
 
   async findMany(request: FastifyRequest<{ Querystring: MfaQuery }>, reply: FastifyReply) {
     try {
-      const { skip = 0, take = 10, usuarioId, tipo, ativo } = request.query
+      const empresaId = this.getEmpresaFilter(request)
+      const { usuarioId, tipo, ativo } = request.query
 
-      this.validatePagination({ skip, take })
-
-      const where: any = {}
+      const where: any = {
+        ...(empresaId ? { empresaId } : {})
+      }
       if (usuarioId) where.usuarioId = usuarioId
       if (tipo) where.tipo = tipo
       if (ativo !== undefined) where.ativo = ativo
 
       const configuracoesMfa = await (this.prisma as any).configuracaoMfa.findMany({
-        skip,
-        take,
         where,
         include: {
           usuario: {
@@ -73,17 +71,9 @@ export class MfaController extends BaseController {
         telefone: config.telefone ? config.telefone.replace(/(\d{2})(\d{5})(\d{4})/, '$1*****$3') : null
       }))
 
-      const total = await (this.prisma as any).configuracaoMfa.count({ where })
-
       return reply.status(200).send({
         message: 'Configurações MFA encontradas',
-        data: configuracoesSanitizadas,
-        pagination: {
-          total,
-          skip,
-          take,
-          pages: Math.ceil(total / take)
-        }
+        data: configuracoesSanitizadas
       })
     } catch (error) {
       this.handleError(reply, error)
@@ -667,7 +657,7 @@ export class MfaController extends BaseController {
     })
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     return reply.status(405).send({
       error: 'MethodNotAllowed',
       message: 'Use o endpoint /disable para desativar MFA'

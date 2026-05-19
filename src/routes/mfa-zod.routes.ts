@@ -6,7 +6,6 @@ import {
   EnableMfaSchema,
   VerifyMfaSchema,
   DisableMfaSchema,
-  MfaQuerySchema,
   SetupMfaResponseSchema,
   EnableMfaResponseSchema,
   VerifyMfaResponseSchema,
@@ -15,7 +14,7 @@ import {
   MfaResponseSchema,
   MfaParamsSchema
 } from '../schemas/mfa.js'
-import { ErrorSchema } from '../schemas/common.js'
+import { ErrorSchema, EmpresaFilterSchema } from '../schemas/common.js'
 
 export async function mfaZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -26,7 +25,7 @@ export async function mfaZodRoutes(fastify: FastifyInstance) {
       description: 'Listar configurações de MFA',
       tags: ['MFA/2FA'],
       summary: 'Listar configurações MFA',
-      querystring: MfaQuerySchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: MfaListResponseSchema
       }

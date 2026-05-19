@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { ParteEnvolvidaController } from '../controllers/parte-envolvida.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 import {
   ParteEnvolvidaParamsSchema,
   CreateParteEnvolvidaSchema,
@@ -14,14 +15,6 @@ import {
 export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new ParteEnvolvidaController(app.prisma)
-
-  // Schemas adicionais
-  const QueryParamsSchema = z.object({
-    skip: z.coerce.number().int().min(0).default(0),
-    take: z.coerce.number().int().min(1).max(100).default(10),
-    orderBy: z.string().optional(),
-    search: z.string().optional()
-  })
 
   const ErrorResponseSchema = z.object({
     error: z.string(),
@@ -43,7 +36,7 @@ export async function parteEnvolvidaZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as partes envolvidas cadastradas no sistema',
       tags: ['Partes Envolvidas'],
       summary: 'Listar partes envolvidas',
-      querystring: QueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: PartesEnvolvidasListResponseSchema
       }

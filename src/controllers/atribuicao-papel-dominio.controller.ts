@@ -1,6 +1,6 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class AtribuicaoPapelDominioController extends BaseController {
   constructor(prisma: PrismaClient) {
@@ -9,11 +9,13 @@ export class AtribuicaoPapelDominioController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
       const query = request.query as any
 
       // Filtros específicos
-      const where: any = {}
+      const where: any = {
+        ...(empresaId ? { empresaId } : {})
+      }
       if (query.papelId) {
         where.papelId = query.papelId
       }
@@ -28,10 +30,7 @@ export class AtribuicaoPapelDominioController extends BaseController {
       }
 
       const data = await this.prisma.atribuicaoPapelDominio.findMany({
-        skip,
-        take,
         where,
-        orderBy,
         include: {
           papel: true,
           dominio: true,
@@ -122,7 +121,7 @@ export class AtribuicaoPapelDominioController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)

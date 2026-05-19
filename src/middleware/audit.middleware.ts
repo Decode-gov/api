@@ -1,5 +1,5 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
+import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import type { PrismaClient } from '@prisma/client';
 
 interface AuditableRequest extends FastifyRequest {
   auditData?: {

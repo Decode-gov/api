@@ -1,6 +1,6 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 
 export class NecessidadeInformacaoController extends BaseController {
@@ -10,11 +10,13 @@ export class NecessidadeInformacaoController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
       const query = request.query as any
 
       // Construir filtros
-      const where: any = {}
+      const where: any = {
+        ...(empresaId ? { empresaId } : {})
+      }
       if (query.search) {
         where.questaoGerencial = {
           contains: query.search,
@@ -23,9 +25,6 @@ export class NecessidadeInformacaoController extends BaseController {
       }
 
       const data = await this.prisma.necessidadeInformacao.findMany({
-        skip,
-        take,
-        orderBy,
         where,
       })
 

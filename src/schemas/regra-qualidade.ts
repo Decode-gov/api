@@ -1,16 +1,15 @@
-import { z } from 'zod'
-import { TimestampsSchema } from './common.js'
-import { RegraNegocioWithRelationsSchema } from './regra-negocio.js'
-import { DimensaoQualidadeSchema } from './dimensao-qualidade.js'
-import { TabelaSchema } from './tabela.js'
-import { ColunaSchema } from './coluna.js'
-import { PapelSchema } from './papel.js'
+import { z } from 'zod';
+import { TimestampsSchema } from './common.js';
+import { RegraNegocioWithRelationsSchema } from './regra-negocio.js';
+import { DimensaoQualidadeSchema } from './dimensao-qualidade.js';
+import { TabelaSchema } from './tabela.js';
+import { ColunaSchema } from './coluna.js';
+import { PapelSchema } from './papel.js';
 
 // Schemas de relacionamentos reutilizados (pick apenas os campos necessários)
 const RegraNegocioSimplifiedSchema = RegraNegocioWithRelationsSchema.pick({
   id: true,
   descricao: true,
-  processoId: true,
   politicaId: true
 })
 
@@ -49,9 +48,11 @@ const RegraQualidadeBaseSchema = z.object({
 })
 
 // Schema completo com ID e timestamps
-export const RegraQualidadeSchema = RegraQualidadeBaseSchema.extend({
-  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da regra de qualidade')
-}).merge(TimestampsSchema.partial())
+export const RegraQualidadeSchema = z.object({
+  ...RegraQualidadeBaseSchema.shape,
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da regra de qualidade'),
+  ...TimestampsSchema.partial().shape
+})
 
 // Schema para criação (apenas campos necessários)
 export const CreateRegraQualidadeSchema = RegraQualidadeBaseSchema
@@ -87,9 +88,7 @@ export const RegraQualidadeParamsSchema = z.object({
 
 // Schema para query params
 export const RegraQualidadeQueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional(),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
-  orderBy: z.string().optional(),
+  empresaId: z.string().uuid({ message: 'empresaId deve ser um UUID válido' }).optional(),
   regraNegocioId: z.string().uuid({ message: 'regraNegocioId deve ser um UUID válido' }).optional(),
   dimensaoId: z.string().uuid({ message: 'dimensaoId deve ser um UUID válido' }).optional(),
   tabelaId: z.string().uuid({ message: 'tabelaId deve ser um UUID válido' }).optional(),

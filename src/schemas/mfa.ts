@@ -47,8 +47,7 @@ export const DisableMfaSchema = z.object({
 
 // Schema de query para listagem
 export const MfaQuerySchema = z.object({
-  skip: z.number().int().min(0).optional(),
-  take: z.number().int().min(1).max(100).optional(),
+  empresaId: z.string().uuid().optional(),
   usuarioId: z.string().optional(),
   tipo: TipoMfaEnum.optional(),
   ativo: z.boolean().optional()

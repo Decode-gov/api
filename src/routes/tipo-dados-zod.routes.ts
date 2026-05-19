@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { TipoDadosController } from '../controllers/tipo-dados.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 import {
   TipoDadosParamsSchema,
   CreateTipoDadosSchema,
@@ -10,18 +11,6 @@ import {
   TipoDadosResponseSchema,
   TiposDadosListResponseSchema
 } from '../schemas/tipo-dados.js'
-
-// Schemas Zod para validação
-const CategoriaEnum = z.enum(['PRIMITIVO', 'COMPLEXO', 'ESTRUTURADO', 'SEMI_ESTRUTURADO', 'NAO_ESTRUTURADO'])
-
-const QueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional(),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
-  orderBy: z.string().optional(),
-  categoria: CategoriaEnum.optional(),
-  permiteNulo: z.coerce.boolean().optional(),
-  nome: z.string().optional()
-})
 
 const ErrorResponseSchema = z.object({
   error: z.string(),
@@ -43,7 +32,7 @@ export async function tipoDadosZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todos os tipos de dados cadastrados no sistema',
       tags: ['Tipos de Dados'],
       summary: 'Listar tipos de dados',
-      querystring: QueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: TiposDadosListResponseSchema
       }

@@ -1,15 +1,13 @@
-import type { FastifyRequest, FastifyReply } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
 
 interface LogAuditoriaParams {
   id: string
 }
 
 interface LogAuditoriaQuery {
-  skip?: number
-  take?: number
-  orderBy?: string
+  empresaId?: string
   entidade?: string
   entidadeId?: string
   operacao?: string
@@ -34,10 +32,8 @@ export class LogAuditoriaController extends BaseController {
 
   async findMany(request: FastifyRequest<{ Querystring: LogAuditoriaQuery }>, reply: FastifyReply) {
     try {
+      const empresaId = this.getEmpresaFilter(request)
       const {
-        skip = 0,
-        take = 10,
-        orderBy = 'timestamp',
         entidade,
         entidadeId,
         operacao,
@@ -46,9 +42,9 @@ export class LogAuditoriaController extends BaseController {
         dataFim
       } = request.query
 
-      this.validatePagination({ skip, take })
-
-      const where: any = {}
+      const where: any = {
+        ...(empresaId ? { empresaId } : {})
+      }
       if (entidade) where.entidade = entidade
       if (entidadeId) where.entidadeId = entidadeId
       if (operacao) where.operacao = operacao
@@ -72,10 +68,8 @@ export class LogAuditoriaController extends BaseController {
       }
 
       const logs = await (this.prisma as any).logAuditoria.findMany({
-        skip,
-        take,
         where,
-        orderBy: { [orderBy]: 'desc' },
+        orderBy: { timestamp: 'desc' },
         include: {
           usuario: {
             select: {
@@ -87,17 +81,9 @@ export class LogAuditoriaController extends BaseController {
         }
       })
 
-      const total = await (this.prisma as any).logAuditoria.count({ where })
-
       return reply.status(200).send({
         message: 'Logs de auditoria encontrados',
-        data: logs,
-        pagination: {
-          total,
-          skip,
-          take,
-          pages: Math.ceil(total / take)
-        }
+        data: logs
       })
     } catch (error) {
       this.handleError(reply, error)
@@ -208,7 +194,7 @@ export class LogAuditoriaController extends BaseController {
   }
 
   // Método para não permitir delete (logs de auditoria são permanentes)
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     return reply.status(405).send({
       error: 'MethodNotAllowed',
       message: 'Logs de auditoria não podem ser deletados'
@@ -274,21 +260,18 @@ export class LogAuditoriaController extends BaseController {
   // Método para obter atividades recentes de um usuário
   async atividadesUsuario(request: FastifyRequest<{
     Params: { usuarioId: string }
-    Querystring: { dias?: number; skip?: number; take?: number }
+    Querystring: { dias?: number }
   }>, reply: FastifyReply) {
     try {
       const { usuarioId } = request.params
-      const { dias = 30, skip = 0, take = 20 } = request.query
+      const { dias = 30 } = request.query
 
       this.validateId(usuarioId)
-      this.validatePagination({ skip, take })
 
       const dataLimite = new Date()
       dataLimite.setDate(dataLimite.getDate() - dias)
 
       const logs = await (this.prisma as any).logAuditoria.findMany({
-        skip,
-        take,
         where: {
           usuarioId,
           timestamp: {
@@ -340,8 +323,8 @@ export class LogAuditoriaController extends BaseController {
     entidadeId: string,
     operacao: 'CREATE' | 'UPDATE' | 'DELETE',
     usuarioId: string,
-    dadosAntes?: any,
-    dadosDepois?: any
+    dadosAntes ?: any,
+    dadosDepois ?: any
   ) {
     try {
       await prisma.logAuditoria.create({

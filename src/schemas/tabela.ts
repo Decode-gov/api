@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { TimestampsSchema } from './common.js'
+import { z } from 'zod';
+import { TimestampsSchema } from './common.js';
 
 // Schema base para dados da tabela (apenas campos de input)
 const TabelaBaseSchema = z.object({
@@ -8,9 +8,11 @@ const TabelaBaseSchema = z.object({
 })
 
 // Schema completo com ID e timestamps
-export const TabelaSchema = TabelaBaseSchema.extend({
-  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da tabela')
-}).merge(TimestampsSchema.partial())
+export const TabelaSchema = z.object({
+  ...TabelaBaseSchema.shape,
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da tabela'),
+  ...TimestampsSchema.partial().shape
+})
 
 // Schema para criação (apenas campos necessários)
 export const CreateTabelaSchema = TabelaBaseSchema

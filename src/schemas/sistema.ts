@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { TimestampsSchema } from './common.js'
+import { z } from 'zod';
+import { TimestampsSchema } from './common.js';
 
 // Schema base para dados do sistema (apenas campos de input)
 const SistemaBaseSchema = z.object({
@@ -9,9 +9,11 @@ const SistemaBaseSchema = z.object({
 })
 
 // Schema completo com ID e timestamps
-export const SistemaSchema = SistemaBaseSchema.extend({
-  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do sistema')
-}).merge(TimestampsSchema.partial())
+export const SistemaSchema = z.object({
+  ...SistemaBaseSchema.shape,
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do sistema'),
+  ...TimestampsSchema.partial().shape
+})
 
 // Schema para criação (apenas campos necessários)
 export const CreateSistemaSchema = SistemaBaseSchema

@@ -1,6 +1,5 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { ImportacaoExportacaoController } from '../controllers/importacao-exportacao.controller.js'
 import {
   ExportacaoQuerySchema,
   ImportacaoSchema,
@@ -12,6 +11,7 @@ import {
   ImportacaoExportacaoParamsSchema
 } from '../schemas/importacao-exportacao.js'
 import { ErrorSchema } from '../schemas/common.js'
+import { ImportacaoExportacaoController } from '../controllers/importacao-exportacao.controller.js';
 
 export async function importacaoExportacaoZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()

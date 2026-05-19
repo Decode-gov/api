@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 // Schema base do tipo de dados usando Zod v4
 export const TipoDadosSchema = z.object({

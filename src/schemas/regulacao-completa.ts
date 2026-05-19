@@ -2,14 +2,12 @@ import { z } from 'zod'
 
 // Schema para parâmetros de rota
 export const RegulacaoCompletaParamsSchema = z.object({
-  id: z.string().uuid({ message: 'ID deve ser um UUID válido' })
+  id: z.uuid({ message: 'ID deve ser um UUID válido' })
 })
 
 // Schema para query params
 export const RegulacaoCompletaQueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional(),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
-  orderBy: z.string().optional(),
+  empresaId: z.uuid().optional(),
   orgao: z.string().optional(),
   ativo: z.coerce.boolean().optional()
 })
@@ -34,22 +32,22 @@ export const UpdateRegulacaoCompletaSchema = z.object({
 
 // Schema de regulação com relacionamentos
 export const RegulacaoCompletaWithRelationsSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   epigrafe: z.string(),
   orgao: z.string(),
   descricao: z.string(),
   dataInicio: z.coerce.date(),
   dataFim: z.coerce.date().nullable(),
   criticidadesRegulatorias: z.array(z.object({
-    id: z.string().uuid(),
-    regulacaoId: z.string().uuid(),
-    regraQualidadeId: z.string().uuid(),
+    id: z.uuid(),
+    regulacaoId: z.uuid(),
+    regraQualidadeId: z.uuid(),
     grauCriticidade: z.string(),
     regraQualidade: z.object({
-      id: z.string().uuid(),
+      id: z.uuid(),
       descricao: z.string(),
       dimensao: z.object({
-        id: z.string().uuid(),
+        id: z.uuid(),
         nome: z.string()
       })
     })

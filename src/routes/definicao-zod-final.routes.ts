@@ -2,18 +2,12 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { DefinicaoController } from '../controllers/definicao.controller.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 import { CreateDefinicaoSchema, DefinicaoSchema, UpdateDefinicaoSchema } from '../schemas/definicao.js'
 
 export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new DefinicaoController(app.prisma)
-
-  const QueryParamsSchema = z.object({
-    skip: z.coerce.number().int().min(0).default(0),
-    take: z.coerce.number().int().min(1).max(100).default(10),
-    orderBy: z.string().optional(),
-    search: z.string().optional()
-  })
 
   const ParamsSchema = z.object({
     id: z.uuid()
@@ -40,7 +34,7 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as termos do sistema',
       tags: ['Termos'],
       summary: 'Listar termos',
-      querystring: QueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: ListResponseSchema
       }

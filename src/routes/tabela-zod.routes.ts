@@ -23,7 +23,6 @@ export async function tabelaZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as tabelas cadastradas no sistema com seus relacionamentos',
       tags: ['Tabelas'],
       summary: 'Listar tabelas',
-      querystring: PaginationSchema,
       response: {
         200: TabelasListResponseSchema
       }

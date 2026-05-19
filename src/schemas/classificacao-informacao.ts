@@ -1,7 +1,7 @@
-import { z } from 'zod'
-import { DefinicaoSchema } from './definicao'
-import { ListaReferenciaSchema } from './lista-referencia'
-import { ListaClassificacaoSchema } from '../routes/lista-classificacao-zod.routes'
+import { z } from 'zod';
+import { DefinicaoSchema } from './definicao';
+import { ListaReferenciaSchema } from './lista-referencia';
+import { ListaClassificacaoSchema } from '../routes/lista-classificacao-zod.routes';
 
 // Schema base da classificação de informação usando Zod v4
 export const ClassificacaoInformacaoSchema = z.object({

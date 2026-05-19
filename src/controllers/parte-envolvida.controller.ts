@@ -1,15 +1,13 @@
-import type { FastifyRequest, FastifyReply } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
 
 interface ParteEnvolvidaParams {
   id: string
 }
 
 interface ParteEnvolvidaQuery {
-  skip?: number
-  take?: number
-  orderBy?: string
+  empresaId?: string
   search?: string
 }
 
@@ -26,11 +24,12 @@ export class ParteEnvolvidaController extends BaseController {
 
   async findMany(request: FastifyRequest<{ Querystring: ParteEnvolvidaQuery }>, reply: FastifyReply) {
     try {
-      const { skip = 0, take = 10, orderBy = 'nome', search } = request.query
+      const empresaId = this.getEmpresaFilter(request)
+      const { search } = request.query
 
-      this.validatePagination({ skip, take })
-
-      const where: any = {}
+      const where: any = {
+        ...(empresaId ? { empresaId } : {})
+      }
       if (search) {
         where.OR = [
           { nome: { contains: search, mode: 'insensitive' } },
@@ -40,23 +39,12 @@ export class ParteEnvolvidaController extends BaseController {
       }
 
       const partes = await (this.prisma as any).parteEnvolvida.findMany({
-        skip,
-        take,
-        where,
-        orderBy: { [orderBy]: 'asc' }
+        where
       })
-
-      const total = await (this.prisma as any).parteEnvolvida.count({ where })
 
       return reply.status(200).send({
         message: 'Partes envolvidas encontradas',
-        data: partes,
-        pagination: {
-          total,
-          skip,
-          take,
-          pages: Math.ceil(total / take)
-        }
+        data: partes
       })
     } catch (error) {
       this.handleError(reply, error)
@@ -176,7 +164,7 @@ export class ParteEnvolvidaController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest<{ Params: ParteEnvolvidaParams }>, reply: FastifyReply) {
+  async delete (request: FastifyRequest<{ Params: ParteEnvolvidaParams }>, reply: FastifyReply) {
     try {
       const { id } = request.params
       this.validateId(id)

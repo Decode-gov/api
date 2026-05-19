@@ -1,6 +1,6 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
 
 interface ListaReferenciaBody {
   nome: string
@@ -17,12 +17,10 @@ export class ListaReferenciaController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
 
       const data = await (this.prisma as any).listaReferencia.findMany({
-        skip,
-        take,
-        orderBy: typeof orderBy === 'object' ? orderBy : { nome: 'asc' },
+        where: empresaId ? { empresaId } : undefined,
         include: {
           tabela: {
             select: { id: true, nome: true }
@@ -176,7 +174,7 @@ export class ListaReferenciaController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -194,7 +192,7 @@ export class ListaReferenciaController extends BaseController {
     }
   }
 
-  private validarValores(valores: string): { success: boolean; valores?: string[]; error?: string } {
+  private validarValores(valores: string): { success: boolean; valores ?: string[]; error ?: string } {
     try {
       let parsedValores: any
 

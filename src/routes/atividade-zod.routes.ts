@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { AtividadeController } from '../controllers/atividade.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 import {
   AtividadeParamsSchema,
   CreateAtividadeSchema,
@@ -14,16 +15,6 @@ import {
 // Schemas Zod para validação
 const StatusEnum = z.enum(['PLANEJADA', 'EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA', 'PAUSADA'])
 const PrioridadeEnum = z.enum(['BAIXA', 'MEDIA', 'ALTA', 'CRITICA'])
-
-const QueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional(),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
-  orderBy: z.string().optional(),
-  status: StatusEnum.optional(),
-  prioridade: PrioridadeEnum.optional(),
-  processoId: z.uuid().optional(),
-  responsavel: z.string().optional()
-})
 
 const ErrorResponseSchema = z.object({
   error: z.string(),
@@ -45,7 +36,7 @@ export async function atividadeZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as atividades cadastradas no sistema',
       tags: ['Atividades'],
       summary: 'Listar atividades',
-      querystring: QueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: AtividadesListResponseSchema
       }

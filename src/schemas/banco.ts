@@ -1,6 +1,6 @@
-import { z } from 'zod'
-import { TimestampsSchema } from './common.js'
-import { SistemaSchema } from './sistema.js'
+import { z } from 'zod';
+import { TimestampsSchema } from './common.js';
+import { SistemaSchema } from './sistema.js';
 
 // Schema base para dados do banco (apenas campos de input)
 const BancoBaseSchema = z.object({
@@ -10,9 +10,11 @@ const BancoBaseSchema = z.object({
 })
 
 // Schema completo com ID e timestamps
-export const BancoSchema = BancoBaseSchema.extend({
-  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do banco')
-}).merge(TimestampsSchema.partial())
+export const BancoSchema = z.object({
+  ...BancoBaseSchema.shape,
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único do banco'),
+  ...TimestampsSchema.partial().shape
+})
 
 // Schema para criação (apenas campos necessários)
 export const CreateBancoSchema = BancoBaseSchema

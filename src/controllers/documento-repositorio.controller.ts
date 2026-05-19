@@ -1,6 +1,6 @@
-﻿import type { FastifyRequest, FastifyReply } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+﻿import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class DocumentoRepositorioController extends BaseController {
   constructor(prisma: PrismaClient) {
@@ -9,19 +9,17 @@ export class DocumentoRepositorioController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip = 0, take = 10, orderBy = 'dataUpload', termoId, repositorioId } = request.query as any
+      const empresaId = this.getEmpresaFilter(request)
+      const { termoId, repositorioId } = request.query as any
 
-      this.validatePagination({ skip, take })
-
-      const where: any = {}
+      const where: any = {
+        ...(empresaId ? { empresaId } : {})
+      }
       if (termoId) where.termoId = termoId
       if (repositorioId) where.repositorioId = repositorioId
 
       const documentos = await (this.prisma as any).documentoRepositorio.findMany({
-        skip,
-        take,
         where,
-        orderBy: { [orderBy]: orderBy === 'createdAt' ? 'desc' : 'asc' },
         include: {
           termo: {
             select: {
@@ -42,17 +40,9 @@ export class DocumentoRepositorioController extends BaseController {
         }
       })
 
-      const total = await (this.prisma as any).documentoRepositorio.count({ where })
-
       return reply.status(200).send({
         message: 'Documentos encontrados',
-        data: documentos,
-        pagination: {
-          total,
-          skip,
-          take,
-          pages: Math.ceil(total / take)
-        }
+        data: documentos
       })
     } catch (error) {
       this.handleError(reply, error)
@@ -248,7 +238,7 @@ export class DocumentoRepositorioController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as any
       this.validateId(id)

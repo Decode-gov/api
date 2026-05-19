@@ -21,7 +21,9 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   nome: nomeSchema,
   email: emailSchema,
-  senha: passwordSchema
+  senha: passwordSchema,
+  tipo: z.enum(['ADMIN', 'USUARIO']).default('USUARIO').describe('Tipo do usuário'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para USUARIO)')
 })
 
 export const changePasswordSchema = z.object({
@@ -40,6 +42,7 @@ export const userSchema = z.object({
   id: uuidSchema,
   nome: nomeSchema,
   email: emailSchema,
+  tipo: z.enum(['ADMIN', 'USUARIO']).default('USUARIO').describe('Tipo do usuário'),
   ativo: z.boolean().describe('Status de ativação do usuário'),
   createdAt: z.iso.datetime({ message: 'Data de criação inválida' }).optional().describe('Data de criação'),
   updatedAt: z.iso.datetime({ message: 'Data de atualização inválida' }).optional().describe('Data de última atualização')
@@ -49,6 +52,8 @@ export const userSchema = z.object({
 export const jwtPayloadSchema = z.object({
   userId: uuidSchema,
   email: emailSchema,
+  tipo: z.enum(['ADMIN', 'USUARIO']).describe('Tipo do usuário'),
+  empresaId: z.uuid().optional().describe('ID da empresa (preenchido para USUARIO)'),
   iat: z.number().optional(),
   exp: z.number().optional()
 })

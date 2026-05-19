@@ -1,21 +1,19 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
-import type { CreateSistema, UpdateSistema } from '../schemas/sistema.js'
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import type { CreateSistema, UpdateSistema } from '../schemas/sistema.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class SistemaController extends BaseController {
   constructor(prisma: PrismaClient) {
     super(prisma, 'sistema')
   }
 
-  async findMany(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async findMany(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
 
       const data = await this.prisma.sistema.findMany({
-        skip,
-        take,
-        orderBy: orderBy && typeof orderBy === 'string' ? { [orderBy]: 'asc' } : { nome: 'asc' },
+        where: empresaId ? { empresaId } : undefined,
         select: {
           id: true,
           nome: true,
@@ -39,12 +37,12 @@ export class SistemaController extends BaseController {
         message: 'Sistemas encontrados',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async findById(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async findById(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -71,7 +69,7 @@ export class SistemaController extends BaseController {
         }
       })
 
-      if (!data) {
+      if(!data) {
         return reply.status(404).send({
           error: 'Sistema não encontrado'
         })
@@ -81,12 +79,12 @@ export class SistemaController extends BaseController {
         message: 'Sistema encontrado',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async create(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async create(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const body = request.body as CreateSistema
 
@@ -106,12 +104,12 @@ export class SistemaController extends BaseController {
         message: 'Sistema criado com sucesso',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async update(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async update(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -132,12 +130,12 @@ export class SistemaController extends BaseController {
         message: 'Sistema atualizado com sucesso',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async delete (request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -147,29 +145,29 @@ export class SistemaController extends BaseController {
         where: { sistemaId: validId }
       })
 
-      if (bancosUsandoSistema > 0) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: `Não é possível deletar o sistema. Ele está sendo usado por ${bancosUsandoSistema} banco(s).`
-        })
-      }
+      if(bancosUsandoSistema > 0) {
+    return reply.status(400).send({
+      error: 'BadRequest',
+      message: `Não é possível deletar o sistema. Ele está sendo usado por ${bancosUsandoSistema} banco(s).`
+    })
+  }
 
-      const data = await this.prisma.sistema.delete({
-        where: { id: validId },
-        select: {
-          id: true,
-          nome: true,
-          descricao: true,
-          repositorio: true
-        }
-      })
-
-      return reply.send({
-        message: 'Sistema excluído com sucesso',
-        data
-      })
-    } catch (error) {
-      this.handleError(reply, error)
+  const data = await this.prisma.sistema.delete({
+    where: { id: validId },
+    select: {
+      id: true,
+      nome: true,
+      descricao: true,
+      repositorio: true
     }
+  })
+
+  return reply.send({
+    message: 'Sistema excluído com sucesso',
+    data
+  })
+} catch (error) {
+  this.handleError(reply, error)
+}
   }
 }

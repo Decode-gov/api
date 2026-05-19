@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 // Schema base do papel usando Zod v4
 export const PapelSchema = z.object({

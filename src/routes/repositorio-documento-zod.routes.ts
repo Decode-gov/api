@@ -8,10 +8,10 @@ import {
   RepositorioDocumentoResponseSchema,
   RepositoriosDocumentoListResponseSchema,
   type RepositorioDocumentoParams,
-  type RepositorioDocumentoQueryParams,
   type CreateRepositorioDocumento,
   type UpdateRepositorioDocumento
 } from '../schemas/repositorio-documento.js'
+import { SuccessMessageSchema } from '../schemas/common.js'
 import { RepositorioDocumentoController } from '../controllers/repositorio-documento.controller.js'
 
 export async function repositorioDocumentoZodRoutes(fastify: FastifyInstance) {
@@ -19,9 +19,7 @@ export async function repositorioDocumentoZodRoutes(fastify: FastifyInstance) {
   const controller = new RepositorioDocumentoController(fastify.prisma)
 
   // GET /repositorios-documento - Listar repositórios
-  server.get<{
-    Querystring: RepositorioDocumentoQueryParams
-  }>('/', {
+  server.get('/', {
     schema: {
       description: 'Listar repositórios de documentos com filtros opcionais',
       tags: ['Repositórios de Documento'],
@@ -98,12 +96,7 @@ export async function repositorioDocumentoZodRoutes(fastify: FastifyInstance) {
       summary: 'Deletar repositório',
       params: RepositorioDocumentoParamsSchema,
       response: {
-        200: {
-          type: 'object',
-          properties: {
-            message: { type: 'string' }
-          }
-        }
+        200: SuccessMessageSchema
       }
     }
   }, async (request, reply) => {

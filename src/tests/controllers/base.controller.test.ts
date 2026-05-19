@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { BaseController } from '../../controllers/base.controller.js'
-import { createMockReply, mockPrisma } from '../setup.js'
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { BaseController } from '../../controllers/base.controller.js';
+import { createMockReply, mockPrisma } from '../setup.js';
 
-class TestController extends BaseController {
+class Testextends BaseController {
   constructor(prisma: any) {
     super(prisma, 'test')
   }
@@ -11,7 +11,7 @@ class TestController extends BaseController {
   async findById() { return { data: {} } }
   async create() { return { data: {} } }
   async update() { return { data: {} } }
-  async delete() { return { data: {} } }
+  async delete () { return { data: {} } }
 
   // Métodos públicos para testes
   public testValidateId(id: string) {

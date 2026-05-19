@@ -1,4 +1,4 @@
-﻿import { z } from 'zod'
+﻿import { z } from 'zod';
 
 // Schema para parâmetros de rota
 export const DocumentoRepositorioParamsSchema = z.object({
@@ -7,9 +7,7 @@ export const DocumentoRepositorioParamsSchema = z.object({
 
 // Schema para query params
 export const DocumentoRepositorioQueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0),
-  take: z.coerce.number().int().min(1).max(100).default(10),
-  orderBy: z.string().optional().default('createdAt'),
+  empresaId: z.string().uuid().optional(),
   termoId: z.string().uuid().optional(),
   repositorioId: z.string().uuid().optional()
 })
@@ -54,13 +52,7 @@ export const DocumentoRepositorioResponseSchema = z.object({
 // Schema para lista de respostas
 export const DocumentosRepositorioListResponseSchema = z.object({
   message: z.string(),
-  data: z.array(DocumentoRepositorioWithRelationsSchema),
-  pagination: z.object({
-    total: z.number(),
-    skip: z.number(),
-    take: z.number(),
-    pages: z.number()
-  })
+  data: z.array(DocumentoRepositorioWithRelationsSchema)
 })
 
 // Tipos TypeScript inferidos

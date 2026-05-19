@@ -5,12 +5,14 @@ export const IdSchema = z.object({
   id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único')
 })
 
-// Schema comum para paginação com coerção de tipos
-export const PaginationSchema = z.object({
-  skip: z.coerce.number().int().min(0, { message: 'Skip deve ser >= 0' }).optional().describe('Número de registros para pular'),
-  take: z.coerce.number().int().min(1, { message: 'Take deve ser >= 1' }).max(100, { message: 'Take deve ser <= 100' }).optional().describe('Número de registros para retornar'),
-  orderBy: z.string().optional().describe('Campo para ordenação')
+// Schema de filtro por empresa para rotas GET
+export const EmpresaFilterSchema = z.object({
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional()
+    .describe('Filtrar por empresa (somente ADMIN; USUARIO usa o empresaId do token automaticamente)')
 })
+
+// Mantido por compatibilidade — sem paginação
+export const PaginationSchema = EmpresaFilterSchema
 
 // Schema comum para timestamps usando z.iso.datetime() do Zod v4
 export const TimestampsSchema = z.object({

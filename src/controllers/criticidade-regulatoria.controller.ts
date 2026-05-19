@@ -1,6 +1,6 @@
-﻿import type { FastifyRequest, FastifyReply } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+﻿import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class CriticidadeRegulatoriaController extends BaseController {
   constructor(prisma: PrismaClient) {
@@ -9,12 +9,14 @@ export class CriticidadeRegulatoriaController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
       const query = request.query as any
-      const where: any = {}
+      const where: any = {
+        ...(empresaId ? { empresaId } : {})
+      }
       if (query.regulacaoId) where.regulacaoId = query.regulacaoId
       if (query.regraQualidadeId) where.regraQualidadeId = query.regraQualidadeId
-      const data = await this.prisma.criticidadeRegulatoria.findMany({ skip, take, where, orderBy, include: { regulacao: { select: { id: true, epigrafe: true, orgao: true, descricao: true } }, regraQualidade: { select: { id: true, descricao: true, dimensao: { select: { id: true, nome: true } } } } } })
+      const data = await this.prisma.criticidadeRegulatoria.findMany({ where, include: { regulacao: { select: { id: true, epigrafe: true, orgao: true, descricao: true } }, regraQualidade: { select: { id: true, descricao: true, dimensao: { select: { id: true, nome: true } } } } } })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -78,7 +80,7 @@ export class CriticidadeRegulatoriaController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)

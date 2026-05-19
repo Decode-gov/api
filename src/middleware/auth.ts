@@ -44,3 +44,18 @@ export function generateToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string 
     expiresIn: '24h'
   })
 }
+
+export async function adminMiddleware(
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<void> {
+  await authMiddleware(request, reply)
+
+  if (reply.sent) return
+
+  if (request.user?.tipo !== 'ADMIN') {
+    return reply.status(403).send({
+      error: 'Acesso negado. Apenas administradores podem acessar este recurso.'
+    })
+  }
+}

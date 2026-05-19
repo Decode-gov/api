@@ -7,9 +7,7 @@ export const CriticidadeRegulatoriaParamsSchema = z.object({
 
 // Schema para query params
 export const CriticidadeRegulatoriaQueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional(),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
-  orderBy: z.string().optional(),
+  empresaId: z.string().uuid({ message: 'empresaId deve ser um UUID válido' }).optional(),
   regulacaoId: z.string().uuid({ message: 'regulacaoId deve ser um UUID válido' }).optional(),
   regraQualidadeId: z.string().uuid({ message: 'regraQualidadeId deve ser um UUID válido' }).optional()
 })

@@ -1,6 +1,6 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class RegraNegocioController extends BaseController {
   constructor(prisma: PrismaClient) {
@@ -9,20 +9,19 @@ export class RegraNegocioController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
       const query = request.query as any
 
-      const where: any = {}
+      const where: any = {
+        ...(empresaId ? { empresaId } : {})
+      }
       if (query.politicaId) where.politicaId = query.politicaId
       if (query.sistemaId) where.sistemaId = query.sistemaId
       if (query.responsavelId) where.responsavelId = query.responsavelId
       if (query.termoId) where.termoId = query.termoId
 
       const data = await this.prisma.regraNegocio.findMany({
-        skip,
-        take,
         where,
-        orderBy,
         select: {
           id: true,
           descricao: true,
@@ -309,7 +308,7 @@ export class RegraNegocioController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)

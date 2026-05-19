@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 // Enum para operações de auditoria
 export const OperacaoAuditoriaEnum = z.enum(['CREATE', 'UPDATE', 'DELETE'])
@@ -28,9 +28,7 @@ export const LogAuditoriaComUsuarioSchema = LogAuditoriaSchema.extend({
 
 // Schema para query de listagem com coerção do Zod v4
 export const AuditoriaQuerySchema = z.object({
-  skip: z.coerce.number().int().min(0, { message: 'Skip deve ser >= 0' }).optional().describe('Registros para pular'),
-  take: z.coerce.number().int().min(1, { message: 'Take deve ser >= 1' }).max(100, { message: 'Máximo 100 registros' }).optional().describe('Registros para retornar'),
-  orderBy: z.string().optional().describe('Campo para ordenação'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('Filtrar por empresa'),
   entidade: z.string().optional().describe('Filtrar por entidade'),
   entidadeId: z.uuid({ message: 'ID da entidade deve ser um UUID válido' }).optional().describe('Filtrar por ID da entidade'),
   operacao: OperacaoAuditoriaEnum.optional().describe('Filtrar por tipo de operação'),
@@ -61,9 +59,7 @@ export const AtividadesUsuarioParamsSchema = z.object({
 })
 
 export const AtividadesUsuarioQuerySchema = z.object({
-  dias: z.coerce.number().int().min(1, { message: 'Mínimo 1 dia' }).max(365, { message: 'Máximo 365 dias' }).optional().describe('Número de dias para análise'),
-  skip: z.coerce.number().int().min(0, { message: 'Skip deve ser >= 0' }).optional().describe('Registros para pular'),
-  take: z.coerce.number().int().min(1, { message: 'Take deve ser >= 1' }).max(100, { message: 'Máximo 100 registros' }).optional().describe('Registros para retornar')
+  dias: z.coerce.number().int().min(1, { message: 'Mínimo 1 dia' }).max(365, { message: 'Máximo 365 dias' }).optional().describe('Número de dias para análise')
 })
 
 // Schemas de resposta

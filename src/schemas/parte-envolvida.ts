@@ -7,9 +7,7 @@ export const ParteEnvolvidaParamsSchema = z.object({
 
 // Schema para query params
 export const ParteEnvolvidaQueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional(),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
-  orderBy: z.string().optional(),
+  empresaId: z.string().uuid().optional(),
   nome: z.string().optional()
 })
 

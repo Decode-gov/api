@@ -10,7 +10,6 @@ export abstract class BaseController {
   }
 
   protected validateId(id: string): string {
-    // Em ambiente de teste, aceita qualquer string
     if (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true') {
       return id
     }
@@ -22,12 +21,15 @@ export abstract class BaseController {
     return result.data
   }
 
-  protected validatePagination(query: any) {
-    const skip = query?.skip ? Number(query.skip) : 0
-    const take = query?.take ? Math.min(Number(query.take), 100) : 20
-    const orderBy = query?.orderBy
+  protected getEmpresaFilter(request: FastifyRequest): string | undefined {
+    const user = (request as any).user
+    if (!user) return undefined
 
-    return { skip, take, orderBy }
+    if (user.tipo === 'ADMIN') {
+      return (request.query as any)?.empresaId || undefined
+    }
+
+    return user.empresaId || undefined
   }
 
   protected handleError(reply: FastifyReply, error: any) {

@@ -46,7 +46,5 @@ export const ProcessoParamsSchema = z.object({
 
 // Schema para query de listagem
 export const ProcessoQuerySchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).describe('Número de registros a pular'),
-  take: z.coerce.number().int().min(1).max(100).default(10).describe('Número de registros a retornar'),
-  orderBy: z.string().optional().describe('Campo para ordenação')
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('Filtrar por empresa')
 })

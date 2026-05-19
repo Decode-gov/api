@@ -3,22 +3,22 @@ version: '3.8'
 services:
   postgres:
     image: bitnami/postgresql
-    container_name: gdados
+    container_name: decode-gov
     environment:
-      POSTGRES_DB: gdados
+      POSTGRES_DB: decode-gov
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-      - gdados:/var/lib/postgresql/data
+      - decode-gov:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
-      - dean-network
+      - decode-gov-network
 
 networks:
-  dean-network:
-    name: dean-network
+  decode-gov-network:
+    name: decode-gov-network
     driver: bridge
 
 volumes:
-  gdados:
+  decode-gov:

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 // Schema base da atividade usando Zod v4
 export const AtividadeSchema = z.object({
@@ -63,8 +63,7 @@ export const UpdateAtividadeSchema = z.object({
 export const AtividadeWithRelationsSchema = AtividadeSchema.extend({
   processo: z.object({
     id: z.uuid({ message: 'ID inválido' }).describe('ID do processo'),
-    nome: z.string().describe('Nome do processo'),
-    codigo: z.string().optional().describe('Código do processo')
+    nome: z.string().describe('Nome do processo')
   }).describe('Processo relacionado'),
   sistema: z.object({
     id: z.uuid({ message: 'ID inválido' }).describe('ID do sistema'),

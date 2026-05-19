@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { ClassificacaoInformacaoController } from '../controllers/classificacao-informacao.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 import {
   ClassificacaoInformacaoParamsSchema,
   CreateClassificacaoInformacaoSchema,
@@ -14,13 +15,6 @@ import {
 export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new ClassificacaoInformacaoController(app.prisma)
-
-  // Schemas adicionais
-  const QueryParamsSchema = z.object({
-    skip: z.coerce.number().int().min(0).default(0),
-    take: z.coerce.number().int().min(1).max(100).default(10),
-    orderBy: z.string().optional(),
-  })
 
   const ErrorResponseSchema = z.object({
     error: z.string(),
@@ -38,7 +32,7 @@ export async function classificacaoInformacaoZodRoutes(fastify: FastifyInstance)
       description: 'Listar todas as classificações de informação cadastradas',
       tags: ['Classificações de Informação'],
       summary: 'Listar classificações de informação',
-      querystring: QueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: ClassificacoesListResponseSchema
       }

@@ -1,7 +1,7 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
-import { PoliticaInternaParamsSchema } from '../schemas/politica-interna.js'
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import { PoliticaInternaParamsSchema } from '../schemas/politica-interna.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class PoliticaInternaController extends BaseController {
   constructor(prisma: PrismaClient) {
@@ -10,10 +10,10 @@ export class PoliticaInternaController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
 
       const data = await this.prisma.politicaInterna.findMany({
-        orderBy,
+        where: empresaId ? { empresaId } : undefined,
         include: {
           dominioDados: true,
         }
@@ -88,7 +88,7 @@ export class PoliticaInternaController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = await PoliticaInternaParamsSchema.parseAsync(request.params)
       const validId = this.validateId(id)

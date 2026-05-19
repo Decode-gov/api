@@ -3,10 +3,10 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { ComiteAprovadorController } from '../controllers/comite-aprovador.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 import {
   CreateComiteAprovadorSchema,
   UpdateComiteAprovadorSchema,
-  ComiteAprovadorQueryParamsSchema,
   ComiteAprovadorParamsSchema,
   ComiteAprovadorResponseSchema,
   ComitesAprovadoresListResponseSchema,
@@ -29,7 +29,7 @@ export async function comiteAprovadorZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todos os comitês aprovadores cadastrados no sistema',
       tags: ['Comitês Aprovadores'],
       summary: 'Listar comitês aprovadores',
-      querystring: ComiteAprovadorQueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: ComitesAprovadoresListResponseSchema
       }

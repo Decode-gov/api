@@ -1,8 +1,9 @@
-import type { FastifyInstance } from 'fastify'
-import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { z } from 'zod'
-import { KpiController } from '../controllers/kpi.controller.js'
-import { authMiddleware } from '../middleware/auth.js'
+import type { FastifyInstance } from 'fastify';
+import type { ZodTypeProvider } from 'fastify-type-provider-zod';
+import { z } from 'zod';
+import { KpiController } from '../controllers/kpi.controller.js';
+import { authMiddleware } from '../middleware/auth.js';
+import { EmpresaFilterSchema } from '../schemas/common.js';
 
 // Schemas Zod para validação
 const KpiSchema = z.object({
@@ -25,13 +26,6 @@ const KpiWithRelationsSchema = KpiSchema.extend({
   }).nullable()
 })
 
-const QueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional(),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
-  orderBy: z.string().optional(),
-  comunidadeId: z.uuid().optional(),
-  processoId: z.uuid().optional()
-})
 
 const ParamsSchema = z.object({
   id: z.uuid()
@@ -79,7 +73,7 @@ export async function kpiZodFinalRoutes(fastify: FastifyInstance) {
       description: 'Listar todos os KPIs do sistema com relacionamentos',
       tags: ['KPIs'],
       summary: 'Listar KPIs',
-      querystring: QueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: ListResponseSchema
       }

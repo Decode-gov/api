@@ -47,9 +47,7 @@ export const NecessidadeInformacaoParamsSchema = z.object({
 
 // Schema para query string de listagem
 export const NecessidadeInformacaoQuerySchema = z.object({
-  skip: z.coerce.number().int().min(0, { message: 'Skip deve ser >= 0' }).default(0).describe('Registros para pular'),
-  take: z.coerce.number().int().min(1, { message: 'Take deve ser >= 1' }).max(100, { message: 'Máximo 100 registros' }).default(10).describe('Registros para retornar'),
-  orderBy: z.string().optional().describe('Campo para ordenação'),
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('Filtrar por empresa'),
   search: z.string().optional().describe('Busca em questão gerencial')
 })
 

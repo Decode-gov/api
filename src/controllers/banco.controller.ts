@@ -1,21 +1,19 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
-import type { CreateBanco, UpdateBanco } from '../schemas/banco.js'
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import type { CreateBanco, UpdateBanco } from '../schemas/banco.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class BancoController extends BaseController {
   constructor(prisma: PrismaClient) {
     super(prisma, 'banco')
   }
 
-  async findMany(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async findMany(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
 
       const data = await this.prisma.banco.findMany({
-        skip,
-        take,
-        orderBy: orderBy && typeof orderBy === 'string' ? { [orderBy]: 'asc' } : { nome: 'asc' },
+        where: empresaId ? { empresaId } : undefined,
         select: {
           id: true,
           nome: true,
@@ -36,12 +34,12 @@ export class BancoController extends BaseController {
         message: 'Bancos encontrados',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async findById(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async findById(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -64,7 +62,7 @@ export class BancoController extends BaseController {
         }
       })
 
-      if (!data) {
+      if(!data) {
         return reply.status(404).send({
           message: 'Banco não encontrado',
           error: 'NotFound'
@@ -75,12 +73,12 @@ export class BancoController extends BaseController {
         message: 'Banco encontrado',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async create(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async create(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const body = request.body as CreateBanco
 
@@ -109,12 +107,12 @@ export class BancoController extends BaseController {
         message: 'Banco criado com sucesso',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async update(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async update(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -146,12 +144,12 @@ export class BancoController extends BaseController {
         message: 'Banco atualizado com sucesso',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async delete (request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -161,37 +159,37 @@ export class BancoController extends BaseController {
         where: { bancoId: validId }
       })
 
-      if (tabelasUsandoBanco > 0) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: `Não é possível deletar o banco de dados. Ele está sendo usado por ${tabelasUsandoBanco} tabela(s).`
-        })
-      }
+      if(tabelasUsandoBanco > 0) {
+    return reply.status(400).send({
+      error: 'BadRequest',
+      message: `Não é possível deletar o banco de dados. Ele está sendo usado por ${tabelasUsandoBanco} tabela(s).`
+    })
+  }
 
-      const data = await this.prisma.banco.delete({
-        where: { id: validId },
+  const data = await this.prisma.banco.delete({
+    where: { id: validId },
+    select: {
+      id: true,
+      nome: true,
+      sistemaId: true,
+      sistema: {
         select: {
           id: true,
           nome: true,
-          sistemaId: true,
-          sistema: {
-            select: {
-              id: true,
-              nome: true,
-              repositorio: true,
-              createdAt: true,
-              updatedAt: true
-            }
-          }
+          repositorio: true,
+          createdAt: true,
+          updatedAt: true
         }
-      })
-
-      return reply.send({
-        message: 'Banco excluído com sucesso',
-        data
-      })
-    } catch (error) {
-      this.handleError(reply, error)
+      }
     }
+  })
+
+  return reply.send({
+    message: 'Banco excluído com sucesso',
+    data
+  })
+} catch (error) {
+  this.handleError(reply, error)
+}
   }
 }

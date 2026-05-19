@@ -1,6 +1,6 @@
-﻿import type { FastifyRequest, FastifyReply } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+﻿import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class RegulacaoCompletaController extends BaseController {
   constructor(prisma: PrismaClient) {
@@ -9,9 +9,11 @@ export class RegulacaoCompletaController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
       const query = request.query as any
-      const where: any = {}
+      const where: any = {
+        ...(empresaId ? { empresaId } : {})
+      }
       if (query.orgao) where.orgao = { contains: query.orgao, mode: 'insensitive' }
       if (query.ativo !== undefined) {
         const hoje = new Date()
@@ -21,7 +23,7 @@ export class RegulacaoCompletaController extends BaseController {
           where.dataFim = { lt: hoje }
         }
       }
-      const data = await this.prisma.regulacaoCompleta.findMany({ skip, take, where, orderBy, include: { criticidadesRegulatorias: { include: { regraQualidade: { select: { id: true, descricao: true, dimensao: { select: { id: true, nome: true } } } } } } } })
+      const data = await this.prisma.regulacaoCompleta.findMany({ where, include: { criticidadesRegulatorias: { include: { regraQualidade: { select: { id: true, descricao: true, dimensao: { select: { id: true, nome: true } } } } } } } })
       return { data }
     } catch (error) {
       return this.handleError(reply, error)
@@ -84,7 +86,7 @@ export class RegulacaoCompletaController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)

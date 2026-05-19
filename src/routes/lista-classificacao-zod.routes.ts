@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { ListaClassificacaoController } from '../controllers/lista-classificacao.controller.js'
 import { PoliticaInternaSchema } from '../schemas/politica-interna.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 
 export const ListaClassificacaoSchema = z.object({
   id: z.uuid(),
@@ -19,12 +20,6 @@ export async function listaClassificacaoRoutes(fastify: FastifyInstance) {
   const controller = new ListaClassificacaoController(app.prisma)
 
   // Schemas Zod
-
-  const QueryParamsSchema = z.object({
-    skip: z.coerce.number().int().min(0).default(0),
-    take: z.coerce.number().int().min(1).max(100).default(10),
-    orderBy: z.string().optional(),
-  })
 
   const ParamsSchema = z.object({
     id: z.uuid()
@@ -65,7 +60,7 @@ export async function listaClassificacaoRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as listas de classificação de segurança do sistema',
       tags: ['Listas de Classificação'],
       summary: 'Listar listas de classificação',
-      querystring: QueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: ListResponseSchema
       }

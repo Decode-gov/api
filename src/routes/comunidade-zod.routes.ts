@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { ComunidadeController } from '../controllers/comunidade.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 import {
   CreateComunidadeSchema,
   UpdateComunidadeSchema,
@@ -12,13 +13,6 @@ import {
   ComunidadeDeleteResponseSchema,
   ComunidadeParamsSchema
 } from '../schemas/comunidade.js'
-
-// Schemas Zod para validação
-const QueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional(),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
-  orderBy: z.string().optional()
-})
 
 const ErrorResponseSchema = z.object({
   error: z.string(),
@@ -40,7 +34,7 @@ export async function comunidadeZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as comunidades cadastradas',
       tags: ['Comunidades'],
       summary: 'Listar comunidades',
-      querystring: QueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: ComunidadesListResponseSchema
       }

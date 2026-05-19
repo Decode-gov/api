@@ -1,21 +1,19 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
-import type { CreateColuna, UpdateColuna } from '../schemas/coluna.js'
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import type { CreateColuna, UpdateColuna } from '../schemas/coluna.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class ColunaController extends BaseController {
   constructor(prisma: PrismaClient) {
     super(prisma, 'coluna')
   }
 
-  async findMany(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async findMany(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
 
       const data = await this.prisma.coluna.findMany({
-        skip,
-        take,
-        orderBy: orderBy && typeof orderBy === 'string' ? { [orderBy]: 'asc' } : { nome: 'asc' },
+        where: empresaId ? { empresaId } : undefined,
         select: {
           id: true,
           nome: true,
@@ -35,12 +33,12 @@ export class ColunaController extends BaseController {
         message: 'Colunas encontradas',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async findById(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async findById(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -62,7 +60,7 @@ export class ColunaController extends BaseController {
         }
       })
 
-      if (!data) {
+      if(!data) {
         return reply.status(404).send({
           message: 'Coluna não encontrada',
           error: 'NotFound'
@@ -73,12 +71,12 @@ export class ColunaController extends BaseController {
         message: 'Coluna encontrada',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async create(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async create(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const body = request.body as CreateColuna
 
@@ -103,12 +101,12 @@ export class ColunaController extends BaseController {
         message: 'Coluna criada com sucesso',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async update(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async update(request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -136,12 +134,12 @@ export class ColunaController extends BaseController {
         message: 'Coluna atualizada com sucesso',
         data
       })
-    } catch (error) {
+    } catch(error) {
       this.handleError(reply, error)
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  async delete (request: FastifyRequest, reply: FastifyReply): Promise < void> {
     try {
       const { id } = request.params as { id: string }
       const validId = this.validateId(id)
@@ -151,48 +149,48 @@ export class ColunaController extends BaseController {
         where: { colunaId: validId }
       })
 
-      if (regrasQualidadeUsandoColuna > 0) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: `Não é possível deletar a coluna. Ela está sendo usada por ${regrasQualidadeUsandoColuna} regra(s) de qualidade.`
-        })
-      }
+      if(regrasQualidadeUsandoColuna > 0) {
+    return reply.status(400).send({
+      error: 'BadRequest',
+      message: `Não é possível deletar a coluna. Ela está sendo usada por ${regrasQualidadeUsandoColuna} regra(s) de qualidade.`
+    })
+  }
 
-      // Verificar se a coluna está sendo usada por listas de referência
-      const listasReferenciaUsandoColuna = await this.prisma.listaReferencia.count({
-        where: { colunaId: validId }
-      })
+  // Verificar se a coluna está sendo usada por listas de referência
+  const listasReferenciaUsandoColuna = await this.prisma.listaReferencia.count({
+    where: { colunaId: validId }
+  })
 
-      if (listasReferenciaUsandoColuna > 0) {
-        return reply.status(400).send({
-          error: 'BadRequest',
-          message: `Não é possível deletar a coluna. Ela está sendo usada por ${listasReferenciaUsandoColuna} lista(s) de referência.`
-        })
-      }
+  if (listasReferenciaUsandoColuna > 0) {
+    return reply.status(400).send({
+      error: 'BadRequest',
+      message: `Não é possível deletar a coluna. Ela está sendo usada por ${listasReferenciaUsandoColuna} lista(s) de referência.`
+    })
+  }
 
-      const data = await this.prisma.coluna.delete({
-        where: { id: validId },
-        select: {
-          id: true,
-          nome: true,
-          descricao: true,
-          tabelaId: true,
-          necessidadeInformacaoId: true,
-          necessidadeInformacao: true,
-          termoId: true,
-          termo: true,
-          tabela: true,
-          createdAt: true,
-          updatedAt: true
-        }
-      })
-
-      return reply.send({
-        message: 'Coluna excluída com sucesso',
-        data
-      })
-    } catch (error) {
-      this.handleError(reply, error)
+  const data = await this.prisma.coluna.delete({
+    where: { id: validId },
+    select: {
+      id: true,
+      nome: true,
+      descricao: true,
+      tabelaId: true,
+      necessidadeInformacaoId: true,
+      necessidadeInformacao: true,
+      termoId: true,
+      termo: true,
+      tabela: true,
+      createdAt: true,
+      updatedAt: true
     }
+  })
+
+  return reply.send({
+    message: 'Coluna excluída com sucesso',
+    data
+  })
+} catch (error) {
+  this.handleError(reply, error)
+}
   }
 }

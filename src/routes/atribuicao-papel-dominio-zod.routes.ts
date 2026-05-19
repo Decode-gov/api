@@ -3,10 +3,10 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { AtribuicaoPapelDominioController } from '../controllers/atribuicao-papel-dominio.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 import {
   CreateAtribuicaoPapelDominioSchema,
   UpdateAtribuicaoPapelDominioSchema,
-  AtribuicaoQueryParamsSchema,
   AtribuicaoParamsSchema,
   AtribuicaoResponseSchema,
   AtribuicoesListResponseSchema,
@@ -29,7 +29,7 @@ export async function atribuicaoPapelDominioRoutes(fastify: FastifyInstance) {
       description: 'Listar todas as atribuições de papel a domínio com relacionamentos (papel e domínio)',
       tags: ['Atribuições Papel-Domínio'],
       summary: 'Listar atribuições',
-      querystring: AtribuicaoQueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: AtribuicoesListResponseSchema
       }

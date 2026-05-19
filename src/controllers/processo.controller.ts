@@ -1,6 +1,6 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { BaseController } from './base.controller.js'
+import type { PrismaClient } from '@prisma/client';
+import { BaseController } from './base.controller.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 export class ProcessoController extends BaseController {
   constructor(prisma: PrismaClient) {
@@ -9,12 +9,10 @@ export class ProcessoController extends BaseController {
 
   async findMany(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const { skip, take, orderBy } = this.validatePagination(request.query)
+      const empresaId = this.getEmpresaFilter(request)
 
       const data = await this.prisma.processo.findMany({
-        skip,
-        take,
-        orderBy,
+        where: empresaId ? { empresaId } : undefined,
       })
 
       return reply.send({
@@ -85,7 +83,7 @@ export class ProcessoController extends BaseController {
     }
   }
 
-  async delete(request: FastifyRequest, reply: FastifyReply) {
+  async delete (request: FastifyRequest, reply: FastifyReply) {
     try {
       const id = this.validateId((request.params as any)?.id)
 

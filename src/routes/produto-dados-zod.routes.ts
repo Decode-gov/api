@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { ProdutoDadosController } from '../controllers/produto-dados.controller.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 
 export async function produtoDadosRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -14,12 +15,6 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
     descricao: z.string(),
     createdAt: z.iso.datetime(),
     updatedAt: z.iso.datetime()
-  })
-
-  const QueryParamsSchema = z.object({
-    skip: z.coerce.number().int().min(0).default(0),
-    take: z.coerce.number().int().min(1).max(100).default(10),
-    orderBy: z.string().optional()
   })
 
   const ParamsSchema = z.object({
@@ -59,7 +54,7 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
       description: 'Listar todos os produtos de dados do sistema',
       tags: ['Produtos de Dados'],
       summary: 'Listar produtos de dados',
-      querystring: QueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: ListResponseSchema
       }

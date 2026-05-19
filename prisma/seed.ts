@@ -24,8 +24,14 @@ async function main() {
     data: {
       nome: 'Administrador do Sistema',
       email: 'admin@decodegov.com',
+      tipo: "ADMIN",
       senha: senhaHash,
       ativo: true,
+      empresa: {
+        create: {
+          nome: 'DecodeGov'
+        }
+      }
     },
   });
 

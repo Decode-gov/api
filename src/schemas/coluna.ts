@@ -1,8 +1,8 @@
-import { z } from 'zod'
-import { TimestampsSchema } from './common.js'
-import { DefinicaoSchema } from './definicao.js'
-import { NecessidadeInformacaoSchema } from './necessidade-informacao.js'
-import { TabelaSchema } from './tabela.js'
+import { z } from 'zod';
+import { TimestampsSchema } from './common.js';
+import { DefinicaoSchema } from './definicao.js';
+import { NecessidadeInformacaoSchema } from './necessidade-informacao.js';
+import { TabelaSchema } from './tabela.js';
 
 // Schema base para dados da coluna (apenas campos de input)
 const ColunaBaseSchema = z.object({
@@ -17,16 +17,24 @@ const ColunaBaseSchema = z.object({
 })
 
 // Schema completo com ID e timestamps
-export const ColunaSchema = ColunaBaseSchema.extend({
-  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da coluna')
-}).merge(TimestampsSchema.partial())
+export const ColunaSchema = z.object({
+  ...ColunaBaseSchema.shape,
+  id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da coluna'),
+  ...TimestampsSchema.partial().shape
+})
 
 
 // Schema para criação (apenas campos necessários)
-export const CreateColunaSchema = ColunaBaseSchema
+export const CreateColunaSchema = z.object({
+  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da coluna'),
+  descricao: z.string().nullable().optional().describe('Descrição da coluna'),
+  tabelaId: z.uuid({ message: 'ID da tabela deve ser um UUID válido' }).describe('ID da tabela pai'),
+  necessidadeInformacaoId: z.uuid({ message: 'ID da necessidade de informação deve ser um UUID válido' }).describe('ID da necessidade de informação'),
+  termoId: z.uuid({ message: 'ID do termo deve ser um UUID válido' }).describe('ID do termo/definição'),
+})
 
 // Schema para atualização (todos os campos opcionais)
-export const UpdateColunaSchema = ColunaBaseSchema.partial()
+export const UpdateColunaSchema = CreateColunaSchema.partial()
 
 // Schema para resposta com coluna
 export const ColunaResponseSchema = z.object({

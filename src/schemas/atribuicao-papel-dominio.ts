@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 // Schema base do papel
 const PapelSchema = z.object({
@@ -61,9 +61,7 @@ export const UpdateAtribuicaoPapelDominioSchema = z.object({
 
 // Schema para query params
 export const AtribuicaoQueryParamsSchema = z.object({
-  skip: z.coerce.number().int().min(0).default(0).optional(),
-  take: z.coerce.number().int().min(1).max(100).default(10).optional(),
-  orderBy: z.string().optional(),
+  empresaId: z.uuid().optional(),
   papelId: z.uuid().optional(),
   dominioId: z.uuid().optional(),
   comiteAprovadorId: z.uuid().optional(),

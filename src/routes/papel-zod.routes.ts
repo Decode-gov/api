@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { PapelController } from '../controllers/papel.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
+import { EmpresaFilterSchema } from '../schemas/common.js'
 import {
   PapelParamsSchema,
   CreatePapelSchema,
@@ -14,13 +15,6 @@ import {
 export async function papelZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
   const controller = new PapelController(app.prisma)
-
-  // Schemas adicionais
-  const QueryParamsSchema = z.object({
-    skip: z.coerce.number().int().min(0).default(0),
-    take: z.coerce.number().int().min(1).max(100).default(10),
-    orderBy: z.string().optional()
-  })
 
   const ErrorResponseSchema = z.object({
     error: z.string(),
@@ -42,7 +36,7 @@ export async function papelZodRoutes(fastify: FastifyInstance) {
       description: 'Listar todos os papéis de governança cadastrados no sistema',
       tags: ['Papéis'],
       summary: 'Listar papéis de governança',
-      querystring: QueryParamsSchema,
+      querystring: EmpresaFilterSchema,
       response: {
         200: PapeisListResponseSchema
       }

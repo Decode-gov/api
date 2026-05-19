@@ -12,12 +12,14 @@ import {
 } from '../schemas/importacao-exportacao.js'
 import { ErrorSchema } from '../schemas/common.js'
 import { ImportacaoExportacaoController } from '../controllers/importacao-exportacao.controller.js';
+import { authMiddleware } from '../middleware/auth.js'
 
 export async function importacaoExportacaoZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
 
   // GET /importacao-exportacao - Listar operações
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar operações de importação e exportação',
       tags: ['Importação/Exportação'],
@@ -34,6 +36,7 @@ export async function importacaoExportacaoZodRoutes(fastify: FastifyInstance) {
 
   // GET /importacao-exportacao/:id - Buscar operação por ID
   app.get('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Buscar operação de importação/exportação por ID',
       tags: ['Importação/Exportação'],
@@ -51,6 +54,7 @@ export async function importacaoExportacaoZodRoutes(fastify: FastifyInstance) {
 
   // POST /importacao-exportacao/exportar - Exportar dados
   app.post('/exportar', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Exportar dados do sistema em diferentes formatos',
       tags: ['Importação/Exportação'],
@@ -68,6 +72,7 @@ export async function importacaoExportacaoZodRoutes(fastify: FastifyInstance) {
 
   // POST /importacao-exportacao/importar - Importar dados
   app.post('/importar', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Importar dados para o sistema',
       tags: ['Importação/Exportação'],

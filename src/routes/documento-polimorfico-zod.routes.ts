@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { DocumentoPolimorficoController } from '../controllers/documento-polimorfico.controller.js'
 import { EmpresaFilterSchema, ErrorSchema, SuccessMessageSchema } from '../schemas/common.js'
+import { authMiddleware } from '../middleware/auth.js'
 
 const TipoEntidadeDocumentoEnum = z.enum([
   'Politica', 'Papel', 'Atribuicao', 'Processo', 'Termo', 'KPI',
@@ -82,6 +83,7 @@ export async function documentoPolimorficoRoutes(fastify: FastifyInstance) {
 
   // GET /documentos - Listar documentos
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar todos os documentos polimórficos',
       tags: ['Documentos Polimórficos'],
@@ -97,6 +99,7 @@ export async function documentoPolimorficoRoutes(fastify: FastifyInstance) {
 
   // GET /documentos/entidade/:tipoEntidade/:entidadeId
   app.get('/entidade/:tipoEntidade/:entidadeId', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar documentos de uma entidade específica',
       tags: ['Documentos Polimórficos'],
@@ -112,6 +115,7 @@ export async function documentoPolimorficoRoutes(fastify: FastifyInstance) {
 
   // GET /documentos/:id
   app.get('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Buscar documento por ID',
       tags: ['Documentos Polimórficos'],
@@ -128,6 +132,7 @@ export async function documentoPolimorficoRoutes(fastify: FastifyInstance) {
 
   // POST /documentos
   app.post('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Anexar um novo documento a uma entidade',
       tags: ['Documentos Polimórficos'],
@@ -144,6 +149,7 @@ export async function documentoPolimorficoRoutes(fastify: FastifyInstance) {
 
   // PUT /documentos/:id
   app.put('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Atualizar metadados de um documento',
       tags: ['Documentos Polimórficos'],
@@ -161,6 +167,7 @@ export async function documentoPolimorficoRoutes(fastify: FastifyInstance) {
 
   // DELETE /documentos/:id
   app.delete('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Remover um documento (marca como inativo)',
       tags: ['Documentos Polimórficos'],

@@ -15,12 +15,14 @@ import {
   MfaParamsSchema
 } from '../schemas/mfa.js'
 import { ErrorSchema, EmpresaFilterSchema } from '../schemas/common.js'
+import { authMiddleware } from '../middleware/auth.js'
 
 export async function mfaZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
 
   // GET /mfa - Listar configurações MFA
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar configurações de MFA',
       tags: ['MFA/2FA'],
@@ -37,6 +39,7 @@ export async function mfaZodRoutes(fastify: FastifyInstance) {
 
   // GET /mfa/:id - Buscar configuração MFA por ID
   app.get('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Buscar configuração MFA por ID',
       tags: ['MFA/2FA'],
@@ -54,6 +57,7 @@ export async function mfaZodRoutes(fastify: FastifyInstance) {
 
   // POST /mfa/setup - Configurar MFA
   app.post('/setup', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Configurar autenticação multi-fator para um usuário',
       tags: ['MFA/2FA'],
@@ -71,6 +75,7 @@ export async function mfaZodRoutes(fastify: FastifyInstance) {
 
   // POST /mfa/enable - Ativar MFA com código de verificação
   app.post('/enable', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Ativar MFA após verificação do código',
       tags: ['MFA/2FA'],
@@ -88,6 +93,7 @@ export async function mfaZodRoutes(fastify: FastifyInstance) {
 
   // POST /mfa/verify - Verificar código MFA durante login
   app.post('/verify', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Verificar código MFA durante processo de login',
       tags: ['MFA/2FA'],
@@ -106,6 +112,7 @@ export async function mfaZodRoutes(fastify: FastifyInstance) {
 
   // PUT /mfa/:id/disable - Desativar MFA
   app.put('/:id/disable', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Desativar configuração MFA',
       tags: ['MFA/2FA'],

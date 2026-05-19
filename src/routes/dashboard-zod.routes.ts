@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { DashboardController } from '../controllers/dashboard.controller.js'
+import { authMiddleware } from '../middleware/auth.js'
 import {
   DashboardQuerySchema,
   UsuarioParamsSchema,
@@ -14,6 +15,7 @@ export async function dashboardZodRoutes(fastify: FastifyInstance) {
 
   // GET /dashboard/metricas - Métricas gerais do dashboard
   app.get('/metricas', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Obter métricas gerais do sistema para dashboard',
       tags: ['Dashboard'],
@@ -30,6 +32,7 @@ export async function dashboardZodRoutes(fastify: FastifyInstance) {
 
   // GET /dashboard/usuario/:usuarioId - Dashboard específico do usuário
   app.get('/usuario/:usuarioId', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Obter dashboard específico de um usuário',
       tags: ['Dashboard'],
@@ -47,6 +50,7 @@ export async function dashboardZodRoutes(fastify: FastifyInstance) {
 
   // GET /dashboard/qualidade - Dashboard de qualidade de dados
   app.get('/qualidade', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Obter dashboard de qualidade de dados',
       tags: ['Dashboard'],

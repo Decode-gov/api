@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { ProdutoDadosController } from '../controllers/produto-dados.controller.js'
 import { EmpresaFilterSchema } from '../schemas/common.js'
+import { authMiddleware } from '../middleware/auth.js'
 
 export async function produtoDadosRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -50,6 +51,7 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
 
   // GET /produtos-dados - Listar produtos
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar todos os produtos de dados do sistema',
       tags: ['Produtos de Dados'],
@@ -63,6 +65,7 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
 
   // GET /produtos-dados/:id - Buscar produto por ID
   app.get('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Buscar produto de dados por ID',
       tags: ['Produtos de Dados'],
@@ -77,6 +80,7 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
 
   // POST /produtos-dados - Criar novo produto
   app.post('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Criar um novo produto de dados no sistema',
       tags: ['Produtos de Dados'],
@@ -91,6 +95,7 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
 
   // PUT /produtos-dados/:id - Atualizar produto
   app.put('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Atualizar um produto de dados existente',
       tags: ['Produtos de Dados'],
@@ -106,6 +111,7 @@ export async function produtoDadosRoutes(fastify: FastifyInstance) {
 
   // DELETE /produtos-dados/:id - Deletar produto
   app.delete('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Deletar um produto de dados',
       tags: ['Produtos de Dados'],

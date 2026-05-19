@@ -15,12 +15,14 @@ import {
   AuditoriaParamsSchema
 } from '../schemas/auditoria.js'
 import { ErrorSchema } from '../schemas/common.js'
+import { authMiddleware } from '../middleware/auth.js'
 
 export async function auditoriaZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
 
   // GET /auditoria - Listar logs de auditoria
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar logs de auditoria com filtros avançados',
       tags: ['Auditoria'],
@@ -37,6 +39,7 @@ export async function auditoriaZodRoutes(fastify: FastifyInstance) {
 
   // GET /auditoria/:id - Buscar log de auditoria por ID
   app.get('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Buscar log de auditoria por ID',
       tags: ['Auditoria'],
@@ -54,6 +57,7 @@ export async function auditoriaZodRoutes(fastify: FastifyInstance) {
 
   // GET /auditoria/relatorio/:entidade/:entidadeId - Relatório de auditoria por entidade
   app.get('/relatorio/:entidade/:entidadeId', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Gerar relatório de auditoria para uma entidade específica',
       tags: ['Auditoria'],
@@ -71,6 +75,7 @@ export async function auditoriaZodRoutes(fastify: FastifyInstance) {
 
   // GET /auditoria/usuario/:usuarioId/atividades - Atividades de um usuário
   app.get('/usuario/:usuarioId/atividades', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar atividades recentes de um usuário específico',
       tags: ['Auditoria'],
@@ -89,6 +94,7 @@ export async function auditoriaZodRoutes(fastify: FastifyInstance) {
 
   // POST /auditoria - Criar log de auditoria manualmente (uso interno)
   app.post('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Criar log de auditoria manualmente (uso interno do sistema)',
       tags: ['Auditoria'],

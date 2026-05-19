@@ -1,15 +1,16 @@
-import type { FastifyInstance } from 'fastify'
-import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { z } from 'zod'
-import { PoliticaInternaController } from '../controllers/politica-interna.controller.js'
+import type { FastifyInstance } from 'fastify';
+import type { ZodTypeProvider } from 'fastify-type-provider-zod';
+import { z } from 'zod';
+import { PoliticaInternaController } from '../controllers/politica-interna.controller.js';
 import {
   CreatePoliticaInternaSchema,
   UpdatePoliticaInternaSchema,
   PoliticaInternaResponseSchema,
   PoliticasInternasListResponseSchema,
   PoliticaInternaParamsSchema
-} from '../schemas/politica-interna.js'
-import { PaginationSchema, ErrorSchema } from '../schemas/common.js'
+} from '../schemas/politica-interna.js';
+import { PaginationSchema, ErrorSchema } from '../schemas/common.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -25,6 +26,7 @@ export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
 
   // GET /api/politicas-internas - Listar todas as políticas internas
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar todas as políticas internas cadastradas',
       tags: ['Políticas Internas'],
@@ -38,6 +40,7 @@ export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
 
   // GET /api/politicas-internas/:id - Buscar política interna por ID
   app.get('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Buscar política interna específica por ID',
       tags: ['Políticas Internas'],
@@ -52,6 +55,7 @@ export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
 
   // POST /api/politicas-internas - Criar nova política interna
   app.post('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Criar nova política interna',
       tags: ['Políticas Internas'],
@@ -66,6 +70,7 @@ export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
 
   // PUT /api/politicas-internas/:id - Atualizar política interna
   app.put('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Atualizar dados de uma política interna específica',
       tags: ['Políticas Internas'],
@@ -82,6 +87,7 @@ export async function politicaInternaZodRoutes(fastify: FastifyInstance) {
 
   // DELETE /api/politicas-internas/:id - Deletar política interna
   app.delete('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Excluir política interna',
       tags: ['Políticas Internas'],

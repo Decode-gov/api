@@ -12,6 +12,7 @@ import {
   type UpdateRepositorioDocumento
 } from '../schemas/repositorio-documento.js'
 import { SuccessMessageSchema } from '../schemas/common.js'
+import { authMiddleware } from '../middleware/auth.js'
 import { RepositorioDocumentoController } from '../controllers/repositorio-documento.controller.js'
 
 export async function repositorioDocumentoZodRoutes(fastify: FastifyInstance) {
@@ -20,6 +21,7 @@ export async function repositorioDocumentoZodRoutes(fastify: FastifyInstance) {
 
   // GET /repositorios-documento - Listar repositórios
   server.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar repositórios de documentos com filtros opcionais',
       tags: ['Repositórios de Documento'],
@@ -37,6 +39,7 @@ export async function repositorioDocumentoZodRoutes(fastify: FastifyInstance) {
   server.get<{
     Params: RepositorioDocumentoParams
   }>('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Buscar repositório de documentos por ID',
       tags: ['Repositórios de Documento'],
@@ -54,6 +57,7 @@ export async function repositorioDocumentoZodRoutes(fastify: FastifyInstance) {
   server.post<{
     Body: CreateRepositorioDocumento
   }>('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Criar novo repositório de documentos',
       tags: ['Repositórios de Documento'],
@@ -72,6 +76,7 @@ export async function repositorioDocumentoZodRoutes(fastify: FastifyInstance) {
     Params: RepositorioDocumentoParams
     Body: UpdateRepositorioDocumento
   }>('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Atualizar repositório de documentos',
       tags: ['Repositórios de Documento'],
@@ -90,6 +95,7 @@ export async function repositorioDocumentoZodRoutes(fastify: FastifyInstance) {
   server.delete<{
     Params: RepositorioDocumentoParams
   }>('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Deletar repositório de documentos',
       tags: ['Repositórios de Documento'],

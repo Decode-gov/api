@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { DefinicaoController } from '../controllers/definicao.controller.js'
 import { EmpresaFilterSchema } from '../schemas/common.js'
 import { CreateDefinicaoSchema, DefinicaoSchema, UpdateDefinicaoSchema } from '../schemas/definicao.js'
+import { authMiddleware } from '../middleware/auth.js'
 
 export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -30,6 +31,7 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
 
   // GET /definicoes - Listar termos
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar todas as termos do sistema',
       tags: ['Termos'],
@@ -43,6 +45,7 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
 
   // GET /definicoes/:id - Buscar definição por ID
   app.get('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Buscar definição específica por ID',
       tags: ['Termos'],
@@ -57,6 +60,7 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
 
   // POST /definicoes - Criar definição
   app.post('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Criar nova definição no sistema',
       tags: ['Termos'],
@@ -71,6 +75,7 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
 
   // PUT /definicoes/:id - Atualizar definição
   app.put('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Atualizar dados de uma definição específica',
       tags: ['Termos'],
@@ -86,6 +91,7 @@ export async function definicaoZodFinalRoutes(fastify: FastifyInstance) {
 
   // DELETE /definicoes/:id - Deletar definição
   app.delete('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Deletar uma definição do sistema',
       tags: ['Termos'],

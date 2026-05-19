@@ -7,8 +7,7 @@ export abstract class BaseController {
   protected constructor(
     protected readonly prisma: PrismaClient,
     protected readonly modelName: string
-  ) {
-  }
+  ) { }
 
   protected validateId(id: string): string {
     if (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true') {
@@ -35,6 +34,8 @@ export abstract class BaseController {
 
   protected resolveEmpresaIdForCreate(request: FastifyRequest, body: any): string {
     const user = (request as any).user as JwtPayload | undefined
+
+    console.log(user)
 
     if (user?.tipo === 'ADMIN') {
       if (!body?.empresaId) {

@@ -10,12 +10,14 @@ import {
   ListaReferenciaParamsSchema
 } from '../schemas/lista-referencia.js'
 import { PaginationSchema, ErrorSchema } from '../schemas/common.js'
+import { authMiddleware } from '../middleware/auth.js'
 
 export async function listaReferenciaZodRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
 
   // GET /listas-referencia - Listar todas as listas de referência
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       summary: 'Listar todas as listas de referência',
       description: 'Recupera todas as listas de referência cadastradas no sistema',
@@ -32,6 +34,7 @@ export async function listaReferenciaZodRoutes(fastify: FastifyInstance) {
 
   // GET /listas-referencia/:id - Buscar lista de referência por ID
   app.get('/:id', {
+    preHandler: authMiddleware,
     schema: {
       summary: 'Buscar lista de referência por ID',
       description: 'Recupera uma lista de referência específica pelo ID',
@@ -49,6 +52,7 @@ export async function listaReferenciaZodRoutes(fastify: FastifyInstance) {
 
   // POST /listas-referencia - Criar nova lista de referência
   app.post('/', {
+    preHandler: authMiddleware,
     schema: {
       summary: 'Criar nova lista de referência',
       description: 'Cria uma nova lista de referência com valores únicos validados',
@@ -66,6 +70,7 @@ export async function listaReferenciaZodRoutes(fastify: FastifyInstance) {
 
   // PUT /listas-referencia/:id - Atualizar lista de referência
   app.put('/:id', {
+    preHandler: authMiddleware,
     schema: {
       summary: 'Atualizar lista de referência',
       description: 'Atualiza uma lista de referência existente',
@@ -85,6 +90,7 @@ export async function listaReferenciaZodRoutes(fastify: FastifyInstance) {
 
   // DELETE /listas-referencia/:id - Excluir lista de referência
   app.delete('/:id', {
+    preHandler: authMiddleware,
     schema: {
       summary: 'Excluir lista de referência',
       description: 'Remove uma lista de referência do sistema',

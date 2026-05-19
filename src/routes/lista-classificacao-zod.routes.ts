@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { ListaClassificacaoController } from '../controllers/lista-classificacao.controller.js'
 import { PoliticaInternaSchema } from '../schemas/politica-interna.js'
 import { EmpresaFilterSchema } from '../schemas/common.js'
+import { authMiddleware } from '../middleware/auth.js'
 
 export const ListaClassificacaoSchema = z.object({
   id: z.uuid(),
@@ -56,6 +57,7 @@ export async function listaClassificacaoRoutes(fastify: FastifyInstance) {
 
   // GET /listas-classificacao - Listar listas de classificação
   app.get('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Listar todas as listas de classificação de segurança do sistema',
       tags: ['Listas de Classificação'],
@@ -69,6 +71,7 @@ export async function listaClassificacaoRoutes(fastify: FastifyInstance) {
 
   // GET /listas-classificacao/:id - Buscar lista por ID
   app.get('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Buscar lista de classificação por ID',
       tags: ['Listas de Classificação'],
@@ -83,6 +86,7 @@ export async function listaClassificacaoRoutes(fastify: FastifyInstance) {
 
   // POST /listas-classificacao - Criar nova lista
   app.post('/', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Criar uma nova lista de classificação de segurança',
       tags: ['Listas de Classificação'],
@@ -97,6 +101,7 @@ export async function listaClassificacaoRoutes(fastify: FastifyInstance) {
 
   // PUT /listas-classificacao/:id - Atualizar lista
   app.put('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Atualizar uma lista de classificação existente',
       tags: ['Listas de Classificação'],
@@ -112,6 +117,7 @@ export async function listaClassificacaoRoutes(fastify: FastifyInstance) {
 
   // DELETE /listas-classificacao/:id - Deletar lista
   app.delete('/:id', {
+    preHandler: authMiddleware,
     schema: {
       description: 'Deletar uma lista de classificação',
       tags: ['Listas de Classificação'],

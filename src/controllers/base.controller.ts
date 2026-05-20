@@ -1,7 +1,7 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { PrismaClient } from '@prisma/client'
-import { idSchema } from '../types/common.js'
-import type { JwtPayload } from '../types/auth.js'
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { PrismaClient } from '@prisma/client';
+import { idSchema } from '../types/common.js';
+import type { JwtPayload } from '../types/auth.js';
 
 export abstract class BaseController {
   protected constructor(
@@ -52,6 +52,7 @@ export abstract class BaseController {
   }
 
   protected handleError(reply: FastifyReply, error: any) {
+    console.error(error)
     if (error.code === 'P2025') {
       return (reply as any).notFound('Registro não encontrado')
     }

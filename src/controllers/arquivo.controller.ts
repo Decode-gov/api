@@ -1,11 +1,11 @@
-import type { PrismaClient } from '@prisma/client'
-import type { FastifyReply, FastifyRequest } from 'fastify'
-import { createWriteStream, createReadStream, existsSync, mkdirSync, unlinkSync } from 'node:fs'
-import { pipeline } from 'node:stream/promises'
-import { extname, join } from 'node:path'
-import { randomUUID } from 'node:crypto'
-import sharp from 'sharp'
-import { BaseController } from './base.controller.js'
+import type { PrismaClient } from '@prisma/client';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import { createWriteStream, createReadStream, existsSync, mkdirSync, unlinkSync } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
+import { extname, join } from 'node:path';
+import { randomUUID } from 'node:crypto';
+import sharp from 'sharp';
+import { BaseController } from './base.controller.js';
 
 export class ArquivoController extends BaseController {
   constructor(prisma: PrismaClient) {

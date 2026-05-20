@@ -40,8 +40,6 @@ Thumbs.db
 
 # Prisma
 .env
-migrations/
-!migrations/.gitkeep
 
 # SQLite development database
 prisma/dev.db

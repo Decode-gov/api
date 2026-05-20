@@ -42,6 +42,8 @@ COPY --from=builder --chown=nodejs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
 COPY --from=builder --chown=nodejs:nodejs /app/tsconfig.json ./
 
+RUN mkdir -p /app/uploads && chown nodejs:nodejs /app/uploads
+
 # Muda para o usuário não-root
 USER nodejs
 

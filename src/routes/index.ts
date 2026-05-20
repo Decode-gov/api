@@ -36,6 +36,7 @@ import { regraQualidadeZodRoutes } from './regra-qualidade-zod.routes.js'
 import { regulacaoCompletaZodRoutes } from './regulacao-completa-zod.routes.js'
 import { criticidadeRegulatoriaZodRoutes } from './criticidade-regulatoria-zod.routes.js'
 import { empresaZodRoutes } from './empresa-zod.routes.js'
+import { arquivoZodRoutes } from './arquivo-zod.routes.js'
 
 // Rotas que ainda não foram convertidas para Zod
 
@@ -134,6 +135,8 @@ export async function registerAllRoutes(app: FastifyInstance) {
     await app.register(criticidadeRegulatoriaZodRoutes, { prefix: '/criticidades-regulatorias' })
 
     await app.register(empresaZodRoutes, { prefix: '/empresas' })
+
+    await app.register(arquivoZodRoutes, { prefix: '/arquivos' })
 
   } catch (error) {
     // Erro ao registrar rotas - falha crítica na inicialização

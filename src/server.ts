@@ -4,6 +4,7 @@ import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
 import cookie from '@fastify/cookie'
 import sensible from '@fastify/sensible'
+import multipart from '@fastify/multipart'
 import {
   jsonSchemaTransform,
   serializerCompiler,
@@ -63,7 +64,8 @@ await app.register(swagger, {
       { name: 'Atribuições Papel-Domínio', description: 'Gestão de atribuições de papéis a domínios' },
       { name: 'Necessidades de Informação', description: 'Gestão de necessidades de informação' },
       { name: 'Regras de Negócio', description: 'Gestão de regras de negócio' },
-      { name: 'Listas de Referência', description: 'Gestão de listas de referência e valores padronizados' }
+      { name: 'Listas de Referência', description: 'Gestão de listas de referência e valores padronizados' },
+      { name: 'Arquivos', description: 'Upload, download e gestão de arquivos por empresa' }
     ]
   },
   transform: jsonSchemaTransform,
@@ -87,6 +89,13 @@ await app.register(
 // Registrar plugin de cookies
 await app.register(cookie, {
   secret: process.env.COOKIE_SECRET || 'default-secret-key-change-in-production'
+})
+
+await app.register(multipart, {
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB
+    files: 1,
+  },
 })
 
 // Registrar plugin sensible (adiciona métodos úteis como reply.notFound(), reply.badRequest(), etc.)

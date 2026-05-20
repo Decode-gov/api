@@ -341,6 +341,29 @@ model DocumentoPolimorfico {
   @@map("documentos_polimorficos")
 }
 
+model Arquivo {
+  id               String  @id @default(uuid()) @db.Uuid
+  nomeOriginal     String  @map("nome_original")
+  nomeArquivo      String  @map("nome_arquivo")
+  diretorioArquivo String  @map("diretorio_arquivo")
+  tipoMime         String  @map("tipo_mime")
+  tamanhoBytes     BigInt  @map("tamanho_bytes")
+  ativo            Boolean @default(true)
+
+  usuarioId String  @map("usuario_id") @db.Uuid
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+
+  empresaId String  @map("empresa_id") @db.Uuid
+  empresa   Empresa @relation(fields: [empresaId], references: [id])
+
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  @@index([empresaId])
+  @@index([usuarioId])
+  @@map("arquivos")
+}
+
 model Processo {
   id        String  @id @default(uuid()) @db.Uuid
   nome      String
@@ -528,6 +551,7 @@ model Usuario {
 
   processosAtualizados ProcessoAtualizado[]
   logsAuditoria        LogAuditoria[]
+  arquivos             Arquivo[]
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
@@ -895,6 +919,7 @@ model Empresa {
   criticidadesRegulatorias CriticidadeRegulatoria[]
   processosAtualizados     ProcessoAtualizado[]
   logsAuditoria            LogAuditoria[]
+  arquivos                 Arquivo[]
 
   createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")

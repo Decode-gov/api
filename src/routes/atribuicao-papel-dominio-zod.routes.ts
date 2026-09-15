@@ -3,11 +3,11 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { AtribuicaoPapelDominioController } from '../controllers/atribuicao-papel-dominio.controller.js'
 import { authMiddleware } from '../middleware/auth.js'
-import { EmpresaFilterSchema } from '../schemas/common.js'
 import {
   CreateAtribuicaoPapelDominioSchema,
   UpdateAtribuicaoPapelDominioSchema,
   AtribuicaoParamsSchema,
+  AtribuicaoQueryParamsSchema,
   AtribuicaoResponseSchema,
   AtribuicoesListResponseSchema,
   AtribuicaoDeleteResponseSchema
@@ -26,10 +26,10 @@ export async function atribuicaoPapelDominioRoutes(fastify: FastifyInstance) {
   app.get('/', {
     preHandler: authMiddleware,
     schema: {
-      description: 'Listar todas as atribuições de papel a domínio com relacionamentos (papel e domínio)',
+      description: 'Listar todas as atribuições de papel a domínio com relacionamentos (papel e domínio). Filtros opcionais: empresaId, papelId, dominioId, comiteAprovador (busca parcial) e onboarding',
       tags: ['Atribuições Papel-Domínio'],
       summary: 'Listar atribuições',
-      querystring: EmpresaFilterSchema,
+      querystring: AtribuicaoQueryParamsSchema,
       response: {
         200: AtribuicoesListResponseSchema
       }

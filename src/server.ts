@@ -60,7 +60,6 @@ await app.register(swagger, {
       { name: 'Termos', description: 'Gestão de termos' },
       { name: 'Bancos de Dados', description: 'Gestão de bancos de dados' },
       { name: 'Papéis', description: 'Gestão de papéis e responsabilidades' },
-      { name: 'Comitês Aprovadores', description: 'Gestão de comitês aprovadores' },
       { name: 'Atribuições Papel-Domínio', description: 'Gestão de atribuições de papéis a domínios' },
       { name: 'Necessidades de Informação', description: 'Gestão de necessidades de informação' },
       { name: 'Regras de Negócio', description: 'Gestão de regras de negócio' },

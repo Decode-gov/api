@@ -2,6 +2,11 @@ import type { PrismaClient } from '@prisma/client';
 import { BaseController } from './base.controller.js';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
+const includeRelations = {
+  papel: true,
+  dominio: true
+} as const
+
 export class AtribuicaoPapelDominioController extends BaseController {
   constructor(prisma: PrismaClient) {
     super(prisma, 'atribuicaoPapelDominio')
@@ -22,8 +27,8 @@ export class AtribuicaoPapelDominioController extends BaseController {
       if (query.dominioId) {
         where.dominioId = query.dominioId
       }
-      if (query.comiteAprovadorId) {
-        where.comiteAprovadorId = query.comiteAprovadorId
+      if (query.comiteAprovador) {
+        where.comiteAprovador = { contains: query.comiteAprovador, mode: 'insensitive' }
       }
       if (query.onboarding !== undefined) {
         where.onboarding = query.onboarding
@@ -31,11 +36,7 @@ export class AtribuicaoPapelDominioController extends BaseController {
 
       const data = await this.prisma.atribuicaoPapelDominio.findMany({
         where,
-        include: {
-          papel: true,
-          dominio: true,
-          comiteAprovador: true
-        }
+        include: includeRelations
       })
 
       return reply.send({
@@ -54,11 +55,7 @@ export class AtribuicaoPapelDominioController extends BaseController {
 
       const data = await this.prisma.atribuicaoPapelDominio.findUnique({
         where: { id: validId },
-        include: {
-          papel: true,
-          dominio: true,
-          comiteAprovador: true
-        }
+        include: includeRelations
       })
 
       if (!data) {
@@ -81,11 +78,7 @@ export class AtribuicaoPapelDominioController extends BaseController {
 
       const data = await this.prisma.atribuicaoPapelDominio.create({
         data: { ...body, empresaId },
-        include: {
-          papel: true,
-          dominio: true,
-          comiteAprovador: true
-        }
+        include: includeRelations
       })
 
       return reply.status(201).send({
@@ -106,11 +99,7 @@ export class AtribuicaoPapelDominioController extends BaseController {
       const data = await this.prisma.atribuicaoPapelDominio.update({
         where: { id: validId },
         data: body,
-        include: {
-          papel: true,
-          dominio: true,
-          comiteAprovador: true
-        }
+        include: includeRelations
       })
 
       return reply.send({

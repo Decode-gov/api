@@ -35,8 +35,6 @@ export abstract class BaseController {
   protected resolveEmpresaIdForCreate(request: FastifyRequest, body: any): string {
     const user = (request as any).user as JwtPayload | undefined
 
-    console.log(user)
-
     if (user?.tipo === 'ADMIN') {
       if (!body?.empresaId) {
         throw new Error('empresaId inválido: obrigatório para usuários ADMIN')

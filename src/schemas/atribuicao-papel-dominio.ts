@@ -13,19 +13,14 @@ const DominioSchema = z.object({
   nome: z.string()
 })
 
-// Schema base do comitê aprovador
-const ComiteAprovadorSchema = z.object({
-  id: z.uuid(),
-  nome: z.string()
-})
-
 // Schema base da atribuição
 export const AtribuicaoPapelDominioSchema = z.object({
   id: z.uuid(),
   papelId: z.uuid(),
   dominioId: z.uuid(),
+  empresaId: z.uuid().nullable(),
   documentoAtribuicao: z.string(),
-  comiteAprovadorId: z.uuid(),
+  comiteAprovador: z.string(),
   onboarding: z.boolean(),
   responsavel: z.string(),
   createdAt: z.coerce.date().nullable(),
@@ -35,8 +30,7 @@ export const AtribuicaoPapelDominioSchema = z.object({
 // Schema com relacionamentos
 export const AtribuicaoPapelDominioWithRelationsSchema = AtribuicaoPapelDominioSchema.extend({
   papel: PapelSchema,
-  dominio: DominioSchema,
-  comiteAprovador: ComiteAprovadorSchema
+  dominio: DominioSchema
 })
 
 // Schema para criação
@@ -44,9 +38,11 @@ export const CreateAtribuicaoPapelDominioSchema = z.object({
   papelId: z.uuid({ message: 'ID do papel deve ser um UUID válido' }),
   dominioId: z.uuid({ message: 'ID do domínio deve ser um UUID válido' }),
   documentoAtribuicao: z.string({ message: 'Documento de atribuição é obrigatório' }),
-  comiteAprovadorId: z.uuid({ message: 'ID do comitê aprovador deve ser um UUID válido' }),
+  comiteAprovador: z.string({ message: 'Comitê aprovador é obrigatório' })
+    .min(1, { message: 'Comitê aprovador é obrigatório' }),
   onboarding: z.boolean().default(false),
-  responsavel: z.string({ message: 'Responsável é obrigatório' })
+  responsavel: z.string({ message: 'Responsável é obrigatório' }),
+  empresaId: z.uuid().optional()
 })
 
 // Schema para atualização
@@ -54,18 +50,21 @@ export const UpdateAtribuicaoPapelDominioSchema = z.object({
   papelId: z.uuid().optional(),
   dominioId: z.uuid().optional(),
   documentoAtribuicao: z.string().optional(),
-  comiteAprovadorId: z.uuid().optional(),
+  comiteAprovador: z.string().min(1, { message: 'Comitê aprovador não pode ser vazio' }).optional(),
   onboarding: z.boolean().optional(),
   responsavel: z.string().optional()
 })
 
 // Schema para query params
 export const AtribuicaoQueryParamsSchema = z.object({
-  empresaId: z.uuid().optional(),
-  papelId: z.uuid().optional(),
-  dominioId: z.uuid().optional(),
-  comiteAprovadorId: z.uuid().optional(),
-  onboarding: z.coerce.boolean().optional()
+  empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional()
+    .describe('Filtrar por empresa (somente ADMIN; USUARIO usa o empresaId do token automaticamente)'),
+  papelId: z.uuid().optional().describe('Filtrar por papel'),
+  dominioId: z.uuid().optional().describe('Filtrar por domínio'),
+  comiteAprovador: z.string().optional()
+    .describe('Filtrar por comitê aprovador (busca parcial, sem diferenciar maiúsculas/minúsculas)'),
+  onboarding: z.enum(['true', 'false']).transform((value) => value === 'true').optional()
+    .describe('Filtrar por onboarding')
 })
 
 // Schema para parâmetros de rota

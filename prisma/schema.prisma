@@ -500,8 +500,8 @@ model Papel {
   regraQualidades RegraQualidade[]
   regraNegocios   RegraNegocio[]
 
-  empresaId String?  @map("empresa_id") @db.Uuid
-  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+  empresaId        String?           @map("empresa_id") @db.Uuid
+  empresa          Empresa?          @relation(fields: [empresaId], references: [id])
 
   @@index([politicaId])
   @@index([empresaId])
@@ -563,39 +563,25 @@ model Usuario {
   @@map("usuarios")
 }
 
-model ComiteAprovador {
-  id                     String                   @id @default(uuid()) @db.Uuid
-  nome                   String
-  AtribuicaoPapelDominio AtribuicaoPapelDominio[]
-
-  empresaId String?  @map("empresa_id") @db.Uuid
-  empresa   Empresa? @relation(fields: [empresaId], references: [id])
-
-  @@index([empresaId])
-  @@map("comites_aprovadores")
-}
-
 model AtribuicaoPapelDominio {
-  id                  String          @id @default(uuid()) @db.Uuid
-  papelId             String          @map("papel_id") @db.Uuid
-  papel               Papel           @relation(fields: [papelId], references: [id], onDelete: Cascade)
-  dominioId           String          @map("dominio_id") @db.Uuid
-  dominio             Comunidade      @relation(fields: [dominioId], references: [id], onDelete: Cascade)
-  documentoAtribuicao String          @map("documento_atribuicao")
-  comiteAprovadorId   String          @map("comite_aprovador_id") @db.Uuid
-  comiteAprovador     ComiteAprovador @relation(fields: [comiteAprovadorId], references: [id])
-  onboarding          Boolean         @default(false)
+  id                  String    @id @default(uuid()) @db.Uuid
+  comiteAprovador     String    @map("comite_aprovador")
+  documentoAtribuicao String    @map("documento_atribuicao")
+  onboarding          Boolean   @default(false)
   responsavel         String
+  createdAt           DateTime? @default(now()) @map("created_at")
+  updatedAt           DateTime? @map("updated_at")
 
-  createdAt DateTime? @default(now()) @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  papelId   String     @map("papel_id") @db.Uuid
+  papel     Papel      @relation(fields: [papelId], references: [id], onDelete: Cascade)
+  dominioId String     @map("dominio_id") @db.Uuid
+  dominio   Comunidade @relation(fields: [dominioId], references: [id], onDelete: Cascade)
 
   empresaId String?  @map("empresa_id") @db.Uuid
   empresa   Empresa? @relation(fields: [empresaId], references: [id])
 
   @@index([papelId])
   @@index([dominioId])
-  @@index([comiteAprovadorId])
   @@index([empresaId])
   @@map("atribuicoes_papel_dominio")
 }
@@ -903,7 +889,6 @@ model Empresa {
   kpis                     KPI[]
   produtosDados            ProdutoDados[]
   usuarios                 Usuario[]
-  comitesAprovadores       ComiteAprovador[]
   atribuicoesPapelDominio  AtribuicaoPapelDominio[]
   tiposDados               TipoDados[]
   classificacoesInformacao ClassificacaoInformacao[]

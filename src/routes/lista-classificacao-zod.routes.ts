@@ -29,7 +29,8 @@ export async function listaClassificacaoRoutes(fastify: FastifyInstance) {
   const CreateListaClassificacaoSchema = z.object({
     classificacao: z.string().min(1, 'Classificação da informação é obrigatória'),
     descricao: z.string().min(1, 'Descrição é obrigatória'),
-    politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' })
+    politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }),
+    empresaId: z.uuid({ message: 'ID da empresa deve ser um UUID válido' }).optional()
   })
 
   const UpdateListaClassificacaoSchema = z.object({

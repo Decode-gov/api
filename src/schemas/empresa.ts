@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const EmpresaBaseSchema = z.object({
-  nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da empresa'),
+  nome: z.string(),
 })
 
 export const EmpresaSchema = EmpresaBaseSchema.extend({

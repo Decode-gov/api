@@ -5,7 +5,8 @@ import { TimestampsSchema } from './common.js';
 const RepositorioDocumentoBaseSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome do repositório de documentos'),
   ged: z.boolean().default(false).describe('Indica se é um repositório GED (Gerenciamento Eletrônico de Documentos)'),
-  rede: z.boolean().default(false).describe('Indica se é um repositório em rede')
+  rede: z.boolean().default(false).describe('Indica se é um repositório em rede'),
+  empresaId: z.uuid().optional()
 })
 
 // Schema completo com ID e timestamps

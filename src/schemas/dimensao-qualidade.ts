@@ -26,7 +26,8 @@ export const DimensaoQualidadeWithRelationsSchema = DimensaoQualidadeSchema.exte
 export const CreateDimensaoQualidadeSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }),
   descricao: z.string().optional(),
-  politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' })
+  politicaId: z.uuid({ message: 'ID da política deve ser um UUID válido' }),
+  empresaId: z.uuid().optional()
 })
 
 // Schema para atualização

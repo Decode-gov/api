@@ -18,7 +18,8 @@ export const CreateRegulacaoCompletaSchema = z.object({
   orgao: z.string().min(1, { message: 'Órgão regulador é obrigatório' }).describe('Órgão regulador'),
   descricao: z.string().min(1, { message: 'Descrição é obrigatória' }).describe('Descrição da regulação'),
   dataInicio: z.coerce.date({ message: 'Data de início inválida' }).describe('Data de início da vigência'),
-  dataFim: z.coerce.date({ message: 'Data de fim inválida' }).optional().describe('Data de fim da vigência (opcional)')
+  dataFim: z.coerce.date({ message: 'Data de fim inválida' }).optional().describe('Data de fim da vigência (opcional)'),
+  empresaId: z.uuid().optional()
 })
 
 // Schema para atualização

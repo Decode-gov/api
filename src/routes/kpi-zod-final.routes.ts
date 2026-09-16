@@ -34,7 +34,8 @@ const ParamsSchema = z.object({
 const CreateKpiSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
   comunidadeId: z.string().optional(),
-  processoId: z.string().optional()
+  processoId: z.string().optional(),
+  empresaId: z.uuid().optional()
 })
 
 const UpdateKpiSchema = z.object({

@@ -16,7 +16,8 @@ export const CriticidadeRegulatoriaQueryParamsSchema = z.object({
 export const CreateCriticidadeRegulatoriaSchema = z.object({
   regulacaoId: z.uuid({ message: 'regulacaoId deve ser um UUID válido' }).describe('ID da regulação'),
   regraQualidadeId: z.uuid({ message: 'regraQualidadeId deve ser um UUID válido' }).describe('ID da regra de qualidade'),
-  grauCriticidade: z.string().min(1, { message: 'Grau de criticidade é obrigatório' }).describe('Grau de criticidade (ex: Alta, Média, Baixa)')
+  grauCriticidade: z.string().min(1, { message: 'Grau de criticidade é obrigatório' }).describe('Grau de criticidade (ex: Alta, Média, Baixa)'),
+  empresaId: z.uuid().optional()
 })
 
 // Schema para atualização

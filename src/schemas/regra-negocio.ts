@@ -36,7 +36,8 @@ const RegraNegocioBaseSchema = z.object({
   politicaId: z.uuid({ message: 'politicaId deve ser um UUID válido' }).describe('ID da política interna relacionada'),
   sistemaId: z.uuid({ message: 'sistemaId deve ser um UUID válido' }).nullable().optional().describe('ID do sistema relacionado (opcional)'),
   responsavelId: z.uuid({ message: 'responsavelId deve ser um UUID válido' }).describe('ID do papel responsável'),
-  termoId: z.uuid({ message: 'termoId deve ser um UUID válido' }).describe('ID do termo (definição) relacionado')
+  termoId: z.uuid({ message: 'termoId deve ser um UUID válido' }).describe('ID do termo (definição) relacionado'),
+  empresaId: z.uuid().optional()
 })
 
 // Schema completo com ID e timestamps

@@ -5,6 +5,7 @@ import { TimestampsSchema } from './common.js';
 const TabelaBaseSchema = z.object({
   nome: z.string().min(1, { message: 'Nome é obrigatório' }).max(255, { message: 'Nome muito longo' }).describe('Nome da tabela'),
   bancoId: z.uuid({ message: 'ID do banco deve ser um UUID válido' }).nullable().optional().describe('ID do banco de dados'),
+  
   empresaId: z.uuid({ message: 'empresaId deve ser um UUID válido' }).optional().describe('ID da empresa (obrigatório para ADMIN)')
 })
 
@@ -12,6 +13,9 @@ const TabelaBaseSchema = z.object({
 export const TabelaSchema = z.object({
   ...TabelaBaseSchema.shape,
   id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da tabela'),
+  banco: z.object({
+    nome: z.string(),
+  }).optional(),
   ...TimestampsSchema.partial().shape
 })
 

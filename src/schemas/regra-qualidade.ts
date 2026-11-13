@@ -5,6 +5,7 @@ import { DimensaoQualidadeSchema } from "./dimensao-qualidade.js";
 import { TabelaSchema } from "./tabela.js";
 import { ColunaSchema } from "./coluna.js";
 import { PapelSchema } from "./papel.js";
+import { ComunidadeSchema } from "./comunidade.js";
 
 // Schemas de relacionamentos reutilizados (pick apenas os campos necessários)
 const RegraNegocioSimplifiedSchema = RegraNegocioWithRelationsSchema.pick({
@@ -37,6 +38,12 @@ const PapelSimplifiedSchema = PapelSchema.pick({
   descricao: true,
 });
 
+const DominioSimplifiedSchema = ComunidadeSchema.pick({
+  id: true,
+  nome: true,
+  parentId: true,
+});
+
 // Schema base para dados da regra de qualidade (apenas campos de input)
 const RegraQualidadeBaseSchema = z.object({
   descricao: z
@@ -64,6 +71,9 @@ const RegraQualidadeBaseSchema = z.object({
   responsavelId: z
     .uuid({ message: "responsavelId deve ser um UUID válido" })
     .describe("ID do papel responsável"),
+  dominioId: z
+    .uuid({ message: "dominioId deve ser um UUID válido" })
+    .describe("ID do domínio (comunidade)"),
   empresaId: z.uuid().optional(),
 });
 
@@ -86,9 +96,10 @@ export const UpdateRegraQualidadeSchema = RegraQualidadeBaseSchema.partial();
 export const RegraQualidadeWithRelationsSchema = RegraQualidadeSchema.extend({
   regraNegocio: RegraNegocioSimplifiedSchema.nullable(),
   dimensao: DimensaoQualidadeSimplifiedSchema,
-  tabela: TabelaSimplifiedSchema,
-  coluna: ColunaSimplifiedSchema,
+  tabela: TabelaSimplifiedSchema.nullable(),
+  coluna: ColunaSimplifiedSchema.nullable(),
   responsavel: PapelSimplifiedSchema,
+  dominio: DominioSimplifiedSchema,
 });
 
 // Schema para resposta com regra de qualidade
@@ -115,28 +126,25 @@ export const RegraQualidadeParamsSchema = z.object({
 // Schema para query params
 export const RegraQualidadeQueryParamsSchema = z.object({
   empresaId: z
-    .string()
     .uuid({ message: "empresaId deve ser um UUID válido" })
     .optional(),
   regraNegocioId: z
-    .string()
     .uuid({ message: "regraNegocioId deve ser um UUID válido" })
     .optional(),
   dimensaoId: z
-    .string()
     .uuid({ message: "dimensaoId deve ser um UUID válido" })
     .optional(),
   tabelaId: z
-    .string()
     .uuid({ message: "tabelaId deve ser um UUID válido" })
     .optional(),
   colunaId: z
-    .string()
     .uuid({ message: "colunaId deve ser um UUID válido" })
     .optional(),
   responsavelId: z
-    .string()
     .uuid({ message: "responsavelId deve ser um UUID válido" })
+    .optional(),
+  dominioId: z
+    .uuid({ message: "dominioId deve ser um UUID válido" })
     .optional(),
 });
 

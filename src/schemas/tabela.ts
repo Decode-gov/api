@@ -15,7 +15,7 @@ export const TabelaSchema = z.object({
   id: z.uuid({ message: 'ID deve ser um UUID válido' }).describe('Identificador único da tabela'),
   banco: z.object({
     nome: z.string(),
-  }).optional(),
+  }).nullable().optional(),
   ...TimestampsSchema.partial().shape
 })
 

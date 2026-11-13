@@ -80,6 +80,7 @@ export async function regraQualidadeZodRoutes(fastify: FastifyInstance) {
       body: UpdateRegraQualidadeSchema,
       response: {
         200: RegraQualidadeResponseSchema,
+        400: ErrorResponseSchema,
         404: ErrorResponseSchema
       }
     }

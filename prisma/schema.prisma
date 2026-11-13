@@ -72,8 +72,9 @@ model Comunidade {
   PoliticaInterna PoliticaInterna[]
   definicaos      Definicao[]
 
-  empresaId String?  @map("empresa_id") @db.Uuid
-  empresa   Empresa? @relation(fields: [empresaId], references: [id])
+  empresaId       String?          @map("empresa_id") @db.Uuid
+  empresa         Empresa?         @relation(fields: [empresaId], references: [id])
+  regraQualidades RegraQualidade[]
 
   @@index([parentId])
   @@index([empresaId])
@@ -500,8 +501,8 @@ model Papel {
   regraQualidades RegraQualidade[]
   regraNegocios   RegraNegocio[]
 
-  empresaId        String?           @map("empresa_id") @db.Uuid
-  empresa          Empresa?          @relation(fields: [empresaId], references: [id])
+  empresaId String?  @map("empresa_id") @db.Uuid
+  empresa   Empresa? @relation(fields: [empresaId], references: [id])
 
   @@index([politicaId])
   @@index([empresaId])
@@ -744,6 +745,8 @@ model RegraQualidade {
   coluna         Coluna?           @relation(fields: [colunaId], references: [id])
   responsavelId  String            @map("responsavel_id") @db.Uuid
   responsavel    Papel             @relation(fields: [responsavelId], references: [id])
+  dominioId      String?           @map("dominio_id") @db.Uuid
+  dominio        Comunidade?        @relation(fields: [dominioId], references: [id], onDelete: Cascade)
 
   criticidadesRegulatorias CriticidadeRegulatoria[]
 
